@@ -18,6 +18,7 @@ jobs:
         username: timcoe187
         port: 22
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        source: "docket-onboarding"
-        target: "site/public_html/wp-content/plugins"
+        source: "docket-onboarding/*"
+        target: "site/public_html/wp-content/plugins/docket-onboarding"
+        strip_components: 1
         rm: true

@@ -674,7 +674,12 @@ $email_content .= "<h3>Order Details</h3>";
 $email_content .= "<table style='width: 100%; border-collapse: collapse;'>";
 $email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Plan Type:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . ucfirst($_POST['docket_plan_type']) . "</td></tr>";
 $email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Build Type:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>Fast Build (3 days)</td></tr>";
+$email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Management Type:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . ucfirst($_POST['docket_management_type']) . "</td></tr>";
 $email_content .= "</table><br>";
+
+// WordPress Experience
+$email_content .= "<h3>WordPress Experience</h3>";
+$email_content .= "<p>" . $_POST['wordpress_exp'] . "</p><br>";
 
 // Contact Information
 $email_content .= "<h3>Contact Information</h3>";
@@ -684,7 +689,107 @@ $email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'>
 $email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Phone:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . $_POST['phone_number'] . "</td></tr>";
 $email_content .= "</table><br>";
 
-// Continue formatting other sections...
+// Business Information
+$email_content .= "<h3>Business Information</h3>";
+$email_content .= "<table style='width: 100%; border-collapse: collapse;'>";
+$email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Business Name:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . $_POST['business_name'] . "</td></tr>";
+$email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Business Email:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . $_POST['business_email'] . "</td></tr>";
+$email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Business Address:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . $_POST['business_address'] . "</td></tr>";
+$email_content .= "</table><br>";
+
+// Template Selection
+$email_content .= "<h3>Website Details</h3>";
+$email_content .= "<table style='width: 100%; border-collapse: collapse;'>";
+$email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Template Selected:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . $_POST['website_template_selection'] . "</td></tr>";
+$email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Terms Accepted:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . $_POST['accept_terms'] . "</td></tr>";
+$email_content .= "</table><br>";
+
+// Service Areas
+$email_content .= "<h3>Service Areas</h3>";
+$email_content .= "<ol>";
+for ($i = 1; $i <= 9; $i++) {
+    if (!empty($_POST['servicearea' . $i])) {
+        $email_content .= "<li>" . $_POST['servicearea' . $i] . "</li>";
+    }
+}
+$email_content .= "</ol><br>";
+
+// Blog Focus (if Pro plan)
+if (!empty($_POST['blog_focus'])) {
+    $email_content .= "<h3>Blog Focus</h3>";
+    $email_content .= "<p>" . $_POST['blog_focus'] . "</p><br>";
+}
+
+// Company Branding
+$email_content .= "<h3>Company Branding</h3>";
+$email_content .= "<table style='width: 100%; border-collapse: collapse;'>";
+$email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Logo:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . $_POST['logo_question'] . "</td></tr>";
+$email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Primary Color:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . $_POST['company_colors'] . "</td></tr>";
+if (!empty($_POST['company_colors2'])) {
+    $email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Secondary Color:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . $_POST['company_colors2'] . "</td></tr>";
+}
+$email_content .= "</table><br>";
+
+// Rental Information
+$email_content .= "<h3>Rental Information</h3>";
+$email_content .= "<table style='width: 100%; border-collapse: collapse;'>";
+$email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Dumpster Color:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . $_POST['dumpster_color'] . "</td></tr>";
+$email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Services Offered:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . implode(', ', (array)$_POST['services_offered']) . "</td></tr>";
+if (!empty($_POST['dumpster_types'])) {
+    $email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Dumpster Types:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . implode(', ', (array)$_POST['dumpster_types']) . "</td></tr>";
+}
+$email_content .= "</table>";
+
+// Dumpster Type Details
+if (!empty($_POST['roll_sizes']) || !empty($_POST['roll_pricing'])) {
+    $email_content .= "<h4>Roll-Off Details</h4>";
+    $email_content .= "<ul>";
+    if (!empty($_POST['roll_sizes'])) $email_content .= "<li>Sizes: " . $_POST['roll_sizes'] . "</li>";
+    if (!empty($_POST['roll_pricing'])) $email_content .= "<li>Pricing: " . $_POST['roll_pricing'] . "</li>";
+    $email_content .= "</ul>";
+}
+
+if (!empty($_POST['hook_sizes']) || !empty($_POST['hook_pricing'])) {
+    $email_content .= "<h4>Hook-Lift Details</h4>";
+    $email_content .= "<ul>";
+    if (!empty($_POST['hook_sizes'])) $email_content .= "<li>Sizes: " . $_POST['hook_sizes'] . "</li>";
+    if (!empty($_POST['hook_pricing'])) $email_content .= "<li>Pricing: " . $_POST['hook_pricing'] . "</li>";
+    $email_content .= "</ul>";
+}
+
+if (!empty($_POST['trailer_sizes']) || !empty($_POST['trailer_pricing'])) {
+    $email_content .= "<h4>Dump Trailer Details</h4>";
+    $email_content .= "<ul>";
+    if (!empty($_POST['trailer_sizes'])) $email_content .= "<li>Sizes: " . $_POST['trailer_sizes'] . "</li>";
+    if (!empty($_POST['trailer_pricing'])) $email_content .= "<li>Pricing: " . $_POST['trailer_pricing'] . "</li>";
+    $email_content .= "</ul>";
+}
+$email_content .= "<br>";
+
+// Marketing
+$email_content .= "<h3>Marketing & SEO</h3>";
+$email_content .= "<p><strong>Working with SEO/Marketing Agency:</strong> " . $_POST['marketing_agency'] . "</p><br>";
+
+// File Uploads
+if (!empty($_FILES)) {
+    $email_content .= "<h3>File Uploads</h3>";
+    $email_content .= "<ul>";
+    foreach ($_FILES as $key => $file) {
+        if (is_array($file['name'])) {
+            for ($i = 0; $i < count($file['name']); $i++) {
+                if (!empty($file['name'][$i])) {
+                    $email_content .= "<li>" . $file['name'][$i] . "</li>";
+                }
+            }
+        } else {
+            if (!empty($file['name'])) {
+                $email_content .= "<li>" . $file['name'] . "</li>";
+            }
+        }
+    }
+    $email_content .= "</ul>";
+}
+
 $email_content .= "</body></html>";
 
 // Update headers for HTML email

@@ -664,21 +664,34 @@ function docket_handle_fast_build_submission() {
         wp_send_json_error(array('message' => 'Security check failed'));
     }
     
-    // Prepare email content
-    $email_content = "Fast Build Form Submission\n";
-    $email_content .= "==========================\n\n";
-    
-    // Add all form fields
-    foreach ($_POST as $key => $value) {
-        if ($key !== 'action' && $key !== 'nonce') {
-            $label = ucwords(str_replace('_', ' ', $key));
-            if (is_array($value)) {
-                $email_content .= $label . ": " . implode(', ', $value) . "\n";
-            } else {
-                $email_content .= $label . ": " . $value . "\n";
-            }
-        }
-    }
+// Prepare email content
+$email_content = "<html><body style='font-family: Arial, sans-serif;'>";
+$email_content .= "<h2>Fast Build Form Submission</h2>";
+$email_content .= "<hr style='border: 1px solid #ccc;'><br>";
+
+// Order Information
+$email_content .= "<h3>Order Details</h3>";
+$email_content .= "<table style='width: 100%; border-collapse: collapse;'>";
+$email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Plan Type:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . ucfirst($_POST['docket_plan_type']) . "</td></tr>";
+$email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Build Type:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>Fast Build (3 days)</td></tr>";
+$email_content .= "</table><br>";
+
+// Contact Information
+$email_content .= "<h3>Contact Information</h3>";
+$email_content .= "<table style='width: 100%; border-collapse: collapse;'>";
+$email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Name:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . $_POST['name'] . "</td></tr>";
+$email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Email:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . $_POST['email'] . "</td></tr>";
+$email_content .= "<tr><td style='padding: 8px; border-bottom: 1px solid #eee;'><strong>Phone:</strong></td><td style='padding: 8px; border-bottom: 1px solid #eee;'>" . $_POST['phone_number'] . "</td></tr>";
+$email_content .= "</table><br>";
+
+// Continue formatting other sections...
+$email_content .= "</body></html>";
+
+// Update headers for HTML email
+$headers = array(
+    'Content-Type: text/html; charset=UTF-8',
+    'From: Docket Onboarding <noreply@yourdocketonline.com>'
+);
     
     // Handle file uploads if any
     if (!empty($_FILES)) {

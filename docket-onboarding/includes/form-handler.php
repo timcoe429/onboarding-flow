@@ -42,6 +42,10 @@ function docket_ajax_load_fast_build_form() {
     // Start output buffering
     ob_start();
     
+    // Add CSS link
+    $css_url = DOCKET_ONBOARDING_PLUGIN_URL . 'assets/fast-build-form.css?ver=' . DOCKET_ONBOARDING_VERSION;
+    echo '<link rel="stylesheet" href="' . esc_url($css_url) . '" type="text/css" media="all" />';
+    
     // Render the fast build form
     if (function_exists('docket_render_fast_build_form')) {
         docket_render_fast_build_form($form_data);
@@ -51,6 +55,9 @@ function docket_ajax_load_fast_build_form() {
     
     // Get the output
     $form_html = ob_get_clean();
+    
+    // Apply filter for additional modifications
+    $form_html = apply_filters('docket_fast_build_form_response', $form_html);
     
     wp_send_json_success(array(
         'form_html' => $form_html,
@@ -83,6 +90,10 @@ function docket_ajax_load_standard_build_form() {
     // Start output buffering
     ob_start();
     
+    // Add CSS link
+    $css_url = DOCKET_ONBOARDING_PLUGIN_URL . 'assets/standard-build-form.css?ver=' . DOCKET_ONBOARDING_VERSION;
+    echo '<link rel="stylesheet" href="' . esc_url($css_url) . '" type="text/css" media="all" />';
+    
     // Render the standard build form
     if (function_exists('docket_render_standard_build_form')) {
         docket_render_standard_build_form($form_data);
@@ -92,6 +103,9 @@ function docket_ajax_load_standard_build_form() {
     
     // Get the output
     $form_html = ob_get_clean();
+    
+    // Apply filter for additional modifications
+    $form_html = apply_filters('docket_standard_build_form_response', $form_html);
     
     wp_send_json_success(array(
         'form_html' => $form_html,

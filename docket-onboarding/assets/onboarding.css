@@ -1,0 +1,1213 @@
+/**
+ * Docket Onboarding Plugin Styles
+ * Version: 1.0.1
+ * Updated: Color scheme changes
+ */
+
+/* Reset and Base Styles */
+.docket-onboarding * {
+    box-sizing: border-box;
+}
+
+.docket-onboarding {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    max-width: 1000px;
+    margin: 50px;
+    position: relative;
+}
+
+/* Progress Bar */
+.docket-progress-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 0 auto 30px;
+    padding: 0 60px;
+}
+
+.docket-progress-bar {
+    width: 100%;
+    height: 6px;
+    background: #e2e8f0;
+    border-radius: 3px;
+    position: relative;
+    overflow: hidden;
+}
+
+.docket-progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #185fb0, #1455a0);
+    border-radius: 3px;
+    transition: width 0.6s ease;
+    width: 25%;
+}
+
+.docket-step[data-step="2"] .docket-progress-fill { width: 50%; }
+.docket-step[data-step="3"] .docket-progress-fill { width: 75%; }
+.docket-step[data-step="4"] .docket-progress-fill { width: 100%; }
+
+/* Step Container Base */
+.docket-step {
+    display: none;
+    animation: slideInRight 0.6s ease-out;
+    position: relative;
+    padding-top: 60px;
+}
+
+.docket-step.active {
+    display: block;
+}
+
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
+
+/* Navigation Container */
+.docket-nav-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 15px;
+}
+
+/* Back Button */
+.docket-back-btn {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    background: rgba(255, 255, 255, 0.9);
+    border: 1px solid #e2e8f0;
+    border-radius: 6px;
+    padding: 6px 10px;
+    cursor: pointer;
+    font-size: 0.8rem;
+    color: #4a5568;
+    transition: all 0.3s ease;
+    text-decoration: none;
+    z-index: 10;
+}
+
+.docket-back-btn:hover {
+    background: white;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    color: #4a5568;
+    text-decoration: none;
+}
+
+/* STEP 1 - PLAN SELECTION */
+.docket-step1 .docket-header {
+    text-align: center;
+    padding: 20px 20px 15px;
+}
+
+.docket-step1 .docket-header h1 {
+    font-size: 2rem;
+    color: #2d3748;
+    margin-bottom: 8px;
+    font-weight: 700;
+}
+
+.docket-step1 .docket-header p {
+    color: #718096;
+    font-size: 0.95rem;
+    max-width: 500px;
+    margin: 0 auto;
+    line-height: 1.4;
+}
+
+.docket-plans {
+    display: flex;
+    gap: 20px;
+    padding: 15px;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.docket-plan-card {
+    flex: 1;
+    min-width: 280px;
+    max-width: 400px;
+    background: white;
+    border-radius: 16px;
+    border: 2px solid #e2e8f0;
+    padding: 20px 18px;
+    text-align: center;
+    transition: all 0.4s ease;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.docket-plan-card.grow { 
+    border-color: #7eb10f; 
+}
+
+.docket-plan-card.pro { 
+    border-color: #185fb0; 
+}
+
+.docket-plan-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+    border-color: transparent;
+}
+
+.docket-plan-card.grow:hover {
+    background: linear-gradient(135deg, #7eb10f, #6fa000);
+    color: white;
+}
+
+.docket-plan-card.pro:hover {
+    background: linear-gradient(135deg, #185fb0, #1455a0);
+    color: white;
+}
+
+.docket-plan-card:hover .docket-plan-title,
+.docket-plan-card:hover .docket-plan-subtitle,
+.docket-plan-card:hover .docket-plan-features li {
+    color: white;
+}
+
+.docket-plan-card:hover .docket-plan-features li:before {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.docket-plan-badge {
+    position: absolute;
+    top: -1px;
+    right: 20px;
+    background: linear-gradient(135deg, #185fb0, #1455a0);
+    color: white;
+    padding: 6px 16px;
+    border-radius: 0 0 10px 10px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.docket-plan-icon {
+    width: 50px;
+    height: 50px;
+    margin: 0 auto 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem;
+    font-weight: bold;
+    color: white;
+}
+
+.docket-plan-card.grow .docket-plan-icon {
+    background: linear-gradient(135deg, #7eb10f, #6fa000);
+}
+
+.docket-plan-card.pro .docket-plan-icon {
+    background: linear-gradient(135deg, #185fb0, #1455a0);
+}
+
+.docket-plan-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+    color: #2d3748;
+}
+
+.docket-plan-subtitle {
+    color: #718096;
+    margin-bottom: 15px;
+    font-size: 0.85rem;
+    line-height: 1.3;
+}
+
+.docket-plan-features {
+    list-style: none;
+    margin-bottom: 15px;
+    padding: 0;
+}
+
+.docket-plan-features li {
+    padding: 4px 0;
+    color: #4a5568;
+    font-size: 0.85rem;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    text-align: left;
+}
+
+.docket-plan-features li:before {
+    content: "✓";
+    color: #7eb10f;
+    font-weight: bold;
+    margin-right: 8px;
+    font-size: 0.9rem;
+}
+
+.docket-plan-btn {
+    width: 100%;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.docket-plan-card.grow .docket-plan-btn {
+    background: linear-gradient(135deg, #7eb10f, #6fa000);
+    color: white;
+}
+
+.docket-plan-card.pro .docket-plan-btn {
+    background: linear-gradient(135deg, #185fb0, #1455a0);
+    color: white;
+}
+
+/* STEP 2 - CHECKLIST */
+.docket-step2 .docket-content {
+    padding: 20px 15px;
+}
+
+.docket-step2 .docket-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.docket-step2 .docket-header h2 {
+    font-size: 1.7rem;
+    color: #2d3748;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.docket-step2 .docket-header p {
+    color: #718096;
+    font-size: 0.9rem;
+    line-height: 1.4;
+    margin-bottom: 6px;
+}
+
+.docket-step2 .docket-header .not-ready {
+    color: #e53e3e;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+.docket-checklist {
+    background: transparent;
+    padding: 0;
+    margin-bottom: 20px;
+}
+
+.docket-checklist h3 {
+    color: #2d3748;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+}
+
+.docket-checklist h3:before {
+    content: "📋";
+    margin-right: 8px;
+    font-size: 1.1rem;
+}
+
+.docket-checklist-item {
+    margin-bottom: 10px;
+    padding: 12px 14px;
+    background: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
+    cursor: pointer;
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+}
+
+.docket-checklist-item:hover {
+    background: #f3f4f6;
+}
+
+.docket-checklist-item.checked {
+    background: #f0fdf4;
+    border-color: #7eb10f;
+}
+
+.docket-checklist-checkbox {
+    width: 20px;
+    height: 20px;
+    border: 2px solid #cbd5e0;
+    border-radius: 4px;
+    background: white;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.docket-checklist-item.checked .docket-checklist-checkbox {
+    background: #7eb10f;
+    border-color: #7eb10f;
+}
+
+.docket-checklist-checkbox:after {
+    content: "✓";
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+}
+
+.docket-checklist-item.checked .docket-checklist-checkbox:after {
+    opacity: 1;
+}
+
+.docket-checklist-content {
+    flex: 1;
+    padding-left: 12px;
+}
+
+.docket-checklist-item h4 {
+    color: #2d3748;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 3px;
+    margin-top: 0 !important;
+}
+
+.docket-checklist-item p {
+    color: #4a5568;
+    line-height: 1.3;
+    margin-bottom: 3px;
+    font-size: 0.8rem;
+}
+
+.docket-checklist-item ul {
+    margin-left: 20px;
+    margin-top: 4px;
+    color: #4a5568;
+}
+
+.docket-checklist-item ul li {
+    margin-bottom: 2px;
+    font-size: 0.8rem;
+    line-height: 1.3;
+}
+
+.docket-ready-btn {
+    width: 100%;
+    max-width: 250px;
+    margin: 15px auto 20px;
+    display: block;
+    padding: 12px 30px;
+    background: #e2e8f0;
+    color: #a0aec0;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: not-allowed;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    text-decoration: none;
+    text-align: center;
+    position: relative;
+}
+
+.docket-ready-btn.active {
+    background: linear-gradient(135deg, #7eb10f, #6fa000);
+    color: white;
+    cursor: pointer;
+}
+
+.docket-ready-btn.active.pro-style {
+    background: linear-gradient(135deg, #185fb0, #1455a0);
+}
+
+.docket-ready-btn.active:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 16px rgba(126, 177, 15, 0.4);
+    color: white;
+    text-decoration: none;
+}
+
+.docket-ready-btn.active.pro-style:hover {
+    box-shadow: 0 8px 16px rgba(24, 95, 176, 0.4);
+}
+
+/* STEP 3 & 4 - MANAGEMENT & BUILD TYPE */
+.docket-step3 .docket-content,
+.docket-step4 .docket-content {
+    padding: 20px 15px;
+}
+
+.docket-step3 .docket-header,
+.docket-step4 .docket-header {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.docket-step3 .docket-header h2,
+.docket-step4 .docket-header h2 {
+    font-size: 1.7rem;
+    color: #2d3748;
+    margin-bottom: 10px;
+    font-weight: 700;
+}
+
+.docket-step4 .docket-header .not-ready {
+    color: #e53e3e;
+    font-weight: 600;
+    font-size: 0.85rem;
+}
+
+/* Management Card Specific Colors */
+.docket-plan-card.self-managed {
+    border-color: #7eb10f;
+}
+
+.docket-plan-card.website-vip {
+    border-color: #185fb0;
+}
+
+.docket-plan-card.self-managed:hover {
+    background: linear-gradient(135deg, #7eb10f, #6fa000);
+    color: white;
+}
+
+.docket-plan-card.website-vip:hover {
+    background: linear-gradient(135deg, #185fb0, #1455a0);
+    color: white;
+}
+
+.docket-plan-card.self-managed .docket-plan-icon {
+    background: linear-gradient(135deg, #7eb10f, #6fa000);
+}
+
+.docket-plan-card.website-vip .docket-plan-icon {
+    background: linear-gradient(135deg, #185fb0, #1455a0);
+}
+
+.docket-plan-card.self-managed .docket-plan-btn {
+    background: linear-gradient(135deg, #7eb10f, #6fa000);
+    color: white;
+}
+
+.docket-plan-card.website-vip .docket-plan-btn {
+    background: linear-gradient(135deg, #185fb0, #1455a0);
+    color: white;
+}
+
+.docket-plan-card.website-vip .docket-plan-badge {
+    background: linear-gradient(135deg, #185fb0, #1455a0);
+}
+
+/* Build Type Card Specific Colors */
+.docket-plan-card.fast-build {
+    border-color: #f56565;
+}
+
+.docket-plan-card.standard-build {
+    border-color: #185fb0;
+}
+
+.docket-plan-card.fast-build:hover {
+    background: linear-gradient(135deg, #f56565, #e53e3e);
+    color: white;
+}
+
+.docket-plan-card.standard-build:hover {
+    background: linear-gradient(135deg, #185fb0, #1455a0);
+    color: white;
+}
+
+.docket-plan-card.fast-build .docket-plan-icon {
+    background: linear-gradient(135deg, #f56565, #e53e3e);
+}
+
+.docket-plan-card.standard-build .docket-plan-icon {
+    background: linear-gradient(135deg, #185fb0, #1455a0);
+}
+
+.docket-plan-card.fast-build .docket-plan-btn {
+    background: linear-gradient(135deg, #f56565, #e53e3e);
+    color: white;
+}
+
+.docket-plan-card.standard-build .docket-plan-btn {
+    background: linear-gradient(135deg, #185fb0, #1455a0);
+    color: white;
+}
+
+.docket-plan-card.standard-build .docket-plan-badge {
+    background: linear-gradient(135deg, #185fb0, #1455a0);
+}
+
+/* Warning Box */
+.docket-warning {
+    margin-top: 15px;
+}
+
+.docket-warning-box {
+    background: #fff5f5;
+    border: 2px solid #feb2b2;
+    border-radius: 8px;
+    padding: 12px;
+    text-align: center;
+}
+
+.docket-warning-box p {
+    color: #c53030;
+    font-size: 0.85rem;
+    line-height: 1.4;
+    margin: 0;
+}
+
+/* Benefits Section */
+.docket-benefits {
+    background: transparent;
+    border-radius: 12px;
+    padding: 15px;
+}
+
+.docket-benefits h3 {
+    color: #2d3748;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    text-align: center;
+}
+
+.docket-benefits-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 12px;
+}
+
+.docket-benefit-item {
+    background: white;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    border: 1px solid #185fb0;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    transition: all 0.2s ease;
+}
+
+.docket-benefit-item:hover {
+    box-shadow: 0 4px 12px rgba(24, 95, 176, 0.1);
+    transform: translateY(-2px);
+}
+
+.docket-benefit-item h4 {
+    color: #2d3748;
+    font-size: 0.9rem;
+    font-weight: 700;
+    margin-bottom: 6px;
+}
+
+.docket-benefit-item p {
+    color: #4a5568;
+    font-size: 0.8rem;
+    line-height: 1.3;
+}
+
+/* Feature List Fixes */
+.docket-plan-features li {
+    align-items: flex-start;
+    line-height: 1.3;
+}
+
+.docket-plan-features li:before {
+    margin-top: 1px;
+    flex-shrink: 0;
+}
+
+/* Form Container Styles */
+.docket-form-container {
+    background: white;
+    border-radius: 12px;
+    padding: 30px;
+    margin: 20px auto;
+    max-width: 800px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.docket-form-loading {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.docket-form-loading .docket-spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #e2e8f0;
+    border-top-color: #185fb0;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+/* Success/Error Messages */
+.docket-success-message,
+.docket-error-message {
+    text-align: center;
+    padding: 40px 20px;
+    margin: 20px auto;
+    max-width: 600px;
+    border-radius: 12px;
+}
+
+.docket-success-message {
+    background: #f0fdf4;
+    border: 2px solid #bbf7d0;
+}
+
+.docket-success-icon {
+    width: 60px;
+    height: 60px;
+    margin: 0 auto 20px;
+    background: #7eb10f;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 30px;
+    font-weight: bold;
+}
+
+.docket-error-message {
+    background: #fef2f2;
+    border: 2px solid #fecaca;
+}
+
+.docket-retry-btn {
+    margin-top: 15px;
+    padding: 10px 24px;
+    background: #185fb0;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.docket-retry-btn:hover {
+    background: #1455a0;
+}
+
+/* Avada Form Styling within Onboarding */
+.docket-step5 .fusion-form-wrapper,
+.docket-form-container .fusion-form-wrapper {
+    background: transparent !important;
+    padding: 0 !important;
+    margin: 0 !important;
+    box-shadow: none !important;
+}
+
+.docket-step5 .fusion-form,
+.docket-form-container .fusion-form {
+    background: transparent !important;
+}
+
+/* Form Fields Styling */
+.docket-step5 .fusion-form-field,
+.docket-form-container .fusion-form-field {
+    margin-bottom: 20px !important;
+}
+
+.docket-step5 .fusion-form-label,
+.docket-form-container .fusion-form-label {
+    font-size: 0.9rem !important;
+    font-weight: 600 !important;
+    color: #2d3748 !important;
+    margin-bottom: 8px !important;
+    display: block !important;
+}
+
+.docket-step5 .fusion-form-input,
+.docket-step5 .fusion-form-textarea,
+.docket-step5 .fusion-form-select,
+.docket-form-container .fusion-form-input,
+.docket-form-container .fusion-form-textarea,
+.docket-form-container .fusion-form-select {
+    width: 100% !important;
+    padding: 12px 16px !important;
+    border: 2px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    font-size: 0.95rem !important;
+    background: white !important;
+    transition: all 0.3s ease !important;
+    box-shadow: none !important;
+    font-family: inherit !important;
+}
+
+.docket-step5 .fusion-form-input:focus,
+.docket-step5 .fusion-form-textarea:focus,
+.docket-step5 .fusion-form-select:focus,
+.docket-form-container .fusion-form-input:focus,
+.docket-form-container .fusion-form-textarea:focus,
+.docket-form-container .fusion-form-select:focus {
+    border-color: #185fb0 !important;
+    outline: none !important;
+    box-shadow: 0 0 0 3px rgba(24, 95, 176, 0.1) !important;
+}
+
+/* Radio Buttons and Checkboxes */
+.docket-step5 .fusion-form-radio-button-set,
+.docket-step5 .fusion-form-checkbox-button-set,
+.docket-form-container .fusion-form-radio-button-set,
+.docket-form-container .fusion-form-checkbox-button-set {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 12px !important;
+}
+
+.docket-step5 .fusion-form-radio,
+.docket-step5 .fusion-form-checkbox,
+.docket-form-container .fusion-form-radio,
+.docket-form-container .fusion-form-checkbox {
+    display: flex !important;
+    align-items: center !important;
+    gap: 10px !important;
+    cursor: pointer !important;
+    padding: 12px 16px !important;
+    background: #f8f9fa !important;
+    border: 2px solid #e2e8f0 !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+}
+
+.docket-step5 .fusion-form-radio:hover,
+.docket-step5 .fusion-form-checkbox:hover,
+.docket-form-container .fusion-form-radio:hover,
+.docket-form-container .fusion-form-checkbox:hover {
+    background: #f3f4f6 !important;
+    border-color: #cbd5e0 !important;
+}
+
+.docket-step5 .fusion-form-radio input[type="radio"],
+.docket-step5 .fusion-form-checkbox input[type="checkbox"],
+.docket-form-container .fusion-form-radio input[type="radio"],
+.docket-form-container .fusion-form-checkbox input[type="checkbox"] {
+    width: 20px !important;
+    height: 20px !important;
+    flex-shrink: 0 !important;
+    cursor: pointer !important;
+}
+
+.docket-step5 .fusion-form-radio input[type="radio"]:checked,
+.docket-form-container .fusion-form-radio input[type="radio"]:checked {
+    accent-color: #185fb0 !important;
+}
+
+.docket-step5 .fusion-form-checkbox input[type="checkbox"]:checked,
+.docket-form-container .fusion-form-checkbox input[type="checkbox"]:checked {
+    accent-color: #7eb10f !important;
+}
+
+/* Submit Button */
+.docket-step5 .fusion-form-submit-button,
+.docket-form-container .fusion-form-submit-button {
+    background: linear-gradient(135deg, #185fb0, #1455a0) !important;
+    color: white !important;
+    padding: 14px 40px !important;
+    border: none !important;
+    border-radius: 8px !important;
+    font-size: 1rem !important;
+    font-weight: 700 !important;
+    text-transform: uppercase !important;
+    letter-spacing: 1px !important;
+    cursor: pointer !important;
+    transition: all 0.3s ease !important;
+    width: 100% !important;
+    max-width: 300px !important;
+    margin: 30px auto 0 !important;
+    display: block !important;
+    box-shadow: 0 4px 12px rgba(24, 95, 176, 0.2) !important;
+}
+
+.docket-step5 .fusion-form-submit-button:hover,
+.docket-form-container .fusion-form-submit-button:hover {
+    transform: translateY(-2px) !important;
+    box-shadow: 0 8px 20px rgba(24, 95, 176, 0.3) !important;
+}
+
+/* Progress/Steps if Avada form has them */
+.docket-step5 .fusion-form-progress,
+.docket-form-container .fusion-form-progress {
+    display: none !important; /* Hide since we have our own progress bar */
+}
+
+/* Error Messages */
+.docket-step5 .fusion-form-error-message,
+.docket-form-container .fusion-form-error-message {
+    color: #e53e3e !important;
+    font-size: 0.85rem !important;
+    margin-top: 5px !important;
+    display: block !important;
+}
+
+/* Success Message */
+.docket-step5 .fusion-form-response-message,
+.docket-form-container .fusion-form-response-message {
+    background: #f0fdf4 !important;
+    border: 2px solid #bbf7d0 !important;
+    border-radius: 8px !important;
+    padding: 16px !important;
+    margin: 20px 0 !important;
+    text-align: center !important;
+    color: #22543d !important;
+    font-weight: 600 !important;
+}
+
+/* Required Field Asterisk */
+.docket-step5 .fusion-form-label .required,
+.docket-form-container .fusion-form-label .required {
+    color: #e53e3e !important;
+    font-weight: 700 !important;
+}
+
+/* Form Sections/Groups */
+.docket-step5 .fusion-form-section,
+.docket-form-container .fusion-form-section {
+    background: #f8f9fa !important;
+    border-radius: 12px !important;
+    padding: 20px !important;
+    margin-bottom: 20px !important;
+    border: 1px solid #e2e8f0 !important;
+}
+
+.docket-step5 .fusion-form-section-title,
+.docket-form-container .fusion-form-section-title {
+    font-size: 1.1rem !important;
+    font-weight: 700 !important;
+    color: #2d3748 !important;
+    margin-bottom: 16px !important;
+}
+
+/* File Upload Fields */
+.docket-step5 .fusion-form-upload,
+.docket-form-container .fusion-form-upload {
+    border: 2px dashed #cbd5e0 !important;
+    border-radius: 8px !important;
+    padding: 20px !important;
+    text-align: center !important;
+    background: #f8f9fa !important;
+    transition: all 0.3s ease !important;
+}
+
+.docket-step5 .fusion-form-upload:hover,
+.docket-form-container .fusion-form-upload:hover {
+    border-color: #185fb0 !important;
+    background: #f3f4f6 !important;
+}
+
+/* Remove any Avada default backgrounds/borders */
+.docket-step5 .fusion-form-wrapper *,
+.docket-form-container .fusion-form-wrapper * {
+    background-image: none !important;
+}
+
+/* Placeholder text */
+.docket-step5 .fusion-form-input::placeholder,
+.docket-step5 .fusion-form-textarea::placeholder,
+.docket-form-container .fusion-form-input::placeholder,
+.docket-form-container .fusion-form-textarea::placeholder {
+    color: #a0aec0 !important;
+    opacity: 1 !important;
+}
+
+/* Loading state for form submission */
+.docket-step5 .fusion-form-submitting .fusion-form-submit-button,
+.docket-form-container .fusion-form-submitting .fusion-form-submit-button {
+    opacity: 0.7 !important;
+    cursor: not-allowed !important;
+}
+
+.docket-step5 .fusion-form-submitting .fusion-form-submit-button:after,
+.docket-form-container .fusion-form-submitting .fusion-form-submit-button:after {
+    content: "..." !important;
+    display: inline-block !important;
+    margin-left: 5px !important;
+    animation: dots 1.5s infinite !important;
+}
+
+@keyframes dots {
+    0%, 20% { content: "." !important; }
+    40% { content: ".." !important; }
+    60%, 100% { content: "..." !important; }
+}
+
+/* MOBILE RESPONSIVE */
+@media (max-width: 768px) {
+    /* General mobile adjustments */
+    .docket-onboarding {
+        margin: 0;
+        padding: 0 10px;
+    }
+
+    /* Navigation and Progress Bar */
+    .docket-step {
+        padding-top: 50px;
+    }
+
+    .docket-nav-container {
+        padding: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .docket-progress-container {
+        max-width: 100%;
+        padding: 0;
+        margin: 10px 0 15px;
+        order: 2;
+    }
+
+    .docket-back-btn {
+        padding: 5px 12px;
+        font-size: 0.8rem;
+        position: relative;
+        top: auto;
+        left: auto;
+        order: 1;
+        align-self: flex-start;
+        margin-bottom: 10px;
+    }
+
+    /* Headers - Better sizing */
+    .docket-step1 .docket-header h1 {
+        font-size: 1.75rem !important;
+        line-height: 1.2;
+        margin-bottom: 10px;
+    }
+    
+    .docket-step2 .docket-header h2,
+    .docket-step3 .docket-header h2,
+    .docket-step4 .docket-header h2 {
+        font-size: 1.5rem;
+        line-height: 1.2;
+        margin-bottom: 10px;
+    }
+    
+    .docket-step1 .docket-header p,
+    .docket-step2 .docket-header p {
+        font-size: 0.85rem;
+        padding: 0;
+    }
+
+    /* Plan Cards - Better proportions */
+    .docket-plans {
+        padding: 10px 0;
+        gap: 12px;
+        flex-direction: column;
+    }
+
+    .docket-plan-card {
+        width: 100%;
+        max-width: none;
+        min-width: unset;
+        padding: 20px;
+        margin: 0;
+    }
+
+    .docket-plan-badge {
+        font-size: 0.7rem;
+        padding: 4px 12px;
+        right: 15px;
+    }
+
+    .docket-plan-icon {
+        width: 45px;
+        height: 45px;
+        font-size: 1.2rem;
+        margin-bottom: 12px;
+    }
+
+    .docket-plan-title {
+        font-size: 1.4rem !important;
+        margin-bottom: 8px;
+    }
+
+    .docket-plan-subtitle {
+        font-size: 0.85rem;
+        margin-bottom: 15px;
+    }
+
+    .docket-plan-features {
+        margin-bottom: 15px;
+    }
+
+    .docket-plan-features li {
+        font-size: 0.85rem;
+        padding: 4px 0;
+    }
+
+    .docket-plan-btn {
+        padding: 12px 24px;
+        font-size: 0.95rem;
+    }
+
+    /* Checklist */
+    .docket-step2 .docket-content,
+    .docket-step3 .docket-content,
+    .docket-step4 .docket-content {
+        padding: 15px 0;
+    }
+
+    .docket-checklist h3 {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+    }
+
+    .docket-checklist-item {
+        margin-bottom: 10px;
+        padding: 12px;
+    }
+
+    .docket-checklist-checkbox {
+        width: 20px;
+        height: 20px;
+        margin-top: 0;
+    }
+
+    .docket-checklist-checkbox:after {
+        font-size: 14px;
+    }
+
+    .docket-checklist-content {
+        padding-left: 12px;
+    }
+
+    .docket-checklist-item h4 {
+        font-size: 0.9rem;
+        margin-bottom: 3px;
+        margin-top: 0 !important;
+    }
+
+    .docket-checklist-item p {
+        font-size: 0.8rem;
+        line-height: 1.4;
+    }
+
+    .docket-checklist-item ul li {
+        font-size: 0.8rem;
+    }
+
+    /* Ready Button */
+    .docket-ready-btn {
+        max-width: 100%;
+        padding: 12px 24px;
+        font-size: 0.95rem;
+        margin: 15px auto 20px;
+    }
+
+    /* Benefits Grid - Single column on mobile */
+    .docket-benefits {
+        padding: 15px 0;
+    }
+
+    .docket-benefits h3 {
+        font-size: 1.1rem;
+        margin-bottom: 15px;
+    }
+
+    .docket-benefits-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    .docket-benefit-item {
+        padding: 12px;
+    }
+
+    .docket-benefit-item h4 {
+        font-size: 0.9rem;
+        margin-bottom: 5px;
+    }
+
+    .docket-benefit-item p {
+        font-size: 0.8rem;
+        line-height: 1.4;
+    }
+
+    /* Warning Box */
+    .docket-warning-box {
+        padding: 10px;
+    }
+
+    .docket-warning-box p {
+        font-size: 0.8rem;
+    }
+
+    /* Fix headers with better spacing */
+    .docket-step1 .docket-header {
+        padding: 0 0 15px;
+    }
+    
+    .docket-step2 .docket-header,
+    .docket-step3 .docket-header,
+    .docket-step4 .docket-header {
+        padding: 0 0 15px;
+    }
+    
+    /* Add top padding for vertical centering on mobile */
+    .docket-onboarding .docket-step2 .docket-header,
+    .docket-onboarding .docket-step3 .docket-header,
+    .docket-onboarding .docket-step4 .docket-header {
+        padding: 30px 0 0 0 !important;
+    }
+
+    /* Fix any hover states that don't work well on mobile */
+    .docket-plan-card:hover {
+        transform: none;
+    }
+
+    .docket-ready-btn.active:hover {
+        transform: none;
+    }
+
+    .docket-benefit-item:hover {
+        transform: none;
+    }
+
+    /* Form Container Mobile */
+    .docket-form-container {
+        padding: 20px 15px;
+        margin: 10px 0;
+    }
+}

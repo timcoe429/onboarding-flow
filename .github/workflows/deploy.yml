@@ -1,0 +1,28 @@
+name: Deploy to WPMUdev
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Deploy to server
+      uses: appleboy/scp-action@v0.1.5
+      with:
+        host: yourdocketonline.tempurl.host
+        username: timcoe187
+        port: 22
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        # Only copy the docket-onboarding folder
+        source: "docket-onboarding/*"
+        # Target path on your server
+        target: "public_html/wp-content/plugins/"
+        # Remove docket-onboarding/ prefix from source
+        strip_components: 1
+        # Remove old files before copying
+        rm: true

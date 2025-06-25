@@ -39,63 +39,23 @@ function docket_render_fast_build_form($form_data = array()) {
             <input type="hidden" name="docket_build_type" value="<?php echo esc_attr($build_type); ?>">
             <input type="hidden" name="select_your_docket_plan" value="<?php echo esc_attr(ucfirst($plan_type)); ?>">
 
-            <!-- Step 1: WordPress Knowledge -->
+            <!-- Step 1: Terms & WordPress Knowledge -->
             <div class="form-step active" data-step="1">
-                <h2>WordPress/Elementor Experience</h2>
-                <p class="step-subtitle">How would you rate your experience?</p>
+                <h2>Fast Build Website</h2>
+                <p class="step-subtitle">Let's start by reviewing the terms and checking your WordPress experience</p>
                 
-                <div class="radio-group">
-                    <label class="radio-card">
-                        <input type="radio" name="wordpress_exp" value="Beginner" required>
-                        <div class="radio-card-content">
-                            <strong>Beginner</strong>
-                            <span>I've never used WordPress/Elementor or only a few times</span>
-                        </div>
-                    </label>
-                    
-                    <label class="radio-card">
-                        <input type="radio" name="wordpress_exp" value="Intermediate" required>
-                        <div class="radio-card-content">
-                            <strong>Intermediate</strong>
-                            <span>I've used it enough to feel comfortable making edits</span>
-                        </div>
-                    </label>
-                    
-                    <label class="radio-card">
-                        <input type="radio" name="wordpress_exp" value="Expert" required>
-                        <div class="radio-card-content">
-                            <strong>Expert</strong>
-                            <span>I use it regularly and am very confident</span>
-                        </div>
-                    </label>
-                </div>
-
-                <div class="notice-box" id="wpNotice" style="display: none;">
-                    <p class="notice-text"></p>
-                </div>
-
-                <div class="form-nav">
-                    <button type="button" class="btn-next">Next</button>
-                </div>
-            </div>
-
-            <!-- Step 2: Terms -->
-            <div class="form-step" data-step="2">
-                <h2>Terms & Conditions</h2>
-                <p class="step-subtitle">Please review and accept to continue</p>
-                
-                <div class="terms-box">
+                <!-- Terms Section -->
+                <div class="terms-box mb-20">
                     <div class="terms-content">
-                        <h4>Website Design & Development Agreement</h4>
-                        <p>By accepting, you agree to Docket's standard terms for website design and development.</p>
-                        
-                        <h5>Key Points:</h5>
+                        <h4>Fast Build Terms & Conditions</h4>
+                        <p>By proceeding with the Fast Build option, you understand:</p>
                         <ul>
+                            <li>Your website will be ready in 3 days</li>
+                            <li>Zero revisions before launch - customization is your responsibility</li>
+                            <li>Stock content and images will be used</li>
+                            <li>You'll need WordPress/Elementor knowledge to customize</li>
                             <li>Payment is due immediately to begin work</li>
-                            <li>You must provide all materials before project start</li>
-                            <li>Changes after launch are $175/hour</li>
-                            <li>Website ownership remains with Docket</li>
-                            <li>Backend access is limited to Docket only</li>
+                            <li>Changes after launch are charged at $175/hour</li>
                         </ul>
                         
                         <p class="terms-link">
@@ -108,17 +68,51 @@ function docket_render_fast_build_form($form_data = array()) {
                         <span>I accept the terms & conditions</span>
                     </label>
                 </div>
+                
+                <!-- WordPress Experience -->
+                <div class="form-field">
+                    <label>WordPress/Elementor Experience *</label>
+                    <p class="field-note">How would you rate your experience?</p>
+                    <div class="radio-group">
+                        <label class="radio-card">
+                            <input type="radio" name="wordpress_exp" value="Beginner" required>
+                            <div class="radio-card-content">
+                                <strong>Beginner</strong>
+                                <span>I've never used WordPress/Elementor or only a few times</span>
+                            </div>
+                        </label>
+                        
+                        <label class="radio-card">
+                            <input type="radio" name="wordpress_exp" value="Intermediate" required>
+                            <div class="radio-card-content">
+                                <strong>Intermediate</strong>
+                                <span>I've used it enough to feel comfortable making edits</span>
+                            </div>
+                        </label>
+                        
+                        <label class="radio-card">
+                            <input type="radio" name="wordpress_exp" value="Expert" required>
+                            <div class="radio-card-content">
+                                <strong>Expert</strong>
+                                <span>I use it regularly and am very confident</span>
+                            </div>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="notice-box" id="wpNotice" style="display: none;">
+                    <p class="notice-text"></p>
+                </div>
 
                 <div class="form-nav">
-                    <button type="button" class="btn-prev">Back</button>
                     <button type="button" class="btn-next">Next</button>
                 </div>
             </div>
 
-            <!-- Step 3: Contact Info -->
-            <div class="form-step" data-step="3">
-                <h2>Contact & Business Info</h2>
-                <p class="step-subtitle">This will be displayed on your website</p>
+            <!-- Step 2: Contact & Business Info -->
+            <div class="form-step" data-step="2">
+                <h2>Contact & Business Information</h2>
+                <p class="step-subtitle">This information will be displayed on your website</p>
                 
                 <div class="form-grid-2col">
                     <div class="form-field">
@@ -141,16 +135,56 @@ function docket_render_fast_build_form($form_data = array()) {
                         <input type="tel" name="phone_number" autocomplete="tel" required>
                     </div>
                     
-                    <div class="form-field full-width">
+                    <div class="form-field">
                         <label>Business Email *</label>
                         <input type="email" name="business_email" autocomplete="email" required>
                     </div>
                     
-                    <div class="form-field full-width">
+                    <div class="form-field">
                         <label>Business Address *</label>
-                        <input type="text" name="business_address" autocomplete="street-address"  required>
+                        <input type="text" name="business_address" autocomplete="street-address" placeholder="123 Main St, Denver, CO" required>
                     </div>
                 </div>
+
+                <div class="form-nav">
+                    <button type="button" class="btn-prev">Back</button>
+                    <button type="button" class="btn-next">Next</button>
+                </div>
+            </div>
+
+            <!-- Step 3: Template Information -->
+            <div class="form-step" data-step="3">
+                <h2>Fast Build Template Information</h2>
+                <p class="step-subtitle">Important information about your Fast Build template</p>
+                
+                <div class="info-box">
+                    <h4>What's Included in Fast Build</h4>
+                    
+                    <div class="info-section">
+                        <h5>Stock Content Only</h5>
+                        <p>Your website will be built with placeholder content and stock images. You'll need to customize all text and images after launch.</p>
+                    </div>
+
+                    <div class="info-section">
+                        <h5>No Revisions</h5>
+                        <p>Fast Build includes zero revision rounds. What you see in the template preview is what you'll receive.</p>
+                    </div>
+
+                    <div class="info-section">
+                        <h5>Self-Customization Required</h5>
+                        <p>You'll receive WordPress/Elementor access to customize your site. Make sure you're comfortable with these tools.</p>
+                    </div>
+
+                    <div class="info-section">
+                        <h5>3-Day Turnaround</h5>
+                        <p>Your website will be ready to launch within 3 business days of payment and domain setup.</p>
+                    </div>
+                </div>
+                
+                <label class="checkbox-card">
+                    <input type="checkbox" name="understand_fast_build" value="understood" required>
+                    <span>I understand the Fast Build limitations and am ready to proceed</span>
+                </label>
 
                 <div class="form-nav">
                     <button type="button" class="btn-prev">Back</button>
@@ -203,15 +237,16 @@ function docket_render_fast_build_form($form_data = array()) {
                 </div>
             </div>
 
-            <!-- Step 5: Service Areas -->
+            <!-- Step 5: Service Areas & Blog Focus -->
             <div class="form-step" data-step="5">
                 <h2>Service Areas</h2>
                 <p class="step-subtitle">List up to 9 areas you service (cities, counties, regions)</p>
                 
                 <?php if ($plan_type === 'pro'): ?>
-                <div class="form-field" style="margin-bottom: 30px;">
+                <div class="form-field mb-30">
                     <label>Blog Content Focus *</label>
-                    <div class="radio-group compact">
+                    <p class="field-note">Since you selected the Pro plan, choose your blog content focus</p>
+                    <div class="radio-group">
                         <label class="radio-card">
                             <input type="radio" name="blog_focus" value="Residential" required>
                             <div class="radio-card-content">Residential Focus</div>
@@ -230,7 +265,7 @@ function docket_render_fast_build_form($form_data = array()) {
                 
                 <div class="service-areas-grid">
                     <?php for ($i = 1; $i <= 9; $i++): ?>
-                    <div class="form-field">
+                    <div class="service-area-field">
                         <label><?php echo $i; ?>.</label>
                         <input type="text" name="servicearea<?php echo $i; ?>" placeholder="City, State">
                     </div>
@@ -274,16 +309,22 @@ function docket_render_fast_build_form($form_data = array()) {
                     </div>
                 </div>
                 
+                <div class="info-box mb-20">
+                    <p><strong>Company Colors</strong></p>
+                    <p>We need the exact HEX code of the colors you'd like us to use. You can use <a href="https://imagecolorpicker.com" target="_blank">this tool</a> to find exact HEX codes.</p>
+                </div>
+                
                 <div class="form-grid-2col">
                     <div class="form-field">
                         <label>Primary Color (HEX) *</label>
                         <input type="text" name="company_colors" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" placeholder="#00008B" required>
-                        <small>Use <a href="https://imagecolorpicker.com" target="_blank">this tool</a> to find HEX codes</small>
+                        <small>Please provide a HEX code</small>
                     </div>
                     
                     <div class="form-field">
                         <label>Secondary Color (HEX)</label>
                         <input type="text" name="company_colors2" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" placeholder="#FF6B6B">
+                        <small>Optional second color</small>
                     </div>
                 </div>
 
@@ -296,10 +337,11 @@ function docket_render_fast_build_form($form_data = array()) {
             <!-- Step 7: Rentals Info -->
             <div class="form-step" data-step="7">
                 <h2>Rental Information</h2>
-                <p class="step-subtitle">Tell us about your services</p>
+                <p class="step-subtitle">Tell us about your services (we'll use stock images and content)</p>
                 
                 <div class="form-field">
                     <label>Dumpster Colors *</label>
+                    <p class="field-note">We have stock images for these colors</p>
                     <div class="color-grid">
                         <label class="color-option">
                             <input type="radio" name="dumpster_color" value="Black" required>
@@ -331,59 +373,43 @@ function docket_render_fast_build_form($form_data = array()) {
                             <span class="color-box" style="background: #666"></span>
                             <span>Grey</span>
                         </label>
-                        <label class="color-option">
-                            <input type="radio" name="dumpster_color" value="Custom" required>
-                            <span class="color-box" style="background: linear-gradient(45deg, #ddd 25%, transparent 25%)"></span>
-                            <span>Custom</span>
-                        </label>
                     </div>
                 </div>
                 
                 <div class="form-field">
                     <label>Services Offered *</label>
-                    <label class="checkbox-card">
-                        <input type="checkbox" name="services_offered[]" value="Dumpster Rentals" checked>
-                        <span>Dumpster Rentals</span>
-                    </label>
-                    <label class="checkbox-card">
-                        <input type="checkbox" name="services_offered[]" value="Junk Removal">
-                        <span>Junk Removal</span>
-                    </label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="services_offered[]" value="Dumpster Rentals" checked>
+                            <span>Dumpster Rentals</span>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="services_offered[]" value="Junk Removal">
+                            <span>Junk Removal</span>
+                        </label>
+                    </div>
                 </div>
                 
                 <div class="form-field">
                     <label>Dumpster Types</label>
-                    <label class="checkbox-card">
-                        <input type="checkbox" name="dumpster_types[]" value="Roll-Off" class="dumpster-type">
-                        <span>Roll-Off</span>
-                    </label>
-                    <label class="checkbox-card">
-                        <input type="checkbox" name="dumpster_types[]" value="Hook-Lift" class="dumpster-type">
-                        <span>Hook-Lift</span>
-                    </label>
-                    <label class="checkbox-card">
-                        <input type="checkbox" name="dumpster_types[]" value="Dump Trailers" class="dumpster-type">
-                        <span>Dump Trailers</span>
-                    </label>
+                    <div class="checkbox-group">
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="dumpster_types[]" value="Roll-Off" class="dumpster-type">
+                            <span>Roll-Off</span>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="dumpster_types[]" value="Hook-Lift" class="dumpster-type">
+                            <span>Hook-Lift</span>
+                        </label>
+                        <label class="checkbox-card">
+                            <input type="checkbox" name="dumpster_types[]" value="Dump Trailers" class="dumpster-type">
+                            <span>Dump Trailers</span>
+                        </label>
+                    </div>
                 </div>
 
-                <!-- Dynamic sections for each type -->
-                <div id="rollOffInfo" class="rental-info" style="display: none;">
-                    <h4>Roll-Off Details</h4>
-                    <input type="text" name="roll_sizes" placeholder="Sizes (e.g., 10yd, 20yd, 30yd)">
-                    <input type="text" name="roll_pricing" placeholder="Starting price (e.g., $299+)">
-                </div>
-
-                <div id="hookLiftInfo" class="rental-info" style="display: none;">
-                    <h4>Hook-Lift Details</h4>
-                    <input type="text" name="hook_sizes" placeholder="Sizes">
-                    <input type="text" name="hook_pricing" placeholder="Starting price">
-                </div>
-
-                <div id="dumpTrailerInfo" class="rental-info" style="display: none;">
-                    <h4>Dump Trailer Details</h4>
-                    <input type="text" name="trailer_sizes" placeholder="Sizes">
-                    <input type="text" name="trailer_pricing" placeholder="Starting price">
+                <div class="info-box">
+                    <p><strong>Note:</strong> Fast Build uses stock pricing and sizes. You'll need to update these after launch.</p>
                 </div>
 
                 <div class="form-nav">
@@ -433,7 +459,7 @@ function docket_render_fast_build_form($form_data = array()) {
 
                 <div class="form-nav">
                     <button type="button" class="btn-prev">Back</button>
-                    <button type="submit" class="btn-submit">Complete Order</button>
+                    <button type="submit" class="btn-submit">Complete Fast Build Order</button>
                 </div>
             </div>
         </form>
@@ -441,639 +467,11 @@ function docket_render_fast_build_form($form_data = array()) {
         <!-- Success Screen -->
         <div class="form-success" style="display: none;">
             <div class="success-icon">✓</div>
-            <h2>Order Submitted!</h2>
-            <p>Thank you! We'll start building your website right away.</p>
-            <p class="success-note">You'll receive a confirmation email shortly.</p>
+            <h2>Fast Build Order Submitted!</h2>
+            <p>Thank you! Your Fast Build website will be ready in 3 business days.</p>
+            <p class="success-note">You'll receive a confirmation email shortly with next steps.</p>
         </div>
     </div>
-
-    <style>
-    /* Clean, Modern Form Styles */
-    .docket-fast-form {
-        max-width: 1000px;
-        margin: 0 auto;
-        padding: 20px;
-        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    }
-
-    /* Progress Bar */
-    .docket-form-progress {
-        margin-bottom: 30px;
-    }
-
-    .docket-progress-track {
-        height: 4px;
-        background: #e5e7eb;
-        border-radius: 2px;
-        overflow: hidden;
-        margin-bottom: 20px;
-    }
-
-    .docket-progress-fill {
-        height: 100%;
-        background: #185fb0;
-        transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        width: 12.5%;
-    }
-
-    .docket-progress-dots {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 0 10px;
-    }
-
-    .docket-progress-dots span {
-        width: 28px;
-        height: 28px;
-        border-radius: 50%;
-        background: #e5e7eb;
-        color: #9ca3af;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 12px;
-        font-weight: 600;
-        transition: all 0.3s ease;
-    }
-
-    .docket-progress-dots span.active {
-        background: #185fb0;
-        color: white;
-        transform: scale(1.15);
-    }
-
-    .docket-progress-dots span.completed {
-        background: #7eb10f;
-        color: white;
-    }
-
-    /* Form Steps */
-    .form-step {
-        display: none;
-        animation: fadeIn 0.4s ease;
-    }
-
-    .form-step.active {
-        display: block;
-    }
-
-    @keyframes fadeIn {
-        from {
-            opacity: 0;
-            transform: translateY(10px);
-        }
-        to {
-            opacity: 1;
-            transform: translateY(0);
-        }
-    }
-
-    .form-step h2 {
-        font-size: 26px;
-        font-weight: 700;
-        color: #111827;
-        margin-bottom: 6px;
-    }
-
-    .step-subtitle {
-        color: #6b7280;
-        font-size: 15px;
-        margin-bottom: 24px;
-    }
-
-    /* Form Fields */
-    .form-field {
-        margin-bottom: 18px;
-    }
-
-    .form-field label {
-        display: block;
-        font-size: 14px;
-        font-weight: 600;
-        color: #374151;
-        margin-bottom: 6px;
-    }
-
-    .form-field input[type="text"],
-    .form-field input[type="email"],
-    .form-field input[type="tel"] {
-        width: 100%;
-        padding: 10px 14px;
-        border: 2px solid #e5e7eb;
-        border-radius: 6px;
-        font-size: 15px;
-        transition: all 0.2s ease;
-    }
-
-    .form-field input:focus {
-        outline: none;
-        border-color: #185fb0;
-        box-shadow: 0 0 0 3px rgba(24, 95, 176, 0.1);
-    }
-
-    .form-field small {
-        display: block;
-        margin-top: 4px;
-        color: #6b7280;
-        font-size: 12px;
-    }
-
-    /* Grid Layouts */
-    .form-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 16px;
-    }
-
-    .form-grid-2col {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px 20px;
-    }
-
-    .full-width {
-        grid-column: 1 / -1;
-    }
-
-    .service-areas-grid {
-        display: grid;
-        grid-template-columns: repeat(3, 1fr);
-        gap: 12px;
-    }
-
-    /* Radio Cards */
-    .radio-card {
-        display: block;
-        margin-bottom: 10px;
-        cursor: pointer;
-    }
-
-    .radio-card input {
-        position: absolute;
-        opacity: 0;
-    }
-
-    .radio-card-content {
-        display: block;
-        padding: 16px;
-        border: 2px solid #e5e7eb;
-        border-radius: 8px;
-        background: white;
-        transition: all 0.2s ease;
-    }
-
-    .radio-card:hover .radio-card-content {
-        border-color: #d1d5db;
-        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-    }
-
-    .radio-card input:checked + .radio-card-content {
-        border-color: #185fb0;
-        background: #eff6ff;
-    }
-
-    .radio-card-content strong {
-        display: block;
-        font-size: 15px;
-        color: #111827;
-        margin-bottom: 2px;
-    }
-
-    .radio-card-content span {
-        font-size: 13px;
-        color: #6b7280;
-        line-height: 1.4;
-    }
-
-    /* Compact radio group */
-    .radio-group.compact .radio-card {
-        margin-bottom: 8px;
-    }
-
-    .radio-group.compact .radio-card-content {
-        padding: 12px 16px;
-        font-size: 14px;
-    }
-
-    /* Inline Radio */
-    .radio-inline {
-        display: flex;
-        gap: 20px;
-    }
-
-    .radio-inline label {
-        display: flex;
-        align-items: center;
-        cursor: pointer;
-    }
-
-    .radio-inline input {
-        margin-right: 6px;
-    }
-
-    /* Checkbox Cards */
-    .checkbox-card {
-        display: flex;
-        align-items: center;
-        padding: 12px 16px;
-        border: 2px solid #e5e7eb;
-        border-radius: 6px;
-        margin-bottom: 10px;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .checkbox-card:hover {
-        border-color: #d1d5db;
-        background: #f9fafb;
-    }
-
-    .checkbox-card input {
-        margin-right: 10px;
-    }
-
-    .checkbox-card input:checked + span {
-        font-weight: 600;
-        color: #111827;
-    }
-
-    /* Template Grid */
-    .template-grid {
-        display: grid;
-        grid-template-columns: repeat(2, 1fr);
-        gap: 16px;
-        margin-bottom: 24px;
-    }
-
-    .template-card {
-        cursor: pointer;
-    }
-
-    .template-card input {
-        position: absolute;
-        opacity: 0;
-    }
-
-    .template-preview {
-        display: block;
-        border: 3px solid #e5e7eb;
-        border-radius: 8px;
-        overflow: hidden;
-        transition: all 0.2s ease;
-    }
-
-    .template-preview img {
-        width: 100%;
-        height: 140px;
-        object-fit: cover;
-    }
-
-    .template-name {
-        display: block;
-        padding: 10px;
-        text-align: center;
-        font-weight: 600;
-        color: #374151;
-        font-size: 14px;
-    }
-
-    .template-card:hover .template-preview {
-        border-color: #d1d5db;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    .template-card input:checked + .template-preview {
-        border-color: #185fb0;
-    }
-
-    /* Color Grid */
-    .color-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(90px, 1fr));
-        gap: 10px;
-    }
-
-    .color-option {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        cursor: pointer;
-        padding: 10px;
-        border-radius: 6px;
-        transition: all 0.2s ease;
-    }
-
-    .color-option:hover {
-        background: #f3f4f6;
-    }
-
-    .color-option input {
-        position: absolute;
-        opacity: 0;
-    }
-
-    .color-box {
-        width: 36px;
-        height: 36px;
-        border-radius: 6px;
-        margin-bottom: 6px;
-        border: 2px solid transparent;
-        transition: all 0.2s ease;
-    }
-
-    .color-option input:checked ~ .color-box {
-        border-color: #111827;
-        transform: scale(1.1);
-    }
-
-    .color-option span {
-        font-size: 12px;
-    }
-
-    /* Terms Box */
-    .terms-box {
-        background: #f9fafb;
-        border: 1px solid #e5e7eb;
-        border-radius: 8px;
-        padding: 20px;
-        margin-bottom: 20px;
-    }
-
-    .terms-content {
-        max-height: 250px;
-        overflow-y: auto;
-        margin-bottom: 16px;
-    }
-
-    .terms-content h4 {
-        margin-bottom: 10px;
-        color: #111827;
-        font-size: 16px;
-    }
-
-    .terms-content h5 {
-        margin-top: 16px;
-        margin-bottom: 10px;
-        color: #374151;
-        font-size: 14px;
-    }
-
-    .terms-content ul {
-        margin-left: 20px;
-        color: #6b7280;
-        font-size: 14px;
-    }
-
-    .terms-content li {
-        margin-bottom: 6px;
-    }
-
-    .terms-link {
-        text-align: center;
-        margin-top: 12px;
-    }
-
-    /* File Upload */
-    .file-upload {
-        position: relative;
-        border: 2px dashed #d1d5db;
-        border-radius: 8px;
-        padding: 30px 20px;
-        text-align: center;
-        background: #f9fafb;
-        transition: all 0.2s ease;
-    }
-
-    .file-upload:hover {
-        border-color: #185fb0;
-        background: #eff6ff;
-    }
-
-    .file-upload input {
-        position: absolute;
-        inset: 0;
-        opacity: 0;
-        cursor: pointer;
-    }
-
-    .file-upload-text i {
-        font-size: 36px;
-        color: #9ca3af;
-        display: block;
-        margin-bottom: 10px;
-    }
-
-    .file-upload-text span {
-        display: block;
-        color: #374151;
-        font-weight: 600;
-        margin-bottom: 4px;
-        font-size: 14px;
-    }
-
-    .file-upload-text small {
-        color: #6b7280;
-        font-size: 12px;
-    }
-
-    /* Rental Info Sections */
-    .rental-info {
-        background: #f9fafb;
-        border-radius: 6px;
-        padding: 16px;
-        margin-top: 16px;
-    }
-
-    .rental-info h4 {
-        margin-bottom: 12px;
-        color: #374151;
-        font-size: 15px;
-    }
-
-    .rental-info input {
-        width: 100%;
-        margin-bottom: 10px;
-    }
-
-    /* Notice Box */
-    .notice-box {
-        background: #fef3c7;
-        border: 1px solid #fcd34d;
-        border-radius: 6px;
-        padding: 14px;
-        margin-top: 16px;
-    }
-
-    .notice-box p {
-        margin: 0;
-        color: #92400e;
-        font-size: 13px;
-    }
-
-    /* Navigation */
-    .form-nav {
-        display: flex;
-        justify-content: space-between;
-        margin-top: 30px;
-        padding-top: 20px;
-        border-top: 1px solid #e5e7eb;
-    }
-
-    .btn-prev,
-    .btn-next,
-    .btn-submit {
-        padding: 10px 20px;
-        border: none;
-        border-radius: 6px;
-        font-size: 15px;
-        font-weight: 600;
-        cursor: pointer;
-        transition: all 0.2s ease;
-    }
-
-    .btn-prev {
-        background: white;
-        color: #374151;
-        border: 2px solid #e5e7eb;
-    }
-
-    .btn-prev:hover {
-        background: #f3f4f6;
-        border-color: #d1d5db;
-    }
-
-    .btn-next,
-    .btn-submit {
-        background: #185fb0;
-        color: white;
-        margin-left: auto;
-    }
-
-    .btn-next:hover,
-    .btn-submit:hover {
-        background: #1455a0;
-        transform: translateY(-1px);
-        box-shadow: 0 4px 8px rgba(24, 95, 176, 0.2);
-    }
-
-    .btn-submit {
-        background: #7eb10f;
-    }
-
-    .btn-submit:hover {
-        background: #6fa000;
-        box-shadow: 0 4px 8px rgba(126, 177, 15, 0.2);
-    }
-
-    /* Success Screen */
-    .form-success {
-        text-align: center;
-        padding: 50px 20px;
-    }
-
-    .success-icon {
-        width: 70px;
-        height: 70px;
-        margin: 0 auto 20px;
-        background: #7eb10f;
-        color: white;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 36px;
-        font-weight: bold;
-    }
-
-    .form-success h2 {
-        font-size: 28px;
-        color: #111827;
-        margin-bottom: 10px;
-    }
-
-    .form-success p {
-        color: #6b7280;
-        font-size: 16px;
-        margin-bottom: 8px;
-    }
-
-    .success-note {
-        font-size: 14px;
-        margin-top: 20px;
-    }
-
-    /* Mobile Responsive */
-    @media (max-width: 640px) {
-        .docket-fast-form {
-            padding: 16px;
-        }
-
-        .form-step h2 {
-            font-size: 22px;
-        }
-
-        .form-grid,
-        .form-grid-2col {
-            grid-template-columns: 1fr;
-        }
-
-        .template-grid {
-            grid-template-columns: 1fr;
-            gap: 12px;
-        }
-
-        .service-areas-grid {
-            grid-template-columns: 1fr;
-        }
-
-        .docket-progress-dots {
-            padding: 0;
-        }
-
-        .docket-progress-dots span {
-            width: 24px;
-            height: 24px;
-            font-size: 11px;
-        }
-
-        .radio-card-content {
-            padding: 14px;
-        }
-
-        .form-nav {
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .btn-prev,
-        .btn-next,
-        .btn-submit {
-            flex: 1;
-            min-width: 100px;
-        }
-    }
-
-    /* Loading State */
-    .form-loading {
-        opacity: 0.6;
-        pointer-events: none;
-    }
-
-    /* Error states */
-    .form-field.error input,
-    .form-field.error textarea {
-        border-color: #ef4444;
-    }
-
-    .error .radio-group,
-    .error .checkbox-group {
-        outline: 2px solid #ef4444;
-        outline-offset: 2px;
-        border-radius: 8px;
-    }
-    </style>
 
     <script>
     jQuery(document).ready(function($) {
@@ -1125,6 +523,7 @@ function docket_render_fast_build_form($form_data = array()) {
             const required = currentStepEl.find('[required]:visible');
             let valid = true;
             let checkedRadios = {};
+            let checkedCheckboxGroups = {};
             
             // Clear previous errors
             currentStepEl.find('.error').removeClass('error');
@@ -1138,12 +537,19 @@ function docket_render_fast_build_form($form_data = array()) {
                         $(this).closest('.radio-group, .radio-inline, .form-field').addClass('error');
                     }
                 } else if ($(this).is(':checkbox')) {
-                    if (!$(this).is(':checked')) {
+                    const name = $(this).attr('name');
+                    const group = $(this).closest('.checkbox-group');
+                    if (group.length && !checkedCheckboxGroups[name]) {
+                        checkedCheckboxGroups[name] = true;
+                        if (!group.find('input:checked').length) {
+                            valid = false;
+                            group.addClass('error');
+                        }
+                    } else if (!$(this).is(':checked')) {
                         valid = false;
-                        $(this).closest('.checkbox-group, .checkbox-card, .form-field').addClass('error');
+                        $(this).closest('.checkbox-card, .form-field').addClass('error');
                     }
                 } else {
-                    // Text inputs - check value more carefully
                     const val = $(this).val();
                     if (!val || val.trim().length === 0) {
                         valid = false;
@@ -1154,7 +560,6 @@ function docket_render_fast_build_form($form_data = array()) {
             
             if (!valid) {
                 alert('Please fill in all required fields');
-                // Focus on first error field
                 setTimeout(() => {
                     currentStepEl.find('.error:first').find('input:first').focus();
                 }, 100);
@@ -1175,7 +580,7 @@ function docket_render_fast_build_form($form_data = array()) {
             const notice = $('#wpNotice');
             
             if (val === 'Beginner') {
-                notice.find('.notice-text').html('<strong>Note:</strong> Fast Build requires self-customization. Consider our Standard Build for a fully managed solution.');
+                notice.find('.notice-text').html('<strong>Important:</strong> Fast Build requires self-customization. Consider our Standard Build for a fully managed solution.');
                 notice.show();
             } else if (val === 'Intermediate') {
                 notice.find('.notice-text').html('<strong>Tip:</strong> Brush up on Elementor basics before launch to make the most of your website.');
@@ -1193,18 +598,6 @@ function docket_render_fast_build_form($form_data = array()) {
             } else {
                 $('#logoUpload').slideUp();
                 $('#logoUpload input').attr('required', false);
-            }
-        });
-        
-        // Dumpster types toggle
-        $('.dumpster-type').on('change', function() {
-            const type = $(this).val().replace(/\s+/g, '').toLowerCase();
-            const section = $(`#${type}Info`);
-            
-            if ($(this).is(':checked')) {
-                section.slideDown();
-            } else {
-                section.slideUp();
             }
         });
         
@@ -1290,7 +683,21 @@ function docket_handle_fast_build_submission() {
     // Handle file uploads if any
     if (!empty($_FILES)) {
         $email_content .= "\nFile Uploads:\n";
-        // Handle file upload logic here
+        foreach ($_FILES as $key => $file) {
+            if (is_array($file['name'])) {
+                // Multiple files
+                for ($i = 0; $i < count($file['name']); $i++) {
+                    if (!empty($file['name'][$i])) {
+                        $email_content .= "- " . $file['name'][$i] . "\n";
+                    }
+                }
+            } else {
+                // Single file
+                if (!empty($file['name'])) {
+                    $email_content .= "- " . $file['name'] . "\n";
+                }
+            }
+        }
     }
     
     // Send email

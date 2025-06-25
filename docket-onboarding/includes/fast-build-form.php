@@ -11,6 +11,9 @@ function docket_render_fast_build_form($form_data = array()) {
     // Extract form data passed from onboarding
     $plan_type = isset($form_data['plan']) ? $form_data['plan'] : '';
     $management_type = isset($form_data['management']) ? $form_data['management'] : '';
+    // DEBUG: Log what we're actually getting
+error_log('Plan type received: ' . $plan_type);
+error_log('Full form data: ' . print_r($form_data, true));
     $build_type = isset($form_data['buildType']) ? $form_data['buildType'] : '';
     ?>
     

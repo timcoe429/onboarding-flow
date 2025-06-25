@@ -1099,7 +1099,7 @@ $headers = array(
     // Send email
     $to = 'tim@servicecore.com';
     $subject = 'Standard Build Form Submission - ' . sanitize_text_field($_POST['business_name']);
-    $headers = array('Content-Type: text/plain; charset=UTF-8');
+    $headers = array('Content-Type: text/html; charset=UTF-8');
     
     $sent = wp_mail($to, $subject, $email_content, $headers);
     

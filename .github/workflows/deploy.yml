@@ -18,11 +18,6 @@ jobs:
         username: timcoe187
         port: 22
         key: ${{ secrets.SSH_PRIVATE_KEY }}
-        # Only copy the docket-onboarding folder
-        source: "docket-onboarding/*"
-        # Target path on your server
-        target: "public_html/wp-content/plugins/"
-        # Remove docket-onboarding/ prefix from source
-        strip_components: 1
-        # Remove old files before copying
+        source: "docket-onboarding"
+        target: "site/public_html/wp-content/plugins"
         rm: true

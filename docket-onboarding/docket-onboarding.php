@@ -146,4 +146,37 @@ class DocketOnboarding {
      */
     public function add_standard_build_css_inline($form_html) {
         $css_url = DOCKET_ONBOARDING_PLUGIN_URL . 'assets/standard-build-form.css?ver=' . DOCKET_ONBOARDING_VERSION;
-        $css_tag = '<link rel="stylesheet" href="' .
+        $css_tag = '<link rel="stylesheet" href="' . esc_url($css_url) . '" type="text/css" media="all" />';
+        return $css_tag . $form_html;
+    }
+    
+    /**
+     * Handle the shortcode
+     */
+    public function shortcode_handler($atts) {
+        return docket_onboarding_render_shortcode($atts);
+    }
+}
+
+// Initialize the plugin
+new DocketOnboarding();
+
+/**
+ * Activation hook
+ */
+register_activation_hook(__FILE__, 'docket_onboarding_activate');
+function docket_onboarding_activate() {
+    // Add any activation tasks here
+    // For example, create database tables, set default options, etc.
+}
+
+/**
+ * Deactivation hook
+ */
+register_deactivation_hook(__FILE__, 'docket_onboarding_deactivate');
+function docket_onboarding_deactivate() {
+    // Add any deactivation tasks here
+    // For example, clean up temporary data
+}
+
+?>

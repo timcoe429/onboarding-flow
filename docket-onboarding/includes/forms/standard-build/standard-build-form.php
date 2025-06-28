@@ -221,16 +221,39 @@ function docket_handle_standard_build_submission() {
 
     $email_content .= "</body></html>";
 
-    // Send email
-    $to = 'tim@servicecore.com';
-    $subject = 'Standard Build Form Submission - ' . sanitize_text_field($_POST['business_name']);
-    $headers = array('Content-Type: text/html; charset=UTF-8');
-    
-    $sent = wp_mail($to, $subject, $email_content, $headers);
-    
-    if ($sent) {
-        wp_send_json_success(array('message' => 'Form submitted successfully'));
-    } else {
-        wp_send_json_error(array('message' => 'Failed to send email'));
+// Collect uploaded files
+$attachments = array();
+if (!empty($_FILES)) {
+    foreach ($_FILES as $file_key => $file) {
+        if ($file['error'] === UPLOAD_ERR_OK) {
+            // Move uploaded file to WordPress uploads directory
+            $upload_dir = wp_upload_dir();
+            $upload_path = $upload_dir['path'] . '/' . basename($file['name']);
+            
+            if (move_uploaded_file($file['tmp_name'], $upload_path)) {
+                $attachments[] = $upload_path;
+            }
+        }
     }
+}
+
+// Send email with attachments
+$to = 'tim@servicecore.com';
+$subject = 'Standard Build Form Submission - ' . sanitize_text_field($_POST['business_name']);
+$headers = array('Content-Type: text/html; charset=UTF-8');
+
+$sent = wp_mail($to, $subject, $email_content, $headers, $attachments);
+
+if ($sent) {
+    wp_send_json_success(array('message' => 'Form submitted successfully'));
+} else {
+    wp_send_json_error(array('message' => 'Failed to send email'));
+}
+
+// Clean up - delete uploaded files after sending
+if (!empty($attachments)) {
+    foreach ($attachments as $file) {
+        @unlink($file);
+    }
+}
 }

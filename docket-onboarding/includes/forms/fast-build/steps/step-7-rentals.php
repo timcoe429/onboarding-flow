@@ -3,59 +3,44 @@
     <h2>Rental Information</h2>
     <p class="step-subtitle">Tell us about your services (we'll use stock images and content)</p>
     
-    <div class="form-field">
-        <label>Dumpster Colors *</label>
-        <p class="field-note">We have stock images for these colors</p>
-        <div class="color-grid">
-            <label class="color-option">
-                <input type="radio" name="dumpster_color" value="Black" required>
-                <span class="color-box" style="background: #000"></span>
-                <span>Black</span>
-            </label>
-            <label class="color-option">
-                <input type="radio" name="dumpster_color" value="Blue" required>
-                <span class="color-box" style="background: #1a73e8"></span>
-                <span>Blue</span>
-            </label>
-            <label class="color-option">
-                <input type="radio" name="dumpster_color" value="Green" required>
-                <span class="color-box" style="background: #34a853"></span>
-                <span>Green</span>
-            </label>
-            <label class="color-option">
-                <input type="radio" name="dumpster_color" value="Red" required>
-                <span class="color-box" style="background: #ea4335"></span>
-                <span>Red</span>
-            </label>
-            <label class="color-option">
-                <input type="radio" name="dumpster_color" value="Orange" required>
-                <span class="color-box" style="background: #fbbc04"></span>
-                <span>Orange</span>
-            </label>
-            <label class="color-option">
-                <input type="radio" name="dumpster_color" value="Grey" required>
-                <span class="color-box" style="background: #666"></span>
-                <span>Grey</span>
-            </label>
+    <div class="form-grid-3col">
+        <div class="form-field">
+            <label>What color are your dumpsters? *</label>
+            <p class="field-note">We provide stock images for: Black, Grey, Green, Red, Orange, and Blue</p>
+        </div>
+        
+        <div class="form-field">
+            <div class="radio-group compact">
+                <label><input type="radio" name="dumpster_color" value="Black" required><span>Black</span></label>
+                <label><input type="radio" name="dumpster_color" value="Blue" required><span>Blue</span></label>
+                <label><input type="radio" name="dumpster_color" value="Grey" required><span>Grey</span></label>
+                <label><input type="radio" name="dumpster_color" value="Orange" required><span>Orange</span></label>
+                <label><input type="radio" name="dumpster_color" value="Red" required><span>Red</span></label>
+                <label><input type="radio" name="dumpster_color" value="Green" required><span>Green</span></label>
+            </div>
+        </div>
+        
+        <div class="form-field">
+            <!-- Empty column for spacing -->
         </div>
     </div>
     
     <div class="form-field">
-        <label>Services Offered *</label>
+        <label>What services do you offer? *</label>
         <div class="checkbox-group">
             <label class="checkbox-card">
-                <input type="checkbox" name="services_offered[]" value="Dumpster Rentals" checked>
-                <span>Dumpster Rentals</span>
+                <input type="checkbox" name="services_offered[]" value="Just Dumpster Rentals">
+                <span>Just Dumpster Rentals</span>
             </label>
             <label class="checkbox-card">
-                <input type="checkbox" name="services_offered[]" value="Junk Removal">
-                <span>Junk Removal</span>
+                <input type="checkbox" name="services_offered[]" value="Dumpster Rentals & Junk Removal">
+                <span>Dumpster Rentals & Junk Removal</span>
             </label>
         </div>
     </div>
     
     <div class="form-field">
-        <label>Dumpster Types</label>
+        <label>What types of dumpsters do you have?</label>
         <div class="checkbox-group">
             <label class="checkbox-card">
                 <input type="checkbox" name="dumpster_types[]" value="Roll-Off" class="dumpster-type">

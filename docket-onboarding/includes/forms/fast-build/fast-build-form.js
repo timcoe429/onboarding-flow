@@ -195,7 +195,7 @@ jQuery(document).ready(function($) {
         
         // Submit via AJAX
         $.ajax({
-            url: ajaxurl || '/wp-admin/admin-ajax.php',
+            url: window.ajaxurl || '/wp-admin/admin-ajax.php',
             type: 'POST',
             data: formData,
             processData: false,

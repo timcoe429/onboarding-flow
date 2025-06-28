@@ -17,9 +17,9 @@
                 <li>Changes after launch are charged at $175/hour</li>
             </ul>
             
-            <p class="terms-link">
-                <a href="#" onclick="showFullTerms(); return false;">View Full Terms</a>
-            </p>
+            <div class="terms-link">
+                <a href="#" onclick="openTermsModal(); return false;" class="terms-modal-trigger">View Full Terms & Conditions</a>
+            </div>
         </div>
         
         <label class="checkbox-card">
@@ -67,3 +67,70 @@
         <button type="button" class="btn-next">Next</button>
     </div>
 </div>
+
+<!-- Terms Modal -->
+<div id="termsModal" class="docket-modal" style="display: none;">
+    <div class="docket-modal-content">
+        <div class="docket-modal-header">
+            <h2>Fast Build Terms & Conditions</h2>
+            <span class="docket-modal-close">&times;</span>
+        </div>
+        <div class="docket-modal-body">
+            <p>These are the Fast Build specific terms and conditions. By proceeding, you agree to all terms.</p>
+            
+            <h3>Fast Build Overview</h3>
+            <p>Fast Build is designed for customers who want a quick website launch with minimal customization requirements.</p>
+            
+            <h3>Timeline</h3>
+            <p>Your website will be completed within 3 business days after we receive all required information and payment.</p>
+            
+            <h3>Limitations</h3>
+            <ul>
+                <li>Zero revisions before launch</li>
+                <li>Stock content and stock images will be used</li>
+                <li>Customer is responsible for all post-launch customization</li>
+                <li>WordPress/Elementor knowledge required for modifications</li>
+            </ul>
+            
+            <h3>Payment Terms</h3>
+            <p>Full payment is required immediately upon order submission to begin work.</p>
+            
+            <h3>Post-Launch Support</h3>
+            <p>After launch, any changes or customizations are charged at $175/hour.</p>
+            
+            <h3>Content Management</h3>
+            <p>The website will be built using WordPress with Elementor page builder. You will receive backend access upon completion.</p>
+            
+            <h3>Customer Requirements</h3>
+            <p>By choosing Fast Build, you confirm that you have WordPress/Elementor experience or are willing to learn for post-launch customization.</p>
+            
+            <h3>Limitation of Liability</h3>
+            <p>In no event shall Docket be liable for any indirect, incidental, special, or consequential damages arising out of or related to this agreement.</p>
+            
+            <h3>Termination</h3>
+            <p>Due to the expedited nature of Fast Build, cancellations are not accepted once work begins.</p>
+        </div>
+    </div>
+</div>
+
+<script>
+// Modal functionality (inline to ensure it's available immediately)
+function openTermsModal() {
+    document.getElementById('termsModal').style.display = 'block';
+}
+
+// Close modal when clicking X
+document.addEventListener('click', function(e) {
+    if (e.target.classList.contains('docket-modal-close')) {
+        document.getElementById('termsModal').style.display = 'none';
+    }
+});
+
+// Close modal when clicking outside
+document.addEventListener('click', function(e) {
+    var modal = document.getElementById('termsModal');
+    if (e.target === modal) {
+        modal.style.display = 'none';
+    }
+});
+</script>

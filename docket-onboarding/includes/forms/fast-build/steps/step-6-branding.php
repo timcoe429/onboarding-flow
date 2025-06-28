@@ -18,32 +18,39 @@
     </div>
     
     <div class="form-field" id="logoUpload" style="display: none;">
-        <label>Upload Logo *</label>
+        <label>Logo File(s) *</label>
         <div class="file-upload">
-            <input type="file" name="logo_files[]" accept="image/*" multiple>
+            <input type="file" name="logo_files[]" accept="image/*" multiple id="logoFileInput">
             <div class="file-upload-text">
-                <i class="fa fa-cloud-upload"></i>
+                <i class="fa fa-upload"></i>
                 <span>Click to upload or drag files here</span>
-                <small>Preferred: 300x300px PNG or JPG</small>
+                <small>Preferred size: 300px x 300px or similar dimensions</small>
             </div>
         </div>
+        <div class="file-list" id="logoFileList"></div>
     </div>
     
     <div class="info-box mb-20">
         <p><strong>Company Colors</strong></p>
-        <p>We need the exact HEX code of the colors you'd like us to use. You can use <a href="https://imagecolorpicker.com" target="_blank">this tool</a> to find exact HEX codes.</p>
+        <p>We need the exact HEX code of the colors you'd like us to use. You can use <a href="https://htmlcolorcodes.com/color-picker/" target="_blank" style="color: #185fb0; font-weight: bold;">this color picker tool</a> to find exact HEX codes.</p>
     </div>
     
     <div class="form-grid-2col">
         <div class="form-field">
-            <label>Primary Color (HEX) *</label>
-            <input type="text" name="company_colors" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" placeholder="#00008B" required>
-            <small>Please provide a HEX code</small>
+            <label>Company Color 1 HEX Code *</label>
+            <div class="color-input-wrapper">
+                <input type="text" name="company_colors" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" placeholder="Example: #00008B" required class="hex-input">
+                <input type="color" class="color-picker" value="#00008B">
+            </div>
+            <small>Click the color box or enter HEX code</small>
         </div>
         
         <div class="form-field">
-            <label>Secondary Color (HEX)</label>
-            <input type="text" name="company_colors2" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" placeholder="#FF6B6B">
+            <label>Company Color 2 HEX Code</label>
+            <div class="color-input-wrapper">
+                <input type="text" name="company_colors2" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" placeholder="Example: #00008B" class="hex-input">
+                <input type="color" class="color-picker" value="#00008B">
+            </div>
             <small>Optional second color</small>
         </div>
     </div>

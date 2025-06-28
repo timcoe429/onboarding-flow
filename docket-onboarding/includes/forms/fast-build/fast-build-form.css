@@ -733,6 +733,59 @@
     margin-bottom: 4px;
 }
 
+/* Template Grid 2x2 Layout */
+.template-grid-2x2 {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    margin-bottom: 20px;
+}
+
+.template-option {
+    text-align: center;
+}
+
+.template-preview-link {
+    display: block;
+    text-decoration: none;
+    color: inherit;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.2s ease;
+    margin-bottom: 12px;
+}
+
+.template-preview-link:hover {
+    border-color: #185fb0;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(24, 95, 176, 0.15);
+}
+
+.template-preview-link img {
+    width: 100%;
+    height: auto;
+    display: block;
+}
+
+.template-preview-text {
+    display: block;
+    padding: 12px;
+    background: #f8fafc;
+    color: #185fb0;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.template-select {
+    display: block;
+    margin: 0;
+}
+
+.template-select input {
+    margin-right: 8px;
+}
+
 /* Modal Styles */
 .docket-modal {
     display: none;

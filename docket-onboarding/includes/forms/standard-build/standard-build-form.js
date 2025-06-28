@@ -249,7 +249,7 @@ jQuery(document).ready(function($) {
         // Collect form data
         const formData = new FormData(this);
         formData.append('action', 'docket_submit_standard_build_form');
-        formData.append('nonce', docket_ajax.nonce);
+        formData.append('nonce', $('#standardBuildForm input[name="nonce"]').val());
         
         // Submit via AJAX
         $.ajax({

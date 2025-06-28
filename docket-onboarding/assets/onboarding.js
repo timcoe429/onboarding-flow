@@ -26,7 +26,7 @@
         showStep(1);
 
         // Plan selection (Step 1)
-        $('.docket-plan-card').on('click', function(e) {
+        $('.docket-step1 .docket-plan-card').on('click', function(e) {
             e.preventDefault();
             const planType = $(this).hasClass('grow') ? 'grow' : 'pro';
             state.selectedPlan = planType;

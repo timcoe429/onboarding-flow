@@ -15,8 +15,9 @@ if (file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/fast-build-form.php')) 
 }
 
 // Include the standard build form file
-if (file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/standard-build-form.php')) {
-    require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/standard-build-form.php';
+if (file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/standard-build/standard-build-form.php')) {
+    require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/standard-build/standard-build-form.php';
+}
 }
 
 /**
@@ -91,7 +92,7 @@ function docket_ajax_load_standard_build_form() {
     ob_start();
     
     // Add CSS link
-    $css_url = DOCKET_ONBOARDING_PLUGIN_URL . 'assets/standard-build-form.css?ver=' . DOCKET_ONBOARDING_VERSION;
+    $css_url = DOCKET_ONBOARDING_PLUGIN_URL . 'includes/forms/standard-build/standard-build-form.css?ver=' . DOCKET_ONBOARDING_VERSION;
     echo '<link rel="stylesheet" href="' . esc_url($css_url) . '" type="text/css" media="all" />';
     
     // Render the standard build form

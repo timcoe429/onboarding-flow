@@ -19,6 +19,11 @@ if (file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/standard-build/st
     require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/standard-build/standard-build-form.php';
 }
 
+// Include the website vip form file
+if (file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/website-vip/website-vip-form.php')) {
+    require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/website-vip/website-vip-form.php';
+}
+
 /**
  * Handle AJAX request to load fast build form
  */
@@ -254,6 +259,98 @@ function docket_ajax_load_standard_build_form() {
     
     // Apply filter for additional modifications
     $form_html = apply_filters('docket_standard_build_form_response', $form_html);
+    
+    wp_send_json_success(array(
+        'form_html' => $form_html,
+        'message' => 'Form loaded successfully'
+    ));
+    
+    wp_die();
+}
+
+/**
+ * Handle AJAX request to load Website VIP form
+ */
+add_action('wp_ajax_docket_load_website_vip_form', 'docket_ajax_load_website_vip_form');
+add_action('wp_ajax_nopriv_docket_load_website_vip_form', 'docket_ajax_load_website_vip_form');
+
+function docket_ajax_load_website_vip_form() {
+    // Verify nonce
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'docket_onboarding_nonce')) {
+        wp_send_json_error(array('message' => 'Security check failed'));
+        wp_die();
+    }
+    
+    // Get form data
+    $form_data = array(
+        'plan' => sanitize_text_field($_POST['plan']),
+        'management' => 'vip',
+        'buildType' => sanitize_text_field($_POST['buildType'])
+    );
+    
+    // Start output buffering
+    ob_start();
+    
+    // Add CSS link
+    $css_url = DOCKET_ONBOARDING_PLUGIN_URL . 'includes/forms/website-vip/website-vip-form.css?ver=' . DOCKET_ONBOARDING_VERSION;
+    echo '<link rel="stylesheet" href="' . esc_url($css_url) . '" type="text/css" media="all" />';
+    
+    // Add JavaScript link
+    $js_url = DOCKET_ONBOARDING_PLUGIN_URL . 'includes/forms/website-vip/website-vip-form.js?ver=' . DOCKET_ONBOARDING_VERSION;
+    echo '<script src="' . esc_url($js_url) . '"></script>';
+    
+    // Localize script with AJAX URL
+    echo '<script>window.ajaxurl = "' . admin_url('admin-ajax.php') . '";</script>';
+    
+    // Add script to initialize the form after loading
+    echo '<script>
+        // Wait for script to load then initialize
+        function waitForWebsiteVipScript() {
+            if (typeof jQuery !== "undefined" && jQuery("#websiteVipForm").length > 0) {
+                // Initialize the form directly since it\'s loaded via AJAX
+                jQuery(function($) {
+                    // Initialize modal functionality
+                    window.openTermsModal = function() {
+                        var modal = document.getElementById("termsModal");
+                        if (modal) {
+                            modal.style.display = "block";
+                        }
+                    }
+                    
+                    // Close modal when clicking X or outside
+                    $(document).on("click", ".docket-modal-close, .docket-modal", function(e) {
+                        if (e.target === this) {
+                            $("#termsModal").hide();
+                        }
+                    });
+                    
+                    // Prevent modal content clicks from closing
+                    $(document).on("click", ".docket-modal-content", function(e) {
+                        e.stopPropagation();
+                    });
+                    
+                    // The rest of the initialization is handled by the loaded website-vip-form.js file
+                });
+            } else {
+                setTimeout(waitForWebsiteVipScript, 100);
+            }
+        }
+        
+        waitForWebsiteVipScript();
+    </script>';
+    
+    // Render the Website VIP form
+    if (function_exists('docket_render_website_vip_form')) {
+        docket_render_website_vip_form($form_data);
+    } else {
+        echo '<p>Error: Website VIP form not found.</p>';
+    }
+    
+    // Get the output
+    $form_html = ob_get_clean();
+    
+    // Apply filter for additional modifications
+    $form_html = apply_filters('docket_website_vip_form_response', $form_html);
     
     wp_send_json_success(array(
         'form_html' => $form_html,

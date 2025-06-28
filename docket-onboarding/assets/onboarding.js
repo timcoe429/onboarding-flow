@@ -137,13 +137,8 @@
 
         // Handle VIP selection
         function handleVIPSelection() {
-            // You can customize this based on your needs
-            const message = `You selected WebsiteVIP!\n\nPlan: ${state.selectedPlan.toUpperCase()}\nManagement: WebsiteVIP (+$299/month)\n\nYou'll be contacted to discuss the WebsiteVIP plan upgrade.`;
-            
-            if (confirm(message + '\n\nWould you like to proceed to the contact form?')) {
-                // For now, just show a success message
-                showSuccessMessage('Thank you! We\'ll contact you soon about the WebsiteVIP plan.');
-            }
+            // Load the Website VIP form
+            loadWebsiteVipForm();
         }
 
         // Handle final selection
@@ -209,6 +204,49 @@
                 plan: state.selectedPlan,
                 management: state.selectedManagement,
                 buildType: state.selectedBuildType
+            };
+            
+            $.ajax({
+                url: docket_ajax.ajax_url,
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    hideLoading();
+                    
+                    if (response.success) {
+                        // Add white background overlay
+                        $('<div class="docket-white-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999;"></div>').appendTo('body');
+                        
+                        // Fade transition
+                        $('.docket-onboarding').fadeOut(300, function() {
+                            $(this).html(response.data.form_html).fadeIn(300, function() {
+                                // Remove overlay after fade in
+                                $('.docket-white-overlay').fadeOut(200, function() {
+                                    $(this).remove();
+                                });
+                            });
+                        });
+                    } else {
+                        showErrorMessage('Unable to load form. Please try again.');
+                    }
+                },
+                error: function() {
+                    hideLoading();
+                    showErrorMessage('Connection error. Please try again.');
+                }
+            });
+        }
+
+        // Load Website VIP Form
+        function loadWebsiteVipForm() {
+            showLoading();
+            
+            const formData = {
+                action: 'docket_load_website_vip_form',
+                nonce: docket_ajax.nonce,
+                plan: state.selectedPlan,
+                management: 'vip',
+                buildType: state.selectedBuildType || 'standard'
             };
             
             $.ajax({

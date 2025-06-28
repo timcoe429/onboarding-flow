@@ -34,7 +34,7 @@ function docket_render_standard_build_form($form_data = array()) {
 
         <form id="standardBuildForm" method="post" enctype="multipart/form-data">
             <!-- Hidden fields for onboarding data -->
-            <input type="hidden" name="docket_plan_type" value="<?php echo esc_attr($plan_type); ?>">
+            <input type="hidden" name="docket_plan_type" value="<?php echo esc_attr(ucfirst($plan_type)); ?>">
             <input type="hidden" name="docket_management_type" value="<?php echo esc_attr($management_type); ?>">
             <input type="hidden" name="docket_build_type" value="<?php echo esc_attr($build_type); ?>">
             <input type="hidden" name="select_your_docket_plan" value="<?php echo esc_attr(ucfirst($plan_type)); ?>">

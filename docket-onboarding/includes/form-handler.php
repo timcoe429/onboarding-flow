@@ -104,12 +104,99 @@ function docket_ajax_load_standard_build_form() {
     
     // Add script to initialize the form after loading
     echo '<script>
-        jQuery(document).ready(function($) {
-            // Reinitialize the form if it exists
-            if (typeof initializeStandardBuildForm === "function") {
-                initializeStandardBuildForm();
+        // Wait for script to load then initialize
+        function waitForScript() {
+            if (typeof jQuery !== "undefined" && jQuery("#standardBuildForm").length > 0) {
+                // Initialize the form directly since it\'s loaded via AJAX
+                jQuery(function($) {
+                    // Copy the initialization code from standard-build-form.js
+                    var currentStep = 1;
+                    var totalSteps = 8;
+                    
+                    // Initialize modal functionality
+                    window.openTermsModal = function() {
+                        var modal = document.getElementById("termsModal");
+                        if (modal) {
+                            modal.style.display = "block";
+                        }
+                    }
+                    
+                    // Close modal when clicking X or outside
+                    $(document).on("click", ".docket-modal-close, .docket-modal", function(e) {
+                        if (e.target === this) {
+                            $("#termsModal").hide();
+                        }
+                    });
+                    
+                    // Prevent modal content clicks from closing
+                    $(document).on("click", ".docket-modal-content", function(e) {
+                        e.stopPropagation();
+                    });
+                    
+                    // Rest of form initialization
+                    initializeFormHandlers();
+                });
+            } else {
+                setTimeout(waitForScript, 100);
             }
-        });
+        }
+        
+        waitForScript();
+        
+        function initializeFormHandlers() {
+            // Form navigation and validation code
+            var $ = jQuery;
+            var form = $("#standardBuildForm");
+            var currentStep = 1;
+            var totalSteps = 8;
+            
+            // Navigation handlers
+            form.find(".btn-next").off("click").on("click", function() {
+                if (validateStep(currentStep)) {
+                    currentStep++;
+                    showStep(currentStep);
+                }
+            });
+            
+            form.find(".btn-prev").off("click").on("click", function() {
+                currentStep--;
+                showStep(currentStep);
+            });
+            
+            function showStep(step) {
+                $(".form-step").removeClass("active");
+                $(".form-step[data-step=\'" + step + "\']").addClass("active");
+                updateProgressBar(step);
+            }
+            
+            function updateProgressBar(step) {
+                var progress = (step / totalSteps) * 100;
+                $(".docket-progress-fill").css("width", progress + "%");
+                $(".docket-progress-dots span").removeClass("active completed");
+                for (var i = 1; i <= step; i++) {
+                    if (i < step) {
+                        $(".docket-progress-dots span[data-step=\'" + i + "\']").addClass("completed");
+                    } else {
+                        $(".docket-progress-dots span[data-step=\'" + i + "\']").addClass("active");
+                    }
+                }
+            }
+            
+            function validateStep(step) {
+                var isValid = true;
+                var currentStepElement = $(".form-step[data-step=\'" + step + "\']");
+                
+                currentStepElement.find("input[required], select[required], textarea[required]").each(function() {
+                    if (!this.checkValidity()) {
+                        this.reportValidity();
+                        isValid = false;
+                        return false;
+                    }
+                });
+                
+                return isValid;
+            }
+        }
     </script>';
     
     // Render the standard build form

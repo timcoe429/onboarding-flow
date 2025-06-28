@@ -11,6 +11,19 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
+/* Links styling */
+.docket-fast-form a {
+    color: #185fb0;
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.docket-fast-form a:hover {
+    color: #000000;
+    text-decoration: underline;
+}
+
 /* Progress Bar */
 .docket-form-progress {
     margin-bottom: 30px;
@@ -118,6 +131,7 @@
 .form-field input[type="email"],
 .form-field input[type="tel"],
 .form-field input[type="url"],
+.form-field input[type="color"],
 .form-field textarea {
     width: 100%;
     padding: 10px 14px;
@@ -125,6 +139,12 @@
     border-radius: 6px;
     font-size: 15px;
     transition: all 0.2s ease;
+}
+
+.form-field input[type="color"] {
+    height: 44px;
+    padding: 4px;
+    cursor: pointer;
 }
 
 .form-field textarea {
@@ -646,6 +666,185 @@
 .form-loading {
     opacity: 0.6;
     pointer-events: none;
+}
+
+/* Color Picker Wrapper */
+.color-input-wrapper {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+.color-input-wrapper input[type="color"] {
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+}
+
+.color-input-wrapper input[type="text"] {
+    flex: 1;
+}
+
+/* Info Box */
+.info-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 20px;
+}
+
+.info-box h4 {
+    margin: 0 0 8px 0;
+    color: #1e293b;
+    font-size: 16px;
+}
+
+.info-section {
+    margin-bottom: 16px;
+}
+
+.info-section:last-child {
+    margin-bottom: 0;
+}
+
+.info-section h5 {
+    margin: 0 0 6px 0;
+    color: #334155;
+    font-size: 14px;
+    font-weight: 600;
+}
+
+.info-section p {
+    margin: 0 0 8px 0;
+    color: #64748b;
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+.info-box ul {
+    margin: 0;
+    padding-left: 18px;
+}
+
+.info-box li {
+    color: #64748b;
+    font-size: 14px;
+    margin-bottom: 4px;
+}
+
+/* Modal Styles */
+.docket-modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+}
+
+.docket-modal-content {
+    background-color: white;
+    margin: 5% auto;
+    padding: 0;
+    border-radius: 12px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow: hidden;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+    animation: modalSlideIn 0.3s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from {
+        opacity: 0;
+        transform: translateY(-20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.docket-modal-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid #e5e7eb;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: #f8fafc;
+}
+
+.docket-modal-header h2 {
+    margin: 0;
+    color: #111827;
+    font-size: 18px;
+    font-weight: 600;
+}
+
+.docket-modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6b7280;
+    padding: 0;
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.docket-modal-close:hover,
+.docket-modal-close:focus {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+.docket-modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    max-height: calc(85vh - 80px);
+}
+
+.docket-modal-body h3 {
+    color: #111827;
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 12px 0;
+}
+
+.docket-modal-body h4 {
+    color: #374151;
+    font-size: 14px;
+    font-weight: 600;
+    margin: 16px 0 8px 0;
+}
+
+.docket-modal-body p {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.6;
+    margin: 0 0 12px 0;
+}
+
+.docket-modal-body ul {
+    margin: 0 0 16px 0;
+    padding-left: 20px;
+}
+
+.docket-modal-body li {
+    color: #6b7280;
+    font-size: 14px;
+    line-height: 1.5;
+    margin-bottom: 6px;
 }
 
 /* Error states */

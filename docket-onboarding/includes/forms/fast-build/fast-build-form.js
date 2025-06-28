@@ -125,6 +125,59 @@ jQuery(document).ready(function($) {
         }
     });
     
+    // Color picker integration
+    $('.color-picker').on('input', function() {
+        const hexValue = $(this).val();
+        $(this).siblings('.hex-input').val(hexValue);
+    });
+    
+    $('.hex-input').on('input', function() {
+        const hexValue = $(this).val();
+        if (/^#[0-9A-F]{6}$/i.test(hexValue)) {
+            $(this).siblings('.color-picker').val(hexValue);
+        }
+    });
+
+    // File upload display
+    $('#logoFileInput').on('change', function() {
+        const files = this.files;
+        const fileList = $('#logoFileList');
+        fileList.empty();
+        
+        if (files.length > 0) {
+            fileList.append('<p style="margin-top: 10px; font-weight: 600;">Selected files:</p>');
+            for (let i = 0; i < files.length; i++) {
+                fileList.append(`<p style="margin: 5px 0; color: #6b7280; font-size: 14px;">• ${files[i].name}</p>`);
+            }
+        }
+    });
+
+    // Dumpster type toggles
+    $('input[name="dumpster_types"]').on('change', function() {
+        const value = $(this).val();
+        const isChecked = $(this).is(':checked');
+        
+        if (value === 'Roll-Off') {
+            if (isChecked) {
+                $('#rollOffDetails').slideDown();
+            } else {
+                $('#rollOffDetails').slideUp();
+            }
+        } else if (value === 'Hook-Lift') {
+            if (isChecked) {
+                $('#hookLiftDetails').slideDown();
+            } else {
+                $('#hookLiftDetails').slideUp();
+            }
+        } else if (value === 'Dump Trailer') {
+            if (isChecked) {
+                $('#dumpTrailerDetails').slideDown();
+            } else {
+                $('#dumpTrailerDetails').slideUp();
+            }
+        }
+    });
+
     // Form submission
     form.on('submit', function(e) {
         e.preventDefault();
@@ -136,14 +189,13 @@ jQuery(document).ready(function($) {
         // Show loading
         form.addClass('form-loading');
         
-        // Collect form data
+        // Create FormData and collect all form data including files
         const formData = new FormData(this);
         formData.append('action', 'docket_submit_fast_build_form');
-        formData.append('nonce', docket_ajax.nonce);
         
         // Submit via AJAX
         $.ajax({
-            url: docket_ajax.ajax_url,
+            url: ajaxurl || '/wp-admin/admin-ajax.php',
             type: 'POST',
             data: formData,
             processData: false,

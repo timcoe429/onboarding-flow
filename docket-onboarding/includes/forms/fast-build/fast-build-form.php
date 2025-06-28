@@ -11,10 +11,6 @@ function docket_render_fast_build_form($form_data = array()) {
     // Extract form data passed from onboarding
     $plan_type = isset($form_data['plan']) ? $form_data['plan'] : '';
     $management_type = isset($form_data['management']) ? $form_data['management'] : '';
-    // DEBUG: Show what we're actually getting
-    echo "<!-- DEBUG: Plan type received: " . $plan_type . " -->";
-    echo "<!-- DEBUG: Full form data: " . print_r($form_data, true) . " -->";
-    $management_type = isset($form_data['management']) ? $form_data['management'] : '';
     $build_type = isset($form_data['buildType']) ? $form_data['buildType'] : '';
     ?>
     
@@ -42,6 +38,9 @@ function docket_render_fast_build_form($form_data = array()) {
             <input type="hidden" name="docket_management_type" value="<?php echo esc_attr($management_type); ?>">
             <input type="hidden" name="docket_build_type" value="<?php echo esc_attr($build_type); ?>">
             <input type="hidden" name="select_your_docket_plan" value="<?php echo esc_attr(ucfirst($plan_type)); ?>">
+
+            <!-- Add WordPress nonce field -->
+            <?php wp_nonce_field('docket_onboarding_nonce', 'nonce'); ?>
 
             <!-- Include form steps -->
             <?php 
@@ -77,7 +76,7 @@ add_action('wp_ajax_nopriv_docket_submit_fast_build_form', 'docket_handle_fast_b
 
 function docket_handle_fast_build_submission() {
     // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'docket_fast_build_nonce')) {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'docket_onboarding_nonce')) {
         wp_send_json_error(array('message' => 'Security check failed'));
     }
     
@@ -209,42 +208,57 @@ function docket_handle_fast_build_submission() {
 
     $email_content .= "</body></html>";
 
-    // Update headers for HTML email
-    $headers = array(
-        'Content-Type: text/html; charset=UTF-8',
-        'From: Docket Onboarding <noreply@yourdocketonline.com>'
-    );
-    
-    // Handle file uploads if any
-    if (!empty($_FILES)) {
-        $email_content .= "\nFile Uploads:\n";
-        foreach ($_FILES as $key => $file) {
-            if (is_array($file['name'])) {
-                // Multiple files
-                for ($i = 0; $i < count($file['name']); $i++) {
-                    if (!empty($file['name'][$i])) {
-                        $email_content .= "- " . $file['name'][$i] . "\n";
+// Collect uploaded files
+$attachments = array();
+if (!empty($_FILES)) {
+    foreach ($_FILES as $file_key => $file) {
+        // Handle array of files (like logo_files[])
+        if (is_array($file['name'])) {
+            for ($i = 0; $i < count($file['name']); $i++) {
+                if ($file['error'][$i] === UPLOAD_ERR_OK && !empty($file['name'][$i])) {
+                    // Move uploaded file to WordPress uploads directory
+                    $upload_dir = wp_upload_dir();
+                    $file_name = sanitize_file_name($file['name'][$i]);
+                    $upload_path = $upload_dir['path'] . '/' . $file_name;
+                    
+                    if (move_uploaded_file($file['tmp_name'][$i], $upload_path)) {
+                        $attachments[] = $upload_path;
                     }
                 }
-            } else {
-                // Single file
-                if (!empty($file['name'])) {
-                    $email_content .= "- " . $file['name'] . "\n";
+            }
+        } else {
+            // Handle single file
+            if ($file['error'] === UPLOAD_ERR_OK && !empty($file['name'])) {
+                // Move uploaded file to WordPress uploads directory
+                $upload_dir = wp_upload_dir();
+                $file_name = sanitize_file_name($file['name']);
+                $upload_path = $upload_dir['path'] . '/' . $file_name;
+                
+                if (move_uploaded_file($file['tmp_name'], $upload_path)) {
+                    $attachments[] = $upload_path;
                 }
             }
         }
     }
-    
-    // Send email
-    $to = 'tim@servicecore.com';
-    $subject = 'Fast Build Form Submission - ' . sanitize_text_field($_POST['business_name']);
-    $headers = array('Content-Type: text/html; charset=UTF-8');
-    
-    $sent = wp_mail($to, $subject, $email_content, $headers);
-    
-    if ($sent) {
-        wp_send_json_success(array('message' => 'Form submitted successfully'));
-    } else {
-        wp_send_json_error(array('message' => 'Failed to send email'));
+}
+
+// Send email with attachments
+$to = 'tim@servicecore.com';
+$subject = 'Fast Build Form Submission - ' . sanitize_text_field($_POST['business_name']);
+$headers = array('Content-Type: text/html; charset=UTF-8');
+
+$sent = wp_mail($to, $subject, $email_content, $headers, $attachments);
+
+if ($sent) {
+    wp_send_json_success(array('message' => 'Form submitted successfully'));
+} else {
+    wp_send_json_error(array('message' => 'Failed to send email'));
+}
+
+// Clean up - delete uploaded files after sending
+if (!empty($attachments)) {
+    foreach ($attachments as $file) {
+        @unlink($file);
     }
+}
 }

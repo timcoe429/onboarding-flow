@@ -50,6 +50,43 @@ function docket_ajax_load_fast_build_form() {
     $js_url = DOCKET_ONBOARDING_PLUGIN_URL . 'includes/forms/fast-build/fast-build-form.js?ver=' . DOCKET_ONBOARDING_VERSION;
     echo '<script src="' . esc_url($js_url) . '"></script>';
     
+    // Add script to initialize the form after loading
+    echo '<script>
+        // Wait for script to load then initialize
+        function waitForFastBuildScript() {
+            if (typeof jQuery !== "undefined" && jQuery("#fastBuildForm").length > 0) {
+                // Initialize the form directly since it\'s loaded via AJAX
+                jQuery(function($) {
+                    // Initialize modal functionality
+                    window.openTermsModal = function() {
+                        var modal = document.getElementById("termsModal");
+                        if (modal) {
+                            modal.style.display = "block";
+                        }
+                    }
+                    
+                    // Close modal when clicking X or outside
+                    $(document).on("click", ".docket-modal-close, .docket-modal", function(e) {
+                        if (e.target === this) {
+                            $("#termsModal").hide();
+                        }
+                    });
+                    
+                    // Prevent modal content clicks from closing
+                    $(document).on("click", ".docket-modal-content", function(e) {
+                        e.stopPropagation();
+                    });
+                    
+                    // The rest of the initialization is handled by the loaded fast-build-form.js file
+                });
+            } else {
+                setTimeout(waitForFastBuildScript, 100);
+            }
+        }
+        
+        waitForFastBuildScript();
+    </script>';
+    
     // Render the fast build form
     if (function_exists('docket_render_fast_build_form')) {
         docket_render_fast_build_form($form_data);

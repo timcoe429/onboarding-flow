@@ -316,6 +316,33 @@
     gap: 10px;
 }
 
+.checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    padding: 12px 16px;
+    background: #f8f9fa;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+    margin-bottom: 12px;
+}
+
+.checkbox-field:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.checkbox-field input {
+    margin: 0;
+}
+
+.checkbox-field input:checked + span {
+    color: #185fb0;
+    font-weight: 600;
+}
+
 /* Terms Box */
 .terms-box {
     background: #f9fafb;

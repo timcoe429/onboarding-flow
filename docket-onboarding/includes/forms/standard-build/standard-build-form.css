@@ -1,1 +1,236 @@
+/**
+ * Standard Build Form Styles
+ * Docket Onboarding Plugin
+ */
 
+/* Form Container */
+.docket-standard-form {
+    max-width: 1000px;
+    margin: 0 auto;
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+}
+
+/* Links styling */
+.docket-standard-form a {
+    color: #185fb0;
+    font-weight: bold;
+    text-decoration: none;
+    transition: color 0.2s ease;
+}
+
+.docket-standard-form a:hover {
+    color: #000000;
+    text-decoration: underline;
+}
+
+/* Progress Bar */
+.docket-form-progress {
+    margin-bottom: 30px;
+}
+
+.docket-progress-track {
+    height: 4px;
+    background: #e5e7eb;
+    border-radius: 2px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.docket-progress-fill {
+    height: 100%;
+    background: #185fb0;
+    transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    width: 12.5%;
+}
+
+.docket-progress-dots {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 10px;
+}
+
+.docket-progress-dots span {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+}
+
+.docket-progress-dots span.active {
+    background: #185fb0;
+    color: white;
+    transform: scale(1.15);
+}
+
+.docket-progress-dots span.completed {
+    background: #7eb10f;
+    color: white;
+}
+
+/* Form Steps */
+.form-step {
+    display: none;
+    animation: fadeIn 0.4s ease;
+}
+
+.form-step.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.form-step h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #111827;
+    margin-bottom: 6px;
+}
+
+.step-subtitle {
+    color: #6b7280;
+    font-size: 15px;
+    margin-bottom: 24px;
+}
+
+/* Utility Classes */
+.mb-20 { margin-bottom: 20px; }
+.mb-30 { margin-bottom: 30px; }
+
+/* Form Fields */
+.form-field {
+    margin-bottom: 18px;
+}
+
+.form-field label {
+    display: block;
+    font-size: 14px;
+    font-weight: 600;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.form-field input[type="text"],
+.form-field input[type="email"],
+.form-field input[type="tel"],
+.form-field input[type="url"],
+.form-field textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    font-size: 15px;
+    transition: all 0.2s ease;
+}
+
+.form-field textarea {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.form-field input:focus,
+.form-field textarea:focus {
+    outline: none;
+    border-color: #185fb0;
+    box-shadow: 0 0 0 3px rgba(24, 95, 176, 0.1);
+}
+
+.form-field small {
+    display: block;
+    margin-top: 4px;
+    color: #6b7280;
+    font-size: 12px;
+}
+
+.field-note {
+    color: #6b7280;
+    font-size: 13px;
+    margin-bottom: 8px;
+}
+
+/* Grid Layouts */
+.form-grid-2col {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px 20px;
+}
+
+.form-grid-3col {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    align-items: start;
+}
+
+.full-width {
+    grid-column: 1 / -1;
+}
+
+.service-areas-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.service-area-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.service-area-field label {
+    font-weight: 600;
+    color: #6b7280;
+    margin: 0;
+}
+
+.social-media-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+}
+
+/* Radio Cards */
+.radio-card {
+    display: block;
+    margin-bottom: 10px;
+    cursor: pointer;
+}
+
+.radio-card input {
+    position: absolute;
+    opacity: 0;
+}
+
+.radio-card-content {
+    display: block;
+    padding: 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+    transition: all 0.2s ease;
+}
+
+.radio-card:hover .radio-card-content {
+    border-color: #d1d5db;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.radio-card input:checked + .

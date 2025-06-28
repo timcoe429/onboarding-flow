@@ -31,7 +31,7 @@
         
         <div class="form-field full-width">
             <label>Business Address *</label>
-            <textarea name="business_address" rows="2" placeholder="Examples: 3615 Delgany St Ste 1000, Denver, CO or Denver, CO" required></textarea>
+            <textarea name="business_address" rows="2" required></textarea>
         </div>
     </div>
 

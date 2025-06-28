@@ -39,6 +39,8 @@ function docket_render_standard_build_form($form_data = array()) {
             <input type="hidden" name="docket_build_type" value="<?php echo esc_attr($build_type); ?>">
             <input type="hidden" name="select_your_docket_plan" value="<?php echo esc_attr(ucfirst($plan_type)); ?>">
 
+            <!-- Add WordPress nonce field -->
+<?php wp_nonce_field('docket_standard_build_nonce', 'nonce'); ?>
             <!-- Include form steps -->
             <?php 
             $steps_path = DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/standard-build/steps/';

@@ -20,7 +20,7 @@
 .docket-progress-container {
     width: 100%;
     max-width: 400px;
-    margin: 0 auto 30px;
+    margin: 0 auto 20px;
     padding: 0 60px;
 }
 
@@ -50,7 +50,7 @@
     display: none;
     animation: slideInRight 0.6s ease-out;
     position: relative;
-    padding-top: 60px;
+    padding-top: 20px;
 }
 
 .docket-step.active {
@@ -83,6 +83,8 @@
     padding: 15px;
 }
 
+/* Progress bar positioning - moved to after header in HTML */
+
 /* Back Button */
 .docket-back-btn {
     position: absolute;
@@ -110,7 +112,7 @@
 /* STEP 1 - PLAN SELECTION */
 .docket-step1 .docket-header {
     text-align: center;
-    padding: 20px 20px 15px;
+    padding: 0px 20px 20px;
 }
 
 .docket-step1 .docket-header h1 {
@@ -981,7 +983,7 @@
 
     /* Navigation and Progress Bar */
     .docket-step {
-        padding-top: 50px;
+        padding-top: 15px;
     }
 
     .docket-nav-container {

@@ -29,16 +29,18 @@ function docket_onboarding_render_shortcode($atts) {
         <!-- STEP 1: PLAN SELECTION -->
         <div class="docket-step docket-step1 active" id="docket-step-1" data-step="1">
             <div class="docket-nav-container">
-                <div class="docket-progress-container">
-                    <div class="docket-progress-bar">
-                        <div class="docket-progress-fill"></div>
-                    </div>
-                </div>
+                <!-- Progress bar removed from nav, will be placed after header -->
             </div>
             
             <div class="docket-header">
                 <h1>Choose Your Website Plan</h1>
                 <p>Select the perfect plan to grow your online presence. Each plan is designed to meet your specific business needs.</p>
+            </div>
+
+            <div class="docket-progress-container">
+                <div class="docket-progress-bar">
+                    <div class="docket-progress-fill"></div>
+                </div>
             </div>
 
             <div class="docket-plans">

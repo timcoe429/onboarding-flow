@@ -77,7 +77,7 @@
 
     <!-- Dynamic Rental Info Sections -->
     <div id="rollOffSection" class="rental-section" style="display: none;">
-        <h4><i class="fa fa-dumpster"></i> Roll-Off Dumpster Information</h4>
+        <h4>🗑️ Roll-Off Dumpster Information</h4>
         <div class="form-grid-2col">
             <div class="form-field">
                 <label>Rental Sizes</label>
@@ -99,7 +99,7 @@
     </div>
 
     <div id="hookLiftSection" class="rental-section" style="display: none;">
-        <h4><i class="fa fa-truck-loading"></i> Hook-Lift Dumpster Information</h4>
+        <h4>🚛 Hook-Lift Dumpster Information</h4>
         <div class="form-grid-2col">
             <div class="form-field">
                 <label>Rental Sizes</label>
@@ -121,7 +121,7 @@
     </div>
 
     <div id="dumpTrailerSection" class="rental-section" style="display: none;">
-        <h4><i class="fa fa-caravan"></i> Dump Trailer Information</h4>
+        <h4>🚚 Dump Trailer Information</h4>
         <div class="form-grid-2col">
             <div class="form-field">
                 <label>Rental Sizes</label>

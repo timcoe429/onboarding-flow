@@ -22,7 +22,7 @@
         <div class="file-upload">
             <input type="file" name="logo_files[]" accept="image/*" multiple id="logoFileInput">
             <div class="file-upload-text">
-                <i class="fa fa-upload"></i>
+📁
                 <span>Click to upload or drag files here</span>
                 <small>Preferred size: 300px x 300px or similar dimensions</small>
             </div>

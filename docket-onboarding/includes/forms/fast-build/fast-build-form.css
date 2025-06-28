@@ -626,7 +626,8 @@
         grid-template-columns: 1fr;
     }
 
-    .template-grid {
+    .template-grid,
+    .template-grid-2x2 {
         grid-template-columns: 1fr;
         gap: 12px;
     }
@@ -735,8 +736,8 @@
 
 /* Template Grid 2x2 Layout */
 .template-grid-2x2 {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
+    display: grid !important;
+    grid-template-columns: repeat(2, 1fr) !important;
     gap: 20px;
     margin-bottom: 20px;
 }
@@ -749,7 +750,7 @@
     display: block;
     text-decoration: none;
     color: inherit;
-    border: 2px solid #e5e7eb;
+    border: 3px solid #e5e7eb;
     border-radius: 8px;
     overflow: hidden;
     transition: all 0.2s ease;
@@ -759,7 +760,7 @@
 .template-preview-link:hover {
     border-color: #185fb0;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(24, 95, 176, 0.15);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .template-preview-link img {
@@ -770,20 +771,23 @@
 
 .template-preview-text {
     display: block;
-    padding: 12px;
-    background: #f8fafc;
-    color: #185fb0;
+    padding: 8px;
+    background: #f9fafb;
+    color: #374151;
+    font-size: 13px;
     font-weight: 600;
-    font-size: 14px;
 }
 
 .template-select {
-    display: block;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
     margin: 0;
 }
 
 .template-select input {
-    margin-right: 8px;
+    margin-right: 6px;
 }
 
 /* Modal Styles */

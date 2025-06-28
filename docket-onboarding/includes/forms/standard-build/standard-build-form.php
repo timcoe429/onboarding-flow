@@ -225,13 +225,31 @@ function docket_handle_standard_build_submission() {
 $attachments = array();
 if (!empty($_FILES)) {
     foreach ($_FILES as $file_key => $file) {
-        if ($file['error'] === UPLOAD_ERR_OK) {
-            // Move uploaded file to WordPress uploads directory
-            $upload_dir = wp_upload_dir();
-            $upload_path = $upload_dir['path'] . '/' . basename($file['name']);
-            
-            if (move_uploaded_file($file['tmp_name'], $upload_path)) {
-                $attachments[] = $upload_path;
+        // Handle array of files (like logo_files[])
+        if (is_array($file['name'])) {
+            for ($i = 0; $i < count($file['name']); $i++) {
+                if ($file['error'][$i] === UPLOAD_ERR_OK && !empty($file['name'][$i])) {
+                    // Move uploaded file to WordPress uploads directory
+                    $upload_dir = wp_upload_dir();
+                    $file_name = sanitize_file_name($file['name'][$i]);
+                    $upload_path = $upload_dir['path'] . '/' . $file_name;
+                    
+                    if (move_uploaded_file($file['tmp_name'][$i], $upload_path)) {
+                        $attachments[] = $upload_path;
+                    }
+                }
+            }
+        } else {
+            // Handle single file
+            if ($file['error'] === UPLOAD_ERR_OK && !empty($file['name'])) {
+                // Move uploaded file to WordPress uploads directory
+                $upload_dir = wp_upload_dir();
+                $file_name = sanitize_file_name($file['name']);
+                $upload_path = $upload_dir['path'] . '/' . $file_name;
+                
+                if (move_uploaded_file($file['tmp_name'], $upload_path)) {
+                    $attachments[] = $upload_path;
+                }
             }
         }
     }

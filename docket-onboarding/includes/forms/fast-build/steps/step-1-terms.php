@@ -28,6 +28,30 @@
         </label>
     </div>
     
+    <!-- Info Box for Content Consistency -->
+    <div class="info-box">
+        <h4>Fast Build Overview</h4>
+        <div class="info-section">
+            <h5>What This Includes</h5>
+            <p>A professionally designed WordPress website built specifically for dumpster rental businesses, delivered in just 3 business days.</p>
+        </div>
+        
+        <div class="info-section">
+            <h5>Your Role</h5>
+            <p>Since this is a fast build with zero revisions, you'll handle all post-launch customization using WordPress/Elementor.</p>
+        </div>
+        
+        <div class="info-section">
+            <h5>What We Need</h5>
+            <ul>
+                <li>Basic business information and branding</li>
+                <li>Service area details</li>
+                <li>Your WordPress experience level</li>
+                <li>Immediate payment to begin work</li>
+            </ul>
+        </div>
+    </div>
+
     <!-- WordPress Experience -->
     <div class="form-field">
         <label>WordPress/Elementor Experience *</label>

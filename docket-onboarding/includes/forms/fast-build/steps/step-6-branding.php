@@ -54,6 +54,11 @@
             <small>Optional second color</small>
         </div>
     </div>
+    
+    <div class="info-box mb-20">
+        <p><strong>Note for Fast Build</strong></p>
+        <p>Your website will use your template's default fonts. You can customize fonts after launch using the Elementor page builder.</p>
+    </div>
 
     <div class="form-nav">
         <button type="button" class="btn-prev">Back</button>

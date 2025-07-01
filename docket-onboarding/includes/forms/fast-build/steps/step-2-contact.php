@@ -4,8 +4,8 @@
     <p class="step-subtitle">This information will be displayed on your website</p>
     
     <div class="form-grid-2col">
-        <div class="form-field">
-            <label>Contact Name *</label>
+        <div class="form-field full-width">
+            <label>Contact First & Last Name *</label>
             <input type="text" name="name" autocomplete="name" required>
         </div>
         
@@ -29,9 +29,9 @@
             <input type="email" name="business_email" autocomplete="email" required>
         </div>
         
-        <div class="form-field">
+        <div class="form-field full-width">
             <label>Business Address *</label>
-            <input type="text" name="business_address" autocomplete="street-address" placeholder="123 Main St, Denver, CO" required>
+            <textarea name="business_address" rows="2" placeholder="123 Main St, Denver, CO" required></textarea>
         </div>
     </div>
 

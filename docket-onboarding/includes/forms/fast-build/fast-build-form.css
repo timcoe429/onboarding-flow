@@ -621,8 +621,8 @@
         font-size: 22px;
     }
 
-    .form-grid,
-    .form-grid-2col {
+    .form-grid-2col,
+    .form-grid-3col {
         grid-template-columns: 1fr;
     }
 
@@ -634,6 +634,11 @@
 
     .service-areas-grid {
         grid-template-columns: 1fr;
+    }
+    
+    .radio-inline {
+        flex-direction: column;
+        gap: 10px;
     }
 
     .docket-progress-dots {

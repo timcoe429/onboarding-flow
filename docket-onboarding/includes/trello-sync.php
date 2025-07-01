@@ -14,11 +14,16 @@ class DocketTrelloSync {
     // Map Trello list names to project status
     private $status_mapping = array(
         'Docket Team' => 'docket_team',
-        'QA' => 'qa', 
+        'QA' => 'qa',
+        'New Builds Ready to Send' => 'ready_to_send',
         'Waiting on Review Scheduling' => 'waiting_review_scheduling',
         'Client Reviewing' => 'client_reviewing',
         'Edits to Complete' => 'edits_to_complete',
-        'Ready for Launch' => 'ready_for_launch'
+        'Review Edits Completed' => 'review_edits_completed',
+        'Pre Launch' => 'pre_launch',
+        'Ready for Launch' => 'ready_for_launch',
+        'Web Complete: Grow/Legacy' => 'web_complete_grow',
+        'Web Complete: Pro/ServiceCore' => 'web_complete_pro'
     );
     
     public function __construct() {
@@ -31,6 +36,53 @@ class DocketTrelloSync {
         // Schedule automatic sync (every 30 minutes)
         add_action('wp', array($this, 'schedule_sync'));
         add_action('docket_trello_sync_hook', array($this, 'sync_all_projects'));
+        
+        // Migrate old project statuses
+        add_action('init', array($this, 'migrate_old_statuses'));
+    }
+    
+    /**
+     * Migrate old project statuses to new system
+     */
+    public function migrate_old_statuses() {
+        global $wpdb;
+        
+        $projects_table = $wpdb->prefix . 'docket_client_projects';
+        
+        // Check if we have projects with old statuses
+        $old_projects = $wpdb->get_results("
+            SELECT id, current_step FROM {$projects_table} 
+            WHERE current_step IN ('submitted', 'building', 'review', 'final_touches', 'launched')
+        ");
+        
+        if (!$old_projects) {
+            return; // No migration needed
+        }
+        
+        // Map old statuses to new ones
+        $migration_map = array(
+            'submitted' => 'docket_team',
+            'building' => 'qa',
+            'review' => 'client_reviewing',
+            'final_touches' => 'pre_launch',
+            'launched' => 'ready_for_launch'
+        );
+        
+        foreach ($old_projects as $project) {
+            $old_status = $project->current_step;
+            $new_status = $migration_map[$old_status] ?? 'docket_team';
+            
+            // Update project status
+            $wpdb->update(
+                $projects_table,
+                array('current_step' => $new_status),
+                array('id' => $project->id),
+                array('%s'),
+                array('%d')
+            );
+            
+            error_log("Migrated project {$project->id} from {$old_status} to {$new_status}");
+        }
     }
     
     /**

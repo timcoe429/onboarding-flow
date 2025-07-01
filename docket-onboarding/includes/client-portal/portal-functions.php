@@ -217,10 +217,15 @@ class DocketClientPortal {
         $steps = array(
             'docket_team' => 'completed',
             'qa' => 'pending',
+            'ready_to_send' => 'pending',
             'waiting_review_scheduling' => 'pending',
             'client_reviewing' => 'pending',
             'edits_to_complete' => 'pending',
-            'ready_for_launch' => 'pending'
+            'review_edits_completed' => 'pending',
+            'pre_launch' => 'pending',
+            'ready_for_launch' => 'pending',
+            'web_complete_grow' => 'pending',
+            'web_complete_pro' => 'pending'
         );
         
         foreach ($steps as $step => $status) {

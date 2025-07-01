@@ -263,10 +263,15 @@
         $status_info = array(
             'docket_team' => array('icon' => '📋', 'title' => 'Project Received', 'desc' => 'Your project has been received and is in our queue'),
             'qa' => array('icon' => '🔍', 'title' => 'Quality Assurance', 'desc' => 'Our team is reviewing and setting up your project'),
+            'ready_to_send' => array('icon' => '📤', 'title' => 'Ready to Send', 'desc' => 'Your website build is ready for initial review'),
             'waiting_review_scheduling' => array('icon' => '📅', 'title' => 'Scheduling Review', 'desc' => 'We\'re scheduling your review session'),
             'client_reviewing' => array('icon' => '👀', 'title' => 'Client Review', 'desc' => 'Your website is ready for your review and feedback'),
             'edits_to_complete' => array('icon' => '✏️', 'title' => 'Making Edits', 'desc' => 'We\'re implementing your requested changes'),
-            'ready_for_launch' => array('icon' => '🚀', 'title' => 'Ready for Launch', 'desc' => 'Your website is ready to go live!')
+            'review_edits_completed' => array('icon' => '✅', 'title' => 'Edits Complete', 'desc' => 'Your requested changes have been completed'),
+            'pre_launch' => array('icon' => '🚦', 'title' => 'Pre-Launch', 'desc' => 'Final preparations and testing before launch'),
+            'ready_for_launch' => array('icon' => '🚀', 'title' => 'Ready for Launch', 'desc' => 'Your website is ready to go live!'),
+            'web_complete_grow' => array('icon' => '🌱', 'title' => 'Complete - Grow/Legacy', 'desc' => 'Project completed on Grow or Legacy plan'),
+            'web_complete_pro' => array('icon' => '💼', 'title' => 'Complete - Pro/ServiceCore', 'desc' => 'Project completed on Pro or ServiceCore plan')
         );
         $current_status = $status_info[$current_step] ?? $status_info['docket_team'];
         ?>
@@ -289,10 +294,15 @@
                 $step_details = array(
                     'docket_team' => array('title' => 'Docket Team', 'desc' => 'Project received and queued for development'),
                     'qa' => array('title' => 'Quality Assurance', 'desc' => 'Initial review and project setup'),
+                    'ready_to_send' => array('title' => 'Ready to Send', 'desc' => 'Website build completed and ready for review'),
                     'waiting_review_scheduling' => array('title' => 'Review Scheduling', 'desc' => 'Coordinating review session with client'),
                     'client_reviewing' => array('title' => 'Client Review', 'desc' => 'Client feedback and approval process'),
                     'edits_to_complete' => array('title' => 'Implementing Edits', 'desc' => 'Making requested changes and refinements'),
-                    'ready_for_launch' => array('title' => 'Ready for Launch', 'desc' => 'Final preparations and website launch')
+                    'review_edits_completed' => array('title' => 'Edits Complete', 'desc' => 'All requested changes have been implemented'),
+                    'pre_launch' => array('title' => 'Pre-Launch', 'desc' => 'Final testing and launch preparations'),
+                    'ready_for_launch' => array('title' => 'Ready for Launch', 'desc' => 'Final preparations and website launch'),
+                    'web_complete_grow' => array('title' => 'Complete - Grow/Legacy', 'desc' => 'Project completed on Grow or Legacy plan'),
+                    'web_complete_pro' => array('title' => 'Complete - Pro/ServiceCore', 'desc' => 'Project completed on Pro or ServiceCore plan')
                 );
                 
                 $step_number = 1;

@@ -58,6 +58,16 @@ class DocketOnboarding {
         if (file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/form-handler.php')) {
             require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/form-handler.php';
         }
+        
+        // 🆕 CLIENT PORTAL - Easy to remove by commenting out these lines
+        if (file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/client-portal/portal-functions.php')) {
+            require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/client-portal/portal-functions.php';
+        }
+        
+        // Load admin interface only in admin
+        if (is_admin() && file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/client-portal/portal-admin.php')) {
+            require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/client-portal/portal-admin.php';
+        }
     }
     
     /**

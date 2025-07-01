@@ -15,14 +15,17 @@ if (!defined('ABSPATH')) {
 class DocketClientPortal {
     
     public function __construct() {
+        error_log('Docket Portal Debug: DocketClientPortal constructor called');
         add_action('init', array($this, 'init'));
         // Use the plugin activation hook properly
         add_action('plugins_loaded', array($this, 'maybe_create_tables'));
     }
     
     public function init() {
-        // Add rewrite rules for client URLs
-        add_action('init', array($this, 'add_rewrite_rules'));
+        error_log('Docket Portal Debug: DocketClientPortal init called');
+        
+        // Add rewrite rules for client URLs directly
+        $this->add_rewrite_rules();
         add_filter('query_vars', array($this, 'add_query_vars'));
         add_action('template_redirect', array($this, 'handle_portal_display'));
         
@@ -94,11 +97,15 @@ class DocketClientPortal {
      * Add rewrite rules for client portal URLs
      */
     public function add_rewrite_rules() {
+        error_log('Docket Portal Debug: Adding rewrite rules');
+        
         add_rewrite_rule(
             '^project-status/([a-f0-9-]{36})/?$',
             'index.php?docket_project_uuid=$matches[1]',
             'top'
         );
+        
+        error_log('Docket Portal Debug: Rewrite rule added');
         
         // Check if we need to flush rewrite rules
         $this->maybe_flush_rewrite_rules();
@@ -112,10 +119,13 @@ class DocketClientPortal {
         $rules = get_option('rewrite_rules');
         $our_rule_exists = false;
         
+        error_log('Docket Portal Debug: Checking existing rewrite rules');
+        
         if (is_array($rules)) {
             foreach ($rules as $rule => $rewrite) {
                 if (strpos($rule, 'project-status') !== false) {
                     $our_rule_exists = true;
+                    error_log('Docket Portal Debug: Found existing project-status rule: ' . $rule);
                     break;
                 }
             }
@@ -123,8 +133,11 @@ class DocketClientPortal {
         
         // If our rule doesn't exist, flush rewrite rules
         if (!$our_rule_exists) {
+            error_log('Docket Portal Debug: Project-status rule not found, flushing rewrite rules');
             flush_rewrite_rules();
             error_log('Docket Client Portal: Rewrite rules flushed');
+        } else {
+            error_log('Docket Portal Debug: Project-status rule exists, no flush needed');
         }
     }
     
@@ -132,7 +145,9 @@ class DocketClientPortal {
      * Add query vars
      */
     public function add_query_vars($vars) {
+        error_log('Docket Portal Debug: Adding query vars');
         $vars[] = 'docket_project_uuid';
+        error_log('Docket Portal Debug: Query vars: ' . print_r($vars, true));
         return $vars;
     }
     
@@ -141,9 +156,18 @@ class DocketClientPortal {
      */
     public function handle_portal_display() {
         $uuid = get_query_var('docket_project_uuid');
+        
+        // Debug logging
+        error_log('Docket Portal Debug: template_redirect triggered');
+        error_log('Docket Portal Debug: UUID from query var = ' . ($uuid ? $uuid : 'empty'));
+        error_log('Docket Portal Debug: REQUEST_URI = ' . $_SERVER['REQUEST_URI']);
+        
         if ($uuid) {
+            error_log('Docket Portal Debug: UUID found, displaying portal');
             $this->display_portal($uuid);
             exit;
+        } else {
+            error_log('Docket Portal Debug: No UUID found, continuing with normal WordPress');
         }
     }
     
@@ -309,6 +333,8 @@ class DocketClientPortal {
 }
 
 // Initialize the portal
+error_log('Docket Portal Debug: Initializing global DocketClientPortal');
 global $docket_client_portal;
 $docket_client_portal = new DocketClientPortal();
+error_log('Docket Portal Debug: Global DocketClientPortal created');
 ?>

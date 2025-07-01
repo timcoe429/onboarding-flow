@@ -16,7 +16,16 @@ class DocketClientPortal {
     
     public function __construct() {
         error_log('Docket Portal Debug: DocketClientPortal constructor called');
-        add_action('init', array($this, 'init'));
+        
+        // Check if init has already fired
+        if (did_action('init')) {
+            error_log('Docket Portal Debug: Init already fired, calling init directly');
+            $this->init();
+        } else {
+            error_log('Docket Portal Debug: Init not fired yet, adding hook');
+            add_action('init', array($this, 'init'));
+        }
+        
         // Use the plugin activation hook properly
         add_action('plugins_loaded', array($this, 'maybe_create_tables'));
     }

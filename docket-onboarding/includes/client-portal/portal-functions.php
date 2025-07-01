@@ -16,7 +16,8 @@ class DocketClientPortal {
     
     public function __construct() {
         add_action('init', array($this, 'init'));
-        register_activation_hook(plugin_dir_path(__FILE__) . '../docket-onboarding.php', array($this, 'create_tables'));
+        // Use the plugin activation hook properly
+        add_action('plugins_loaded', array($this, 'maybe_create_tables'));
     }
     
     public function init() {
@@ -25,13 +26,22 @@ class DocketClientPortal {
         add_filter('query_vars', array($this, 'add_query_vars'));
         add_action('template_redirect', array($this, 'handle_portal_display'));
         
-        // Hook into form submissions
-        add_action('wp_ajax_docket_submit_website_vip_form', array($this, 'hook_form_submission'), 999);
-        add_action('wp_ajax_nopriv_docket_submit_website_vip_form', array($this, 'hook_form_submission'), 999);
-        add_action('wp_ajax_docket_submit_fast_build_form', array($this, 'hook_form_submission'), 999);
-        add_action('wp_ajax_nopriv_docket_submit_fast_build_form', array($this, 'hook_form_submission'), 999);
-        add_action('wp_ajax_docket_submit_standard_build_form', array($this, 'hook_form_submission'), 999);
-        add_action('wp_ajax_nopriv_docket_submit_standard_build_form', array($this, 'hook_form_submission'), 999);
+        // Note: Form submission hooks are now handled directly in form handlers
+        // for better reliability and cleaner integration
+    }
+    
+    /**
+     * Maybe create database tables
+     */
+    public function maybe_create_tables() {
+        global $wpdb;
+        
+        $table_name = $wpdb->prefix . 'docket_client_projects';
+        
+        // Check if the table exists
+        if ($wpdb->get_var("SHOW TABLES LIKE '$table_name'") != $table_name) {
+            $this->create_tables();
+        }
     }
     
     /**
@@ -114,50 +124,19 @@ class DocketClientPortal {
     }
     
     /**
-     * Hook into form submissions to create portal entries
-     */
-    public function hook_form_submission() {
-        // Only run after successful form submission
-        if (defined('DOING_AJAX') && DOING_AJAX) {
-            // Hook into wp_mail to detect successful email send
-            add_filter('wp_mail', array($this, 'capture_successful_submission'), 10, 5);
-        }
-    }
-    
-    /**
-     * Capture successful form submission and create portal
-     */
-    public function capture_successful_submission($args) {
-        // If we get here, the main email was sent successfully
-        if (isset($_POST['business_name']) && isset($_POST['business_email'])) {
-            
-            // Determine form type
-            $form_type = 'unknown';
-            if (strpos(current_filter(), 'website_vip') !== false) {
-                $form_type = 'website-vip';
-            } elseif (strpos(current_filter(), 'fast_build') !== false) {
-                $form_type = 'fast-build';
-            } elseif (strpos(current_filter(), 'standard_build') !== false) {
-                $form_type = 'standard-build';
-            }
-            
-            $this->create_client_project($_POST, $form_type);
-        }
-        
-        return $args; // Don't interfere with original email
-    }
-    
-    /**
      * Create client project and send portal URL
      */
     public function create_client_project($form_data, $form_type) {
         global $wpdb;
         
+        // Ensure tables exist
+        $this->maybe_create_tables();
+        
         $client_uuid = wp_generate_uuid4();
         $project_url = home_url("/project-status/{$client_uuid}/");
         
         // Insert project
-        $project_id = $wpdb->insert(
+        $result = $wpdb->insert(
             $wpdb->prefix . 'docket_client_projects',
             array(
                 'client_uuid' => $client_uuid,
@@ -169,31 +148,50 @@ class DocketClientPortal {
             )
         );
         
-        if ($project_id) {
-            // Initialize timeline steps
-            $steps = array(
-                'submitted' => 'completed',
-                'building' => 'pending', 
-                'review' => 'pending',
-                'final_touches' => 'pending',
-                'launched' => 'pending'
+        if ($result === false) {
+            // Log the error for debugging
+            error_log('Docket Client Portal: Failed to insert project. Database error: ' . $wpdb->last_error);
+            return false;
+        }
+        
+        $project_id = $wpdb->insert_id;
+        
+        // Initialize timeline steps
+        $steps = array(
+            'submitted' => 'completed',
+            'building' => 'pending', 
+            'review' => 'pending',
+            'final_touches' => 'pending',
+            'launched' => 'pending'
+        );
+        
+        foreach ($steps as $step => $status) {
+            $timeline_result = $wpdb->insert(
+                $wpdb->prefix . 'docket_project_timeline',
+                array(
+                    'project_id' => $project_id,
+                    'step_name' => $step,
+                    'status' => $status,
+                    'completed_date' => $status === 'completed' ? current_time('mysql') : null
+                )
             );
             
-            foreach ($steps as $step => $status) {
-                $wpdb->insert(
-                    $wpdb->prefix . 'docket_project_timeline',
-                    array(
-                        'project_id' => $wpdb->insert_id,
-                        'step_name' => $step,
-                        'status' => $status,
-                        'completed_date' => $status === 'completed' ? current_time('mysql') : null
-                    )
-                );
+            if ($timeline_result === false) {
+                error_log('Docket Client Portal: Failed to insert timeline step. Database error: ' . $wpdb->last_error);
             }
-            
-            // Send client portal email
-            $this->send_portal_email($form_data['business_email'], $form_data['business_name'], $project_url);
         }
+        
+        // Send client portal email
+        $email_sent = $this->send_portal_email($form_data['business_email'], $form_data['business_name'], $project_url);
+        
+        if (!$email_sent) {
+            error_log('Docket Client Portal: Failed to send portal email to ' . $form_data['business_email']);
+        }
+        
+        // Log successful creation
+        error_log('Docket Client Portal: Successfully created project for ' . $form_data['business_name'] . ' with UUID: ' . $client_uuid);
+        
+        return $project_url;
     }
     
     /**
@@ -243,7 +241,7 @@ class DocketClientPortal {
         </html>';
         
         $headers = array('Content-Type: text/html; charset=UTF-8');
-        wp_mail($email, $subject, $message, $headers);
+        return wp_mail($email, $subject, $message, $headers);
     }
     
     /**
@@ -275,5 +273,6 @@ class DocketClientPortal {
 }
 
 // Initialize the portal
-new DocketClientPortal();
+global $docket_client_portal;
+$docket_client_portal = new DocketClientPortal();
 ?>

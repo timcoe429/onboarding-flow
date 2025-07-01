@@ -263,7 +263,24 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
 $sent = wp_mail($to, $subject, $email_content, $headers, $attachments);
 
 if ($sent) {
-    wp_send_json_success(array('message' => 'Form submitted successfully'));
+    // Create client portal entry after successful email send
+    $portal_url = null;
+    if (class_exists('DocketClientPortal')) {
+        // Get portal instance and create project
+        global $docket_client_portal;
+        if ($docket_client_portal) {
+            $portal_url = $docket_client_portal->create_client_project($_POST, 'standard-build');
+        }
+    }
+    
+    $response_data = array('message' => 'Form submitted successfully');
+    if ($portal_url) {
+        $response_data['redirect_url'] = $portal_url;
+    } else {
+        $response_data['redirect_url'] = home_url('/thank-you/');
+    }
+    
+    wp_send_json_success($response_data);
 } else {
     wp_send_json_error(array('message' => 'Failed to send email'));
 }

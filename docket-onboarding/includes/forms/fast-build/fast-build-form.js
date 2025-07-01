@@ -202,9 +202,16 @@ jQuery(document).ready(function($) {
             contentType: false,
             success: function(response) {
                 if (response.success) {
-                    $('.docket-fast-form form').hide();
-                    $('.docket-form-progress').hide();
-                    $('.form-success').show();
+                    // Check if there's a redirect URL
+                    if (response.data && response.data.redirect_url) {
+                        // Redirect to the client portal
+                        window.location.href = response.data.redirect_url;
+                    } else {
+                        // Fallback to showing success message
+                        $('.docket-fast-form form').hide();
+                        $('.docket-form-progress').hide();
+                        $('.form-success').show();
+                    }
                 } else {
                     alert('Error: ' + (response.data.message || 'Something went wrong'));
                     form.removeClass('form-loading');

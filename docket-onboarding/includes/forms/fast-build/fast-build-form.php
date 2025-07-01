@@ -250,35 +250,21 @@ $headers = array('Content-Type: text/html; charset=UTF-8');
 $sent = wp_mail($to, $subject, $email_content, $headers, $attachments);
 
 if ($sent) {
-    // Debug logging
-    error_log('Docket Debug: Email sent = ' . ($sent ? 'true' : 'false'));
-    error_log('Docket Debug: DocketClientPortal exists = ' . (class_exists('DocketClientPortal') ? 'yes' : 'no'));
-    
     // Create client portal entry after successful email send
     $portal_url = null;
     if (class_exists('DocketClientPortal')) {
         // Get portal instance and create project
         global $docket_client_portal;
-        error_log('Docket Debug: Global portal = ' . (isset($docket_client_portal) ? 'set' : 'not set'));
-        error_log('Docket Debug: Global portal value = ' . print_r($docket_client_portal, true));
-        
         if ($docket_client_portal) {
             $portal_url = $docket_client_portal->create_client_project($_POST, 'fast-build');
-            error_log('Docket Debug: Portal URL = ' . ($portal_url ? $portal_url : 'false'));
-        } else {
-            error_log('Docket Debug: Portal not created - global variable is null');
         }
-    } else {
-        error_log('Docket Debug: DocketClientPortal class does not exist');
     }
     
     $response_data = array('message' => 'Form submitted successfully');
     if ($portal_url) {
         $response_data['redirect_url'] = $portal_url;
-        error_log('Docket Debug: Sending redirect URL = ' . $portal_url);
     } else {
         $response_data['redirect_url'] = home_url('/thank-you/');
-        error_log('Docket Debug: Falling back to thank you page');
     }
     
     wp_send_json_success($response_data);

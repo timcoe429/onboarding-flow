@@ -26,6 +26,9 @@ class DocketClientPortal {
         add_filter('query_vars', array($this, 'add_query_vars'));
         add_action('template_redirect', array($this, 'handle_portal_display'));
         
+        // Add manual flush capability for testing
+        add_action('wp_loaded', array($this, 'maybe_manual_flush'));
+        
         // Note: Form submission hooks are now handled directly in form handlers
         // for better reliability and cleaner integration
     }
@@ -97,10 +100,31 @@ class DocketClientPortal {
             'top'
         );
         
-        // Flush rewrite rules if needed
-        if (get_option('docket_portal_rewrite_flushed') !== '1') {
+        // Check if we need to flush rewrite rules
+        $this->maybe_flush_rewrite_rules();
+    }
+    
+    /**
+     * Maybe flush rewrite rules if needed
+     */
+    private function maybe_flush_rewrite_rules() {
+        // Check if our rewrite rule exists
+        $rules = get_option('rewrite_rules');
+        $our_rule_exists = false;
+        
+        if (is_array($rules)) {
+            foreach ($rules as $rule => $rewrite) {
+                if (strpos($rule, 'project-status') !== false) {
+                    $our_rule_exists = true;
+                    break;
+                }
+            }
+        }
+        
+        // If our rule doesn't exist, flush rewrite rules
+        if (!$our_rule_exists) {
             flush_rewrite_rules();
-            update_option('docket_portal_rewrite_flushed', '1');
+            error_log('Docket Client Portal: Rewrite rules flushed');
         }
     }
     
@@ -269,6 +293,18 @@ class DocketClientPortal {
         
         // Include the portal template
         include DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/client-portal/templates/client-portal.php';
+    }
+    
+    /**
+     * Allow manual flushing via URL parameter
+     */
+    public function maybe_manual_flush() {
+        if (isset($_GET['flush_docket_rules']) && is_admin()) {
+            flush_rewrite_rules();
+            error_log('Docket Client Portal: Manual rewrite rules flush triggered');
+            wp_redirect(remove_query_arg('flush_docket_rules'));
+            exit;
+        }
     }
 }
 

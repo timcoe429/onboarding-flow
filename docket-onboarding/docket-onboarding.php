@@ -49,15 +49,14 @@ class DocketOnboarding {
      * Include required files
      */
     private function includes() {
-        // Include shortcode handler if it exists
-        if (file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/shortcode.php')) {
-            require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/shortcode.php';
-        }
-        
-        // Include form handler if it exists
-        if (file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/form-handler.php')) {
-            require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/form-handler.php';
-        }
+        // Include required files
+        require_once plugin_dir_path(__FILE__) . 'includes/form-handler.php';
+        require_once plugin_dir_path(__FILE__) . 'includes/shortcode.php';
+        require_once plugin_dir_path(__FILE__) . 'includes/client-portal/portal-admin.php';
+        require_once plugin_dir_path(__FILE__) . 'includes/client-portal/portal-database.php';
+        require_once plugin_dir_path(__FILE__) . 'includes/client-portal/portal-functions.php';
+        require_once plugin_dir_path(__FILE__) . 'includes/client-portal/portal-display.php';
+        require_once plugin_dir_path(__FILE__) . 'includes/trello-sync.php';
         
         // 🆕 CLIENT PORTAL - Easy to remove by commenting out these lines
         if (file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/client-portal/portal-functions.php')) {

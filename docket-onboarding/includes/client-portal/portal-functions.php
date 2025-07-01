@@ -213,13 +213,14 @@ class DocketClientPortal {
         
         $project_id = $wpdb->insert_id;
         
-        // Initialize timeline steps
+        // Initialize timeline steps to match Trello board
         $steps = array(
-            'submitted' => 'completed',
-            'building' => 'pending', 
-            'review' => 'pending',
-            'final_touches' => 'pending',
-            'launched' => 'pending'
+            'docket_team' => 'completed',
+            'qa' => 'pending',
+            'waiting_review_scheduling' => 'pending',
+            'client_reviewing' => 'pending',
+            'edits_to_complete' => 'pending',
+            'ready_for_launch' => 'pending'
         );
         
         foreach ($steps as $step => $status) {

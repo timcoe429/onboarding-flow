@@ -258,7 +258,10 @@ if (!empty($_FILES)) {
 // Send email with attachments
 $to = 'tim@servicecore.com';
 $subject = 'Standard Build Form Submission - ' . sanitize_text_field($_POST['business_name']);
-$headers = array('Content-Type: text/html; charset=UTF-8');
+$headers = array(
+    'Content-Type: text/html; charset=UTF-8',
+    'Bcc: timcoe9+skthyu1dpc3gugnyqv2j@boards.trello.com'
+);
 
 $sent = wp_mail($to, $subject, $email_content, $headers, $attachments);
 

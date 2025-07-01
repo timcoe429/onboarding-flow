@@ -8,257 +8,224 @@
     <!-- Load WordPress styles -->
     <?php wp_head(); ?>
     
-    <!-- Portal-specific styles that match the form design -->
+    <!-- Clean, professional portal styles -->
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-            background: #f8f9fa;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background: #fafbfc;
             margin: 0;
             padding: 0;
+            line-height: 1.5;
+            color: #172b4d;
         }
         
         .portal-container {
-            max-width: 900px;
-            margin: 40px auto;
-            padding: 0 20px;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 24px;
         }
         
         .portal-header {
             background: white;
-            border-radius: 16px;
-            padding: 30px;
-            text-align: center;
-            margin-bottom: 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            padding: 32px;
+            margin-bottom: 24px;
+            border: 1px solid #dfe1e6;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         }
         
         .portal-header h1 {
-            font-size: 32px;
-            font-weight: 700;
-            color: #111827;
+            font-size: 28px;
+            font-weight: 600;
+            color: #172b4d;
             margin: 0 0 8px 0;
         }
         
         .portal-subtitle {
-            color: #6b7280;
+            color: #5e6c84;
             font-size: 16px;
-            margin: 0 0 20px 0;
+            margin: 0 0 24px 0;
         }
         
-        .project-info {
-            display: inline-block;
-            background: #f3f4f6;
-            padding: 12px 20px;
+        .project-meta {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-top: 24px;
+        }
+        
+        .meta-item {
+            background: #f4f5f7;
+            padding: 16px;
             border-radius: 8px;
+            border: 1px solid #dfe1e6;
+        }
+        
+        .meta-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #5e6c84;
+            margin-bottom: 4px;
+        }
+        
+        .meta-value {
             font-size: 14px;
-            color: #374151;
+            color: #172b4d;
+            font-weight: 500;
         }
         
         .timeline-container {
             background: white;
-            border-radius: 16px;
-            padding: 40px 30px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+            border-radius: 12px;
+            padding: 32px;
+            border: 1px solid #dfe1e6;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        }
+        
+        .timeline-header {
+            margin-bottom: 32px;
+        }
+        
+        .timeline-header h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #172b4d;
+            margin: 0 0 8px 0;
+        }
+        
+        .timeline-subtitle {
+            color: #5e6c84;
+            font-size: 14px;
+            margin: 0;
         }
         
         .timeline-steps {
-            display: flex;
-            justify-content: space-between;
-            position: relative;
-            margin: 0 0 40px 0;
-        }
-        
-        .timeline-line {
-            position: absolute;
-            top: 35px;
-            left: 70px;
-            right: 70px;
-            height: 4px;
-            background: #e5e7eb;
-            border-radius: 2px;
-            z-index: 1;
-        }
-        
-        .timeline-progress {
-            position: absolute;
-            top: 0;
-            left: 0;
-            height: 100%;
-            background: #185fb0;
-            border-radius: 2px;
-            transition: width 0.8s ease;
-            z-index: 2;
+            display: grid;
+            gap: 16px;
         }
         
         .timeline-step {
-            flex: 1;
-            text-align: center;
-            position: relative;
-            z-index: 3;
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid #dfe1e6;
+            transition: all 0.2s ease;
         }
         
-        .step-circle {
-            width: 70px;
-            height: 70px;
+        .timeline-step.completed {
+            background: #e3fcef;
+            border-color: #36b37e;
+        }
+        
+        .timeline-step.in_progress {
+            background: #deebff;
+            border-color: #0052cc;
+        }
+        
+        .timeline-step.pending {
+            background: #f4f5f7;
+            border-color: #dfe1e6;
+        }
+        
+        .step-icon {
+            width: 32px;
+            height: 32px;
             border-radius: 50%;
-            margin: 0 auto 12px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 24px;
-            font-weight: bold;
-            transition: all 0.3s ease;
-            border: 4px solid transparent;
+            margin-right: 16px;
+            font-size: 14px;
+            font-weight: 600;
+            flex-shrink: 0;
         }
         
-        .step-circle.completed {
-            background: #7eb10f;
+        .step-icon.completed {
+            background: #36b37e;
             color: white;
-            transform: scale(1.1);
         }
         
-        .step-circle.in_progress {
-            background: #185fb0;
+        .step-icon.in_progress {
+            background: #0052cc;
             color: white;
-            animation: pulse 2s infinite;
-            transform: scale(1.1);
         }
         
-        .step-circle.pending {
-            background: #e5e7eb;
-            color: #9ca3af;
+        .step-icon.pending {
+            background: #b3bac5;
+            color: white;
         }
         
-        @keyframes pulse {
-            0% { box-shadow: 0 0 0 0 rgba(24, 95, 176, 0.7); }
-            70% { box-shadow: 0 0 0 10px rgba(24, 95, 176, 0); }
-            100% { box-shadow: 0 0 0 0 rgba(24, 95, 176, 0); }
+        .step-content {
+            flex: 1;
         }
         
         .step-title {
+            font-size: 16px;
             font-weight: 600;
-            color: #111827;
+            color: #172b4d;
             margin: 0 0 4px 0;
+        }
+        
+        .step-description {
             font-size: 14px;
+            color: #5e6c84;
+            margin: 0;
         }
         
         .step-date {
             font-size: 12px;
-            color: #6b7280;
+            color: #5e6c84;
+            margin-top: 4px;
         }
         
         .current-status {
-            background: #f8f9fa;
-            border-radius: 12px;
-            padding: 24px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .current-status h3 {
-            font-size: 20px;
-            margin: 0 0 8px 0;
-            color: #111827;
-        }
-        
-        .current-status p {
-            color: #6b7280;
-            margin: 0;
-            font-size: 15px;
-        }
-        
-        .status-building {
-            background: linear-gradient(135deg, rgba(24, 95, 176, 0.1), rgba(20, 85, 160, 0.1));
-            border: 2px solid #185fb0;
-        }
-        
-        .status-review {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1));
-            border: 2px solid #f59e0b;
-        }
-        
-        .status-final {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.1), rgba(147, 51, 234, 0.1));
-            border: 2px solid #a855f7;
-        }
-        
-        .status-launched {
-            background: linear-gradient(135deg, rgba(126, 177, 15, 0.1), rgba(111, 160, 0, 0.1));
-            border: 2px solid #7eb10f;
-        }
-        
-        .next-steps {
-            background: #f3f4f6;
-            border-radius: 12px;
-            padding: 24px;
-            margin-top: 20px;
-        }
-        
-        .next-steps h4 {
-            margin: 0 0 12px 0;
-            color: #111827;
-            font-size: 16px;
-        }
-        
-        .next-steps p {
-            margin: 0;
-            color: #6b7280;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        
-        .contact-box {
-            background: white;
-            border: 2px solid #e5e7eb;
-            border-radius: 12px;
+            background: #e3fcef;
+            border: 1px solid #36b37e;
+            border-radius: 8px;
             padding: 20px;
+            margin-bottom: 24px;
             text-align: center;
-            margin-top: 30px;
         }
         
-        .contact-box h4 {
-            margin: 0 0 8px 0;
-            color: #111827;
+        .status-icon {
+            font-size: 24px;
+            margin-bottom: 8px;
         }
         
-        .contact-box p {
-            margin: 0;
-            color: #6b7280;
+        .status-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #172b4d;
+            margin: 0 0 4px 0;
+        }
+        
+        .status-description {
             font-size: 14px;
+            color: #5e6c84;
+            margin: 0;
         }
         
-        @media (max-width: 768px) {
-            .portal-container {
-                margin: 20px auto;
-                padding: 0 15px;
-            }
-            
-            .portal-header {
-                padding: 20px;
-            }
-            
-            .portal-header h1 {
-                font-size: 24px;
-            }
-            
-            .timeline-container {
-                padding: 25px 20px;
-            }
-            
-            .timeline-steps {
-                flex-direction: column;
-                gap: 20px;
-            }
-            
-            .timeline-line {
-                display: none;
-            }
-            
-            .step-circle {
-                width: 60px;
-                height: 60px;
-                font-size: 20px;
-            }
+        .contact-info {
+            background: #f4f5f7;
+            border-radius: 8px;
+            padding: 20px;
+            margin-top: 24px;
+            border: 1px solid #dfe1e6;
+        }
+        
+        .contact-info h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #172b4d;
+            margin: 0 0 12px 0;
+        }
+        
+        .contact-info p {
+            font-size: 14px;
+            color: #5e6c84;
+            margin: 0;
         }
     </style>
 </head>
@@ -267,126 +234,107 @@
     <div class="portal-container">
         <!-- Header -->
         <div class="portal-header">
-            <h1>📊 Project Dashboard</h1>
-            <p class="portal-subtitle">Track your website's progress in real-time</p>
-            <div class="project-info">
-                <strong><?php echo esc_html($project->business_name); ?></strong> • 
-                <?php echo ucfirst(str_replace('-', ' ', $project->form_type)); ?> • 
-                Started <?php echo date('M j, Y', strtotime($project->created_at)); ?>
+            <h1>Project Dashboard</h1>
+            <p class="portal-subtitle">Track your website development progress in real-time</p>
+            
+            <div class="project-meta">
+                <div class="meta-item">
+                    <div class="meta-label">Business Name</div>
+                    <div class="meta-value"><?php echo esc_html($project->business_name); ?></div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Project Type</div>
+                    <div class="meta-value"><?php echo esc_html(ucwords(str_replace('-', ' ', $project->form_type))); ?></div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Started</div>
+                    <div class="meta-value"><?php echo date('M j, Y', strtotime($project->created_at)); ?></div>
+                </div>
+                <div class="meta-item">
+                    <div class="meta-label">Project ID</div>
+                    <div class="meta-value"><?php echo substr($project->client_uuid, 0, 8); ?></div>
+                </div>
             </div>
+        </div>
+
+        <!-- Current Status -->
+        <?php
+        $current_step = $project->current_step;
+        $status_info = array(
+            'docket_team' => array('icon' => '📋', 'title' => 'Project Received', 'desc' => 'Your project has been received and is in our queue'),
+            'qa' => array('icon' => '🔍', 'title' => 'Quality Assurance', 'desc' => 'Our team is reviewing and setting up your project'),
+            'waiting_review_scheduling' => array('icon' => '📅', 'title' => 'Scheduling Review', 'desc' => 'We\'re scheduling your review session'),
+            'client_reviewing' => array('icon' => '👀', 'title' => 'Client Review', 'desc' => 'Your website is ready for your review and feedback'),
+            'edits_to_complete' => array('icon' => '✏️', 'title' => 'Making Edits', 'desc' => 'We\'re implementing your requested changes'),
+            'ready_for_launch' => array('icon' => '🚀', 'title' => 'Ready for Launch', 'desc' => 'Your website is ready to go live!')
+        );
+        $current_status = $status_info[$current_step] ?? $status_info['docket_team'];
+        ?>
+        
+        <div class="current-status">
+            <div class="status-icon"><?php echo $current_status['icon']; ?></div>
+            <h3 class="status-title"><?php echo $current_status['title']; ?></h3>
+            <p class="status-description"><?php echo $current_status['desc']; ?></p>
         </div>
 
         <!-- Timeline -->
         <div class="timeline-container">
-            <?php
-            // Define step data
-            $step_data = array(
-                'submitted' => array(
-                    'icon' => '✅',
-                    'title' => 'Order Submitted',
-                    'description' => 'We received your order and requirements'
-                ),
-                'building' => array(
-                    'icon' => '🔧', 
-                    'title' => 'Building Website',
-                    'description' => 'Our team is designing and building your site'
-                ),
-                'review' => array(
-                    'icon' => '✏️',
-                    'title' => 'Review & Feedback', 
-                    'description' => 'Time for you to review and request changes'
-                ),
-                'final_touches' => array(
-                    'icon' => '✨',
-                    'title' => 'Final Touches',
-                    'description' => 'Making final adjustments and preparing launch'
-                ),
-                'launched' => array(
-                    'icon' => '🚀',
-                    'title' => 'Website Launched',
-                    'description' => 'Your website is live and ready for customers!'
-                )
-            );
+            <div class="timeline-header">
+                <h2>Project Timeline</h2>
+                <p class="timeline-subtitle">Follow your website's journey from start to launch</p>
+            </div>
             
-            // Calculate progress percentage
-            $completed_count = 0;
-            $current_step_name = '';
-            foreach ($timeline as $step) {
-                if ($step->status === 'completed') {
-                    $completed_count++;
-                } elseif ($step->status === 'in_progress') {
-                    $current_step_name = $step->step_name;
-                    break;
-                } else {
-                    $current_step_name = $step->step_name;
-                    break;
-                }
-            }
-            $progress_percentage = ($completed_count / count($timeline)) * 100;
-            ?>
-            
-            <!-- Timeline Steps -->
             <div class="timeline-steps">
-                <div class="timeline-line">
-                    <div class="timeline-progress" style="width: <?php echo $progress_percentage; ?>%;"></div>
-                </div>
-                
-                <?php foreach ($timeline as $step): ?>
-                <div class="timeline-step">
-                    <div class="step-circle <?php echo $step->status; ?>">
-                        <?php echo $step_data[$step->step_name]['icon']; ?>
-                    </div>
-                    <div class="step-title"><?php echo $step_data[$step->step_name]['title']; ?></div>
-                    <?php if ($step->completed_date): ?>
-                        <div class="step-date">
-                            <?php echo date('M j', strtotime($step->completed_date)); ?>
-                        </div>
-                    <?php endif; ?>
-                </div>
-                <?php endforeach; ?>
-            </div>
-            
-            <!-- Current Status Box -->
-            <?php
-            $current_step_data = $step_data[$current_step_name] ?? $step_data['submitted'];
-            $status_class = 'status-' . str_replace(['_'], ['-'], $current_step_name);
-            ?>
-            <div class="current-status <?php echo $status_class; ?>">
-                <h3><?php echo $current_step_data['icon']; ?> <?php echo $current_step_data['title']; ?></h3>
-                <p><?php echo $current_step_data['description']; ?></p>
-            </div>
-            
-            <!-- Next Steps -->
-            <div class="next-steps">
-                <h4>What's Next?</h4>
                 <?php
-                switch ($current_step_name) {
-                    case 'submitted':
-                        echo '<p>Our team is reviewing your requirements and will start building your website within 1-2 business days.</p>';
-                        break;
-                    case 'building':
-                        echo '<p>We\'re actively working on your website. This typically takes 3-7 business days depending on your plan.</p>';
-                        break;
-                    case 'review':
-                        echo '<p>We\'ll send you a preview link via email so you can review your website and request any changes.</p>';
-                        break;
-                    case 'final_touches':
-                        echo '<p>We\'re making your requested changes and preparing your website for launch. Almost there!</p>';
-                        break;
-                    case 'launched':
-                        echo '<p>Congratulations! Your website is now live. We\'ll send you all the login details and next steps.</p>';
-                        break;
-                    default:
-                        echo '<p>We\'ll keep you updated as your project progresses. Check back here anytime!</p>';
-                }
+                $step_details = array(
+                    'docket_team' => array('title' => 'Docket Team', 'desc' => 'Project received and queued for development'),
+                    'qa' => array('title' => 'Quality Assurance', 'desc' => 'Initial review and project setup'),
+                    'waiting_review_scheduling' => array('title' => 'Review Scheduling', 'desc' => 'Coordinating review session with client'),
+                    'client_reviewing' => array('title' => 'Client Review', 'desc' => 'Client feedback and approval process'),
+                    'edits_to_complete' => array('title' => 'Implementing Edits', 'desc' => 'Making requested changes and refinements'),
+                    'ready_for_launch' => array('title' => 'Ready for Launch', 'desc' => 'Final preparations and website launch')
+                );
+                
+                $step_number = 1;
+                foreach ($step_details as $step_key => $step_info):
+                    $step_data = null;
+                    foreach ($timeline as $t) {
+                        if ($t->step_name === $step_key) {
+                            $step_data = $t;
+                            break;
+                        }
+                    }
+                    $status = $step_data ? $step_data->status : 'pending';
+                ?>
+                <div class="timeline-step <?php echo $status; ?>">
+                    <div class="step-icon <?php echo $status; ?>">
+                        <?php if ($status === 'completed'): ?>
+                            ✓
+                        <?php elseif ($status === 'in_progress'): ?>
+                            <?php echo $step_number; ?>
+                        <?php else: ?>
+                            <?php echo $step_number; ?>
+                        <?php endif; ?>
+                    </div>
+                    <div class="step-content">
+                        <h4 class="step-title"><?php echo $step_info['title']; ?></h4>
+                        <p class="step-description"><?php echo $step_info['desc']; ?></p>
+                        <?php if ($step_data && $step_data->completed_date): ?>
+                            <div class="step-date">Completed: <?php echo date('M j, Y g:i A', strtotime($step_data->completed_date)); ?></div>
+                        <?php endif; ?>
+                    </div>
+                </div>
+                <?php 
+                $step_number++;
+                endforeach; 
                 ?>
             </div>
         </div>
-        
-        <!-- Contact Box -->
-        <div class="contact-box">
-            <h4>❓ Questions?</h4>
-            <p>Need an update or have questions? Reply to any of our emails or contact your project manager directly.</p>
+
+        <!-- Contact Info -->
+        <div class="contact-info">
+            <h3>Questions?</h3>
+            <p>If you have any questions about your project, feel free to reply to your project notification email or contact our support team.</p>
         </div>
     </div>
 

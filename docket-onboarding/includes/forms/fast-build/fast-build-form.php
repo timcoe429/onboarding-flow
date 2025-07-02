@@ -303,6 +303,7 @@ if (!empty($attachments)) {
 /**
  * Create site via API call to dockethosting5.com
  */
+if (!function_exists('create_site_via_api')) {
 function create_site_via_api($form_data, $form_type) {
     // Map form template selection to our templates
     $template_mapping = array(
@@ -380,4 +381,5 @@ function create_site_via_api($form_data, $form_type) {
         error_log('Docket Site Creation API failed: ' . $error_msg);
         return false;
     }
+}
 }

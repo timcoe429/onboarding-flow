@@ -662,6 +662,13 @@
             'callback' => array($this, 'clear_debug_logs'),
             'permission_callback' => array($this, 'verify_api_key'),
         ));
+        
+        // Easy web interface for viewing logs (no API key needed for convenience)
+        register_rest_route('docket/v1', '/debug-interface', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'show_debug_interface'),
+            'permission_callback' => '__return_true', // Public access for easy debugging
+        ));
     }
     
     /**
@@ -718,5 +725,221 @@
                 'log_path' => $log_file
             );
         }
+    }
+    
+    /**
+     * Show debug interface - Easy web-based log viewer
+     */
+    public function show_debug_interface($request) {
+        $log_file = WP_CONTENT_DIR . '/docket-automated-site-creator.log';
+        
+        $html = '<!DOCTYPE html>
+<html>
+<head>
+    <title>Docket Site Creator - Debug Interface</title>
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            margin: 0; 
+            padding: 20px; 
+            background: #f5f5f5; 
+        }
+        .container { 
+            max-width: 1200px; 
+            margin: 0 auto; 
+            background: white; 
+            border-radius: 8px; 
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1); 
+        }
+        .header { 
+            background: #0073aa; 
+            color: white; 
+            padding: 20px; 
+            border-radius: 8px 8px 0 0; 
+        }
+        .header h1 { 
+            margin: 0; 
+            font-size: 24px; 
+        }
+        .controls { 
+            padding: 20px; 
+            border-bottom: 1px solid #eee; 
+            display: flex; 
+            gap: 10px; 
+            align-items: center;
+        }
+        .btn { 
+            background: #0073aa; 
+            color: white; 
+            border: none; 
+            padding: 10px 20px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 14px;
+        }
+        .btn:hover { background: #005a87; }
+        .btn.danger { background: #d63638; }
+        .btn.danger:hover { background: #b32d2e; }
+        .status { 
+            padding: 10px 15px; 
+            border-radius: 4px; 
+            margin-left: auto;
+            font-weight: bold;
+        }
+        .status.online { background: #d4edda; color: #155724; }
+        .logs { 
+            padding: 20px; 
+            height: 600px; 
+            overflow-y: auto; 
+            background: #1e1e1e; 
+            color: #d4d4d4; 
+            font-family: "Courier New", monospace; 
+            font-size: 13px; 
+            line-height: 1.4;
+        }
+        .log-line { 
+            margin-bottom: 5px; 
+            padding: 3px 0;
+        }
+        .log-line.error { color: #f48771; }
+        .log-line.success { color: #4ec9b0; }
+        .log-line.debug { color: #569cd6; }
+        .log-line.warning { color: #dcdcaa; }
+        .timestamp { color: #808080; }
+        .empty-state { 
+            text-align: center; 
+            color: #666; 
+            padding: 40px; 
+        }
+        .footer {
+            padding: 15px 20px;
+            background: #f8f9fa;
+            border-radius: 0 0 8px 8px;
+            font-size: 12px;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Docket Site Creator - Debug Interface</h1>
+            <p style="margin: 5px 0 0 0; opacity: 0.9;">Real-time debugging for automated site creation</p>
+        </div>
+        
+        <div class="controls">
+            <button class="btn" onclick="refreshLogs()">🔄 Refresh Logs</button>
+            <button class="btn danger" onclick="clearLogs()">🗑️ Clear Logs</button>
+            <label>
+                <input type="checkbox" id="autoRefresh" checked onchange="toggleAutoRefresh()"> 
+                Auto-refresh (5s)
+            </label>
+            <div class="status online" id="status">● Online</div>
+        </div>
+        
+        <div class="logs" id="logsContainer">
+            <div class="empty-state">Loading logs...</div>
+        </div>
+        
+        <div class="footer">
+            <strong>How to use:</strong> 
+            1) Submit a form on yourdocketonline.com 
+            2) Watch the logs appear here in real-time 
+            3) Look for ERROR messages or missing template sites
+            <br>
+            <strong>Log file:</strong> ' . $log_file . '
+        </div>
+    </div>
+
+    <script>
+        let autoRefreshInterval;
+        
+        async function refreshLogs() {
+            try {
+                const response = await fetch("' . site_url() . '/wp-json/docket/v1/debug-logs?api_key=docket_automation_key_2025");
+                const data = await response.json();
+                
+                const container = document.getElementById("logsContainer");
+                
+                if (data.error) {
+                    container.innerHTML = `<div class="empty-state">❌ ${data.error}</div>`;
+                    return;
+                }
+                
+                if (!data.recent_logs || data.recent_logs.trim() === "") {
+                    container.innerHTML = `<div class="empty-state">📝 No logs yet. Submit a form to see debug info!</div>`;
+                    return;
+                }
+                
+                // Process and display logs
+                const lines = data.recent_logs.split("\\n");
+                let html = "";
+                
+                lines.forEach(line => {
+                    if (line.trim() === "") return;
+                    
+                    let className = "log-line";
+                    if (line.includes("ERROR")) className += " error";
+                    else if (line.includes("SUCCESS")) className += " success";
+                    else if (line.includes("DEBUG")) className += " debug";
+                    else if (line.includes("WARNING")) className += " warning";
+                    
+                    // Highlight timestamps
+                    line = line.replace(/(\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2})/g, \'<span class="timestamp">$1</span>\');
+                    
+                    html += `<div class="${className}">${line}</div>`;
+                });
+                
+                container.innerHTML = html;
+                container.scrollTop = container.scrollHeight; // Auto-scroll to bottom
+                
+                // Update status
+                document.getElementById("status").innerHTML = `● Last updated: ${new Date().toLocaleTimeString()}`;
+                
+            } catch (error) {
+                document.getElementById("logsContainer").innerHTML = `<div class="empty-state">❌ Error loading logs: ${error.message}</div>`;
+            }
+        }
+        
+        async function clearLogs() {
+            if (!confirm("Are you sure you want to clear all debug logs?")) return;
+            
+            try {
+                const response = await fetch("' . site_url() . '/wp-json/docket/v1/clear-logs?api_key=docket_automation_key_2025", {
+                    method: "DELETE"
+                });
+                const data = await response.json();
+                
+                if (data.success) {
+                    document.getElementById("logsContainer").innerHTML = `<div class="empty-state">✅ Logs cleared! Submit a form to see new debug info.</div>`;
+                } else {
+                    alert("Error clearing logs: " + (data.error || "Unknown error"));
+                }
+            } catch (error) {
+                alert("Error clearing logs: " + error.message);
+            }
+        }
+        
+        function toggleAutoRefresh() {
+            const checkbox = document.getElementById("autoRefresh");
+            
+            if (checkbox.checked) {
+                autoRefreshInterval = setInterval(refreshLogs, 5000); // Refresh every 5 seconds
+            } else {
+                clearInterval(autoRefreshInterval);
+            }
+        }
+        
+        // Initialize
+        refreshLogs();
+        toggleAutoRefresh(); // Start auto-refresh
+    </script>
+</body>
+</html>';
+
+        // Set proper headers
+        header('Content-Type: text/html; charset=utf-8');
+        echo $html;
+        die(); // Stop WordPress from adding any additional content
     }
 } 

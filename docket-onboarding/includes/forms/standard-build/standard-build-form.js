@@ -235,6 +235,94 @@ jQuery(document).ready(function($) {
         }
     });
     
+    // Show processing screen
+    function showProcessingScreen() {
+        const processingHTML = `
+            <div class="processing-overlay">
+                <div class="processing-content">
+                    <div class="processing-spinner"></div>
+                    <h2 class="processing-title">Processing Your Standard Build Order</h2>
+                    <p class="processing-message">We're setting up your comprehensive website build process. This may take a moment...</p>
+                    
+                    <div class="processing-progress">
+                        <div class="processing-progress-bar"></div>
+                    </div>
+                    
+                    <div class="processing-steps">
+                        <div class="processing-step" data-step="1">
+                            <div class="processing-step-icon">1</div>
+                            <span>Validating form data</span>
+                        </div>
+                        <div class="processing-step" data-step="2">
+                            <div class="processing-step-icon">2</div>
+                            <span>Creating client profile</span>
+                        </div>
+                        <div class="processing-step" data-step="3">
+                            <div class="processing-step-icon">3</div>
+                            <span>Processing content & files</span>
+                        </div>
+                        <div class="processing-step" data-step="4">
+                            <div class="processing-step-icon">4</div>
+                            <span>Setting up project timeline</span>
+                        </div>
+                        <div class="processing-step" data-step="5">
+                            <div class="processing-step-icon">5</div>
+                            <span>Generating client portal access</span>
+                        </div>
+                        <div class="processing-step" data-step="6">
+                            <div class="processing-step-icon">6</div>
+                            <span>Sending confirmation emails</span>
+                        </div>
+                    </div>
+                    
+                    <div class="processing-reassurance">
+                        <strong>Almost there!</strong> We're creating your comprehensive project workspace. This typically takes 45-90 seconds.
+                    </div>
+                    
+                    <p class="processing-note">Preparing your fully managed website build...</p>
+                </div>
+            </div>
+        `;
+        
+        $('body').append(processingHTML);
+        
+        // Animate progress steps
+        let currentProgressStep = 1;
+        const totalSteps = 6;
+        
+        function animateStep() {
+            $('.processing-step').removeClass('active completed');
+            
+            // Mark previous steps as completed
+            for (let i = 1; i < currentProgressStep; i++) {
+                $(`.processing-step[data-step="${i}"]`).addClass('completed');
+            }
+            
+            // Mark current step as active
+            $(`.processing-step[data-step="${currentProgressStep}"]`).addClass('active');
+            
+            // Update progress bar
+            const progressPercent = (currentProgressStep / totalSteps) * 100;
+            $('.processing-progress-bar').css('width', progressPercent + '%');
+            
+            currentProgressStep++;
+            
+            if (currentProgressStep <= totalSteps) {
+                setTimeout(animateStep, 1000 + Math.random() * 600); // Randomize timing slightly
+            }
+        }
+        
+        // Start animation after a brief delay
+        setTimeout(animateStep, 500);
+    }
+    
+    // Hide processing screen
+    function hideProcessingScreen() {
+        $('.processing-overlay').fadeOut(300, function() {
+            $(this).remove();
+        });
+    }
+
     // Form submission
     form.on('submit', function(e) {
         e.preventDefault();
@@ -243,8 +331,8 @@ jQuery(document).ready(function($) {
             return;
         }
         
-        // Show loading
-        form.addClass('form-loading');
+        // Show enhanced processing screen
+        showProcessingScreen();
         
         // Collect form data
         const formData = new FormData(this);
@@ -259,26 +347,45 @@ jQuery(document).ready(function($) {
             processData: false,
             contentType: false,
             success: function(response) {
-                if (response.success) {
-                    // Check if there's a redirect URL
-                    if (response.data && response.data.redirect_url) {
-                        // Redirect to the client portal
-                        window.location.href = response.data.redirect_url;
+                // Small delay to show completion
+                setTimeout(function() {
+                    hideProcessingScreen();
+                    
+                    if (response.success) {
+                        // Check if there's a redirect URL
+                        if (response.data && response.data.redirect_url) {
+                            // Show brief success message before redirect
+                            const successOverlay = `
+                                <div class="processing-overlay">
+                                    <div class="processing-content">
+                                        <div style="width: 60px; height: 60px; background: #7eb10f; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 24px; font-weight: bold;">✓</div>
+                                        <h2 class="processing-title">Standard Build Order Submitted!</h2>
+                                        <p class="processing-message">Redirecting to your client portal...</p>
+                                    </div>
+                                </div>
+                            `;
+                            $('body').append(successOverlay);
+                            
+                            setTimeout(() => {
+                                window.location.href = response.data.redirect_url;
+                            }, 1500);
+                        } else {
+                            // Fallback to showing success message
+                            $('.docket-standard-form form').hide();
+                            $('.docket-form-progress').hide();
+                            $('.form-success').show();
+                        }
                     } else {
-                        // Fallback to showing success message
-                        $('.docket-standard-form form').hide();
-                        $('.docket-form-progress').hide();
-                        $('.form-success').show();
+                        alert('Error: ' + (response.data.message || 'Something went wrong'));
                     }
-                } else {
-                    alert('Error: ' + (response.data.message || 'Something went wrong'));
-                    form.removeClass('form-loading');
-                }
+                }, 2500); // Slightly longer for standard build
             },
             error: function(xhr, status, error) {
-                console.error('AJAX Error:', status, error);
-                alert('Connection error. Please try again. Error: ' + error);
-                form.removeClass('form-loading');
+                setTimeout(function() {
+                    hideProcessingScreen();
+                    console.error('AJAX Error:', status, error);
+                    alert('Connection error. Please try again. Error: ' + error);
+                }, 1000);
             }
         });
     });

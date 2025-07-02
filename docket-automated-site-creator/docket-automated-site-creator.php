@@ -1,3 +1,154 @@
+<?php
+/**
+ * Plugin Name: Docket Automated Site Creator
+ * Description: Creates new WordPress sites from templates via API calls from onboarding forms
+ * Version: 1.0
+ * Author: Docket
+ */
+
+// Prevent direct access
+if (!defined('ABSPATH')) {
+    exit;
+}
+
+class DocketAutomatedSiteCreator {
+    
+    private $allowed_templates = array(
+        'template1' => 'template1',
+        'template2' => 'template2', 
+        'template3' => 'template3',
+        'template4' => 'template4'
+    );
+    
+    public function __construct() {
+        // Register API endpoints (including debug endpoint)
+        add_action('rest_api_init', array($this, 'register_api_endpoints'));
+    }
+    
+    /**
+     * Register REST API endpoints
+     */
+    public function register_api_endpoints() {
+        // Site creation endpoint
+        register_rest_route('docket/v1', '/create-site', array(
+            'methods' => 'POST',
+            'callback' => array($this, 'create_site_from_form'),
+            'permission_callback' => array($this, 'verify_api_key'),
+        ));
+        
+        // Debug endpoint to view logs
+        register_rest_route('docket/v1', '/debug-logs', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'get_debug_logs'),
+            'permission_callback' => array($this, 'verify_api_key'),
+        ));
+        
+        // Clear logs endpoint for fresh debugging
+        register_rest_route('docket/v1', '/clear-logs', array(
+            'methods' => 'DELETE',
+            'callback' => array($this, 'clear_debug_logs'),
+            'permission_callback' => array($this, 'verify_api_key'),
+        ));
+        
+        // Easy web interface for viewing logs (no API key needed for convenience)
+        register_rest_route('docket/v1', '/debug-interface', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'show_debug_interface'),
+            'permission_callback' => '__return_true', // Public access for easy debugging
+        ));
+    }
+    
+    /**
+     * Verify API key for security
+     */
+    public function verify_api_key($request) {
+        $api_key = $request->get_param('api_key') ?: $request->get_header('X-API-Key');
+        return $api_key === 'docket_automation_key_2025';
+    }
+    
+    /**
+     * Create a new site from template based on form submission
+     */
+    public function create_site_from_form($request) {
+        $form_data = $request->get_json_params();
+        
+        $this->log("=== STARTING SITE CREATION DEBUG ===");
+        $this->log("Received form data: " . json_encode($form_data, JSON_PRETTY_PRINT));
+        
+        // ✅ Validate template selection
+        $selected_template = $form_data['selected_template'] ?? 'template1';
+        $this->log("Selected template: " . $selected_template);
+        
+        if (!isset($this->allowed_templates[$selected_template])) {
+            $this->log("ERROR: Invalid template selection: " . $selected_template);
+            return new WP_Error('invalid_template', 'Invalid template selection. Only template1-4 allowed.');
+        }
+        
+        // Get the template site to clone from
+        $template_site_path = '/' . $this->allowed_templates[$selected_template] . '/';
+        $this->log("Looking for template site with path: " . $template_site_path);
+        
+        $template_site_id = $this->get_site_id_by_path($template_site_path);
+        $this->log("Template site ID found: " . ($template_site_id ? $template_site_id : 'NOT FOUND'));
+        
+        if (!$template_site_id) {
+            $this->log("ERROR: Template site not found for path: " . $template_site_path);
+            // Let's also check what sites actually exist
+            $this->debug_list_all_sites();
+            return new WP_Error('template_not_found', "Template site {$selected_template} not found at path {$template_site_path}.");
+        }
+        
+        // Debug template site content
+        $this->debug_template_site_content($template_site_id);
+        
+        // Get next available site number
+        $site_number = $this->get_next_site_number();
+        $this->log("Next available site number: " . $site_number);
+        
+        // Create new site
+        $site_url = "docketsite{$site_number}";
+        $site_title = $form_data['business_name'] ?? "Docket Site {$site_number}";
+        $this->log("Creating new site: URL={$site_url}, Title={$site_title}");
+        
+        $new_site_id = wpmu_create_blog(
+            get_current_site()->domain,
+            "/{$site_url}/", 
+            $site_title,
+            1, // Admin user ID
+            array('public' => 1),
+            get_current_network_id()
+        );
+        
+        if (is_wp_error($new_site_id)) {
+            $this->log("ERROR creating site: " . $new_site_id->get_error_message());
+            return new WP_Error('site_creation_failed', $new_site_id->get_error_message());
+        }
+        
+        $this->log("New site created successfully with ID: " . $new_site_id);
+        
+        // ✅ Clone from selected template ONLY
+        $this->log("Starting clone process from template {$template_site_id} to new site {$new_site_id}");
+        $clone_result = $this->clone_from_template($new_site_id, $template_site_id, $form_data);
+        $this->log("Clone process completed. Result: " . ($clone_result ? 'SUCCESS' : 'FAILED'));
+        
+        // Debug new site content after cloning
+        $this->debug_new_site_content($new_site_id);
+        
+        $site_url_full = "https://" . get_current_site()->domain . "/{$site_url}/";
+        $this->log("Site creation complete. Full URL: " . $site_url_full);
+        $this->log("=== SITE CREATION DEBUG COMPLETE ===");
+        
+        return array(
+            'success' => true,
+            'site_id' => $new_site_id,
+            'site_url' => $site_url_full,
+            'site_path' => "/{$site_url}/",
+            'template_used' => $selected_template,
+            'template_site_id' => $template_site_id,
+            'debug_log' => "Check docket-automated-site-creator.log for detailed debugging info"
+        );
+    }
+    
     /**
      * Clone content from template site with proper Elementor support
      */
@@ -180,6 +331,9 @@
         $this->log("=== CLONING POST META ===");
         $meta_count = 0;
         $elementor_meta_count = 0;
+        $elementor_data_valid = 0;
+        $elementor_data_invalid = 0;
+        
         foreach ($post_meta as $meta) {
             if (isset($post_id_map[$meta->post_id])) {
                 $meta_value = $meta->meta_value;
@@ -189,29 +343,61 @@
                     $elementor_meta_count++;
                     $this->log("Cloning Elementor meta: {$meta->meta_key} for post {$meta->post_id} -> {$post_id_map[$meta->post_id]}");
                     
+                    // Validate Elementor JSON before processing
+                    $elementor_json = json_decode($meta_value, true);
+                    if ($elementor_json) {
+                        $elementor_data_valid++;
+                        $this->log("  Valid Elementor JSON with " . count($elementor_json) . " elements");
+                        
+                        // Show first few characters of the data
+                        $this->log("  Sample data: " . substr($meta_value, 0, 200) . '...');
+                    } else {
+                        $elementor_data_invalid++;
+                        $this->log("  ERROR: Invalid Elementor JSON data!");
+                        $this->log("  Raw data sample: " . substr($meta_value, 0, 200) . '...');
+                    }
+                    
                     // Update post IDs in Elementor data
                     foreach ($post_id_map as $old_id => $new_id) {
                         $meta_value = str_replace('"' . $old_id . '"', '"' . $new_id . '"', $meta_value);
                     }
                 }
                 
-                add_post_meta(
+                $result = add_post_meta(
                     $post_id_map[$meta->post_id],
                     $meta->meta_key,
                     maybe_unserialize($meta_value),
                     false
                 );
+                
+                // Check if meta was added successfully
+                if ($result && in_array($meta->meta_key, array('_elementor_data', '_elementor_draft'))) {
+                    $this->log("  Successfully added Elementor meta for post {$post_id_map[$meta->post_id]}");
+                } elseif (!$result && in_array($meta->meta_key, array('_elementor_data', '_elementor_draft'))) {
+                    $this->log("  ERROR: Failed to add Elementor meta for post {$post_id_map[$meta->post_id]}");
+                }
+                
                 $meta_count++;
             }
         }
         $this->log("Cloned {$meta_count} post meta entries, including {$elementor_meta_count} Elementor meta entries");
+        $this->log("Elementor data validation: {$elementor_data_valid} valid, {$elementor_data_invalid} invalid");
         
-        // 7. Clone Elementor options
+        // 7. THEME ACTIVATION FIRST (before options)
+        $this->log("=== ACTIVATING THEME ===");
+        $this->activate_proper_theme();
+        
+        // 8. Clone Elementor options (excluding theme options)
         $this->log("=== CLONING ELEMENTOR OPTIONS ===");
         $option_count = 0;
         foreach ($elementor_options as $option) {
-            // Skip some site-specific options
-            if (in_array($option->option_name, array('elementor_experiment-hello-theme-header-footer'))) {
+            // Skip theme-related options - we handle theme separately
+            if (in_array($option->option_name, array(
+                'stylesheet', 
+                'template', 
+                'elementor_experiment-hello-theme-header-footer'
+            ))) {
+                $this->log("SKIPPING theme-related option: {$option->option_name} = " . $option->option_value);
                 continue;
             }
             
@@ -219,13 +405,13 @@
             $option_count++;
             $this->log("Cloned option: {$option->option_name}");
         }
-        $this->log("Cloned {$option_count} Elementor options");
+        $this->log("Cloned {$option_count} Elementor options (excluding theme options)");
         
-        // 8. Replace placeholder content with form data
+        // 9. Replace placeholder content with form data
         $this->log("=== REPLACING PLACEHOLDERS ===");
         $this->replace_placeholder_content($form_data, $post_id_map);
         
-        // 9. Set homepage
+        // 10. Set homepage
         $this->log("=== SETTING HOMEPAGE ===");
         $home_page = get_page_by_path('home');
         if ($home_page) {
@@ -236,7 +422,7 @@
             $this->log("No 'home' page found to set as homepage");
         }
         
-        // 10. Flush Elementor cache
+        // 11. Flush Elementor cache
         $this->log("=== FLUSHING ELEMENTOR CACHE ===");
         if (class_exists('\Elementor\Plugin')) {
             \Elementor\Plugin::$instance->files_manager->clear_cache();
@@ -244,6 +430,10 @@
         } else {
             $this->log("Elementor plugin not found - cache not cleared");
         }
+        
+        // 12. Final theme verification
+        $this->log("=== FINAL THEME VERIFICATION ===");
+        $this->verify_theme_activation();
         
         restore_current_blog();
         
@@ -257,100 +447,72 @@
      * Replace placeholder content with actual form data
      */
     private function replace_placeholder_content($form_data, $post_id_map) {
-        // Replacement mapping - UPDATED to match actual template placeholders
+        $this->log("Starting placeholder replacement with form data");
+        
+        // Extract city and state from business address
+        $city = $this->extract_city($form_data['business_address'] ?? '');
+        $state = $this->extract_state($form_data['business_address'] ?? '');
+        
+        // Prepare replacement mapping - handle both uppercase and lowercase
         $replacements = array(
+            // Company/Business name
             '{{company}}' => $form_data['business_name'] ?? 'Your Business',
-            '{{business_name}}' => $form_data['business_name'] ?? 'Your Business',
+            '{{COMPANY}}' => $form_data['business_name'] ?? 'Your Business',
             '{{BUSINESS_NAME}}' => $form_data['business_name'] ?? 'Your Business',
-            '{{contact_name}}' => $form_data['contact_name'] ?? $form_data['name'] ?? 'Contact',
-            '{{CONTACT_NAME}}' => $form_data['contact_name'] ?? $form_data['name'] ?? 'Contact',
-            '{{phone}}' => $form_data['phone'] ?? $form_data['phone_number'] ?? '(555) 123-4567',
-            '{{PHONE}}' => $form_data['phone'] ?? $form_data['phone_number'] ?? '(555) 123-4567',
-            '{{email}}' => $form_data['business_email'] ?? $form_data['email'] ?? 'info@yourbusiness.com',
-            '{{EMAIL}}' => $form_data['business_email'] ?? $form_data['email'] ?? 'info@yourbusiness.com',
-            '{{business_email}}' => $form_data['business_email'] ?? $form_data['email'] ?? 'info@yourbusiness.com',
-            '{{BUSINESS_EMAIL}}' => $form_data['business_email'] ?? $form_data['email'] ?? 'info@yourbusiness.com',
-            '{{business_address}}' => $form_data['business_address'] ?? 'Your Address',
-            '{{BUSINESS_ADDRESS}}' => $form_data['business_address'] ?? 'Your Address',
-            '{{city}}' => $this->extract_city($form_data['business_address'] ?? ''),
-            '{{CITY}}' => $this->extract_city($form_data['business_address'] ?? ''),
-            '{{state}}' => $this->extract_state($form_data['business_address'] ?? ''),
-            '{{STATE}}' => $this->extract_state($form_data['business_address'] ?? ''),
-            '{{service_areas}}' => $form_data['service_areas'] ?? 'Local Area',
-            '{{SERVICE_AREAS}}' => $form_data['service_areas'] ?? 'Local Area',
-            '{{services}}' => $form_data['services'] ?? 'Professional Services',
-            '{{SERVICES}}' => $form_data['services'] ?? 'Professional Services'
+            
+            // Location
+            '{{city}}' => $city,
+            '{{CITY}}' => $city,
+            '{{state}}' => $state,
+            '{{STATE}}' => $state,
+            
+            // Contact info
+            '{{phone}}' => $form_data['phone_number'] ?? 'Your Phone',
+            '{{PHONE}}' => $form_data['phone_number'] ?? 'Your Phone',
+            '{{email}}' => $form_data['business_email'] ?? 'your@email.com',
+            '{{EMAIL}}' => $form_data['business_email'] ?? 'your@email.com',
         );
         
-        $this->log("Starting placeholder replacement with data: " . json_encode($form_data));
-        $this->log("Replacement mappings: " . json_encode($replacements));
+        $this->log("Replacement mapping: " . json_encode($replacements, JSON_PRETTY_PRINT));
         
-        foreach ($post_id_map as $new_post_id) {
-            $post = get_post($new_post_id);
-            if (!$post) continue;
-            
+        // Get all posts in the new site
+        global $wpdb;
+        $posts = $wpdb->get_results("SELECT * FROM {$wpdb->prefix}posts WHERE post_status IN ('publish', 'private', 'draft')");
+        $this->log("Processing " . count($posts) . " posts for placeholder replacement");
+        
+        foreach ($posts as $post) {
             $updated = false;
-            
-            // Replace in post content
             $new_content = $post->post_content;
-            $original_content = $new_content;
+            $new_title = $post->post_title;
+            
+            // Replace in post content and title
             foreach ($replacements as $placeholder => $replacement) {
                 if (strpos($new_content, $placeholder) !== false) {
                     $new_content = str_replace($placeholder, $replacement, $new_content);
-                    $this->log("Replaced '{$placeholder}' with '{$replacement}' in post content");
+                    $updated = true;
+                    $this->log("Replaced '{$placeholder}' with '{$replacement}' in post content: {$post->post_title}");
                 }
-            }
-            if ($new_content !== $original_content) {
-                $updated = true;
-            }
-            
-            // Replace in post title
-            $new_title = $post->post_title;
-            $original_title = $new_title;
-            foreach ($replacements as $placeholder => $replacement) {
+                
                 if (strpos($new_title, $placeholder) !== false) {
                     $new_title = str_replace($placeholder, $replacement, $new_title);
-                    $this->log("Replaced '{$placeholder}' with '{$replacement}' in post title");
-                }
-            }
-            if ($new_title !== $original_title) {
-                $updated = true;
-            }
-            
-            // Replace in Elementor data - IMPROVED
-            $elementor_data = get_post_meta($new_post_id, '_elementor_data', true);
-            if ($elementor_data) {
-                $original_data = $elementor_data;
-                
-                // Handle both JSON string and serialized data
-                if (is_string($elementor_data)) {
-                    foreach ($replacements as $placeholder => $replacement) {
-                        if (strpos($elementor_data, $placeholder) !== false) {
-                            $elementor_data = str_replace($placeholder, $replacement, $elementor_data);
-                            $this->log("Replaced '{$placeholder}' with '{$replacement}' in Elementor data");
-                        }
-                    }
-                }
-                
-                if ($elementor_data !== $original_data) {
-                    update_post_meta($new_post_id, '_elementor_data', $elementor_data);
                     $updated = true;
-                    
-                    // Also clear Elementor cache for this post
-                    delete_post_meta($new_post_id, '_elementor_css');
+                    $this->log("Replaced '{$placeholder}' with '{$replacement}' in post title: {$post->post_title}");
                 }
             }
             
-            // Also check and replace in ALL post meta (in case placeholders are in other meta fields)
-            $all_meta = get_post_meta($new_post_id);
-            foreach ($all_meta as $meta_key => $meta_values) {
+            // Also check ALL post meta fields (especially important for Elementor)
+            $new_post_id = isset($post_id_map[$post->ID]) ? $post_id_map[$post->ID] : $post->ID;
+            $meta_fields = get_post_meta($new_post_id);
+            
+            foreach ($meta_fields as $meta_key => $meta_values) {
                 foreach ($meta_values as $meta_value) {
                     if (is_string($meta_value)) {
                         $original_meta = $meta_value;
+                        
                         foreach ($replacements as $placeholder => $replacement) {
                             if (strpos($meta_value, $placeholder) !== false) {
                                 $meta_value = str_replace($placeholder, $replacement, $meta_value);
-                                $this->log("Replaced '{$placeholder}' with '{$replacement}' in meta field '{$meta_key}'");
+                                $this->log("Replaced '{$placeholder}' with '{$replacement}' in meta field '{$meta_key}' for post: {$post->post_title}");
                             }
                         }
                         
@@ -472,8 +634,80 @@
         return 'Your State';
     }
     
-    // Duplicate function removed - using the one below with debugging
+    /**
+     * Activate the proper theme (Hello Elementor Child)
+     */
+    private function activate_proper_theme() {
+        $this->log("Checking available themes...");
+        
+        // List all available themes
+        $themes = wp_get_themes();
+        $this->log("Available themes: " . implode(', ', array_keys($themes)));
+        
+        // Try to activate Hello Elementor Child first
+        $preferred_themes = array(
+            'hello-elementor-child',
+            'hello-elementor',
+            'hello-theme-child', 
+            'hellochild'
+        );
+        
+        $activated_theme = null;
+        foreach ($preferred_themes as $theme_name) {
+            if (array_key_exists($theme_name, $themes)) {
+                $this->log("Found preferred theme: {$theme_name}");
+                switch_theme($theme_name);
+                $activated_theme = $theme_name;
+                break;
+            }
+        }
+        
+        if (!$activated_theme) {
+            $this->log("ERROR: No preferred theme found! Available themes: " . implode(', ', array_keys($themes)));
+            $this->log("Attempting to use first available theme...");
+            if (!empty($themes)) {
+                $first_theme = array_keys($themes)[0];
+                switch_theme($first_theme);
+                $activated_theme = $first_theme;
+                $this->log("Activated fallback theme: {$first_theme}");
+            }
+        }
+        
+        $current_theme = get_option('stylesheet');
+        $this->log("Theme activation completed. Current theme: {$current_theme}");
+        
+        return $activated_theme;
+    }
     
+    /**
+     * Verify theme activation worked correctly
+     */
+    private function verify_theme_activation() {
+        $stylesheet = get_option('stylesheet');
+        $template = get_option('template');
+        
+        $this->log("Current active theme: stylesheet={$stylesheet}, template={$template}");
+        
+        // Check if theme files exist
+        $theme_dir = get_theme_root() . '/' . $stylesheet;
+        if (is_dir($theme_dir)) {
+            $this->log("Theme directory exists: {$theme_dir}");
+            
+            // List key theme files
+            $key_files = array('style.css', 'functions.php', 'index.php');
+            foreach ($key_files as $file) {
+                $file_path = $theme_dir . '/' . $file;
+                if (file_exists($file_path)) {
+                    $this->log("Theme file exists: {$file}");
+                } else {
+                    $this->log("WARNING: Missing theme file: {$file}");
+                }
+            }
+        } else {
+            $this->log("ERROR: Theme directory does not exist: {$theme_dir}");
+        }
+    }
+
     /**
      * Debug: List all sites in the network
      */
@@ -530,8 +764,8 @@
         $post_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}posts WHERE post_status = 'publish'");
         $this->log("Published posts in new site: " . $post_count);
         
-        // List some posts
-        $posts = $wpdb->get_results("SELECT ID, post_title, post_type, post_status FROM {$wpdb->prefix}posts LIMIT 10");
+        // List ALL posts (not just 10)
+        $posts = $wpdb->get_results("SELECT ID, post_title, post_type, post_status FROM {$wpdb->prefix}posts");
         foreach ($posts as $post) {
             $this->log("New site post: ID={$post->ID}, Title='{$post->post_title}', Type={$post->post_type}, Status={$post->post_status}");
             
@@ -542,133 +776,56 @@
             }
         }
         
-        // Check for Elementor data
+        // Check for Elementor data in detail
         $elementor_count = $wpdb->get_var("SELECT COUNT(*) FROM {$wpdb->prefix}postmeta WHERE meta_key = '_elementor_data'");
         $this->log("Posts with Elementor data in new site: " . $elementor_count);
+        
+        // Show sample Elementor data
+        $elementor_sample = $wpdb->get_row("SELECT post_id, meta_value FROM {$wpdb->prefix}postmeta WHERE meta_key = '_elementor_data' LIMIT 1");
+        if ($elementor_sample) {
+            $this->log("Sample Elementor data for post {$elementor_sample->post_id}: " . substr($elementor_sample->meta_value, 0, 300) . '...');
+            
+            // Check if it's valid JSON
+            $elementor_json = json_decode($elementor_sample->meta_value, true);
+            if ($elementor_json) {
+                $this->log("Elementor data is valid JSON with " . count($elementor_json) . " elements");
+            } else {
+                $this->log("ERROR: Elementor data is NOT valid JSON!");
+            }
+        }
+        
+        // Check theme activation
+        $stylesheet = get_option('stylesheet');
+        $template = get_option('template');
+        $this->log("New site theme: stylesheet={$stylesheet}, template={$template}");
         
         // Check if homepage is set
         $page_on_front = get_option('page_on_front');
         $show_on_front = get_option('show_on_front');
         $this->log("Homepage settings: show_on_front={$show_on_front}, page_on_front={$page_on_front}");
         
+        // Check Elementor-specific options
+        $elementor_options = array(
+            'elementor_version',
+            'elementor_scheme_color',
+            'elementor_scheme_typography',
+            'elementor_page_title_selector',
+            'elementor_viewport_lg',
+            'elementor_viewport_md'
+        );
+        
+        $this->log("Checking Elementor options:");
+        foreach ($elementor_options as $option) {
+            $value = get_option($option);
+            if ($value) {
+                $this->log("  {$option}: " . (is_array($value) ? json_encode($value) : $value));
+            } else {
+                $this->log("  {$option}: NOT SET");
+            }
+        }
+        
         restore_current_blog();
         $this->log("=== END NEW SITE DEBUG ===");
-    }
-    
-    /**
-     * Create a new site from template based on form submission
-     */
-    public function create_site_from_form($request) {
-        $form_data = $request->get_json_params();
-        
-        $this->log("=== STARTING SITE CREATION DEBUG ===");
-        $this->log("Received form data: " . json_encode($form_data, JSON_PRETTY_PRINT));
-        
-        // ✅ Validate template selection
-        $selected_template = $form_data['selected_template'] ?? 'template1';
-        $this->log("Selected template: " . $selected_template);
-        
-        if (!isset($this->allowed_templates[$selected_template])) {
-            $this->log("ERROR: Invalid template selection: " . $selected_template);
-            return new WP_Error('invalid_template', 'Invalid template selection. Only template1-4 allowed.');
-        }
-        
-        // Get the template site to clone from
-        $template_site_path = '/' . $this->allowed_templates[$selected_template] . '/';
-        $this->log("Looking for template site with path: " . $template_site_path);
-        
-        $template_site_id = $this->get_site_id_by_path($template_site_path);
-        $this->log("Template site ID found: " . ($template_site_id ? $template_site_id : 'NOT FOUND'));
-        
-        if (!$template_site_id) {
-            $this->log("ERROR: Template site not found for path: " . $template_site_path);
-            // Let's also check what sites actually exist
-            $this->debug_list_all_sites();
-            return new WP_Error('template_not_found', "Template site {$selected_template} not found at path {$template_site_path}.");
-        }
-        
-        // Debug template site content
-        $this->debug_template_site_content($template_site_id);
-        
-        // Get next available site number
-        $site_number = $this->get_next_site_number();
-        $this->log("Next available site number: " . $site_number);
-        
-        // Create new site
-        $site_url = "docketsite{$site_number}";
-        $site_title = $form_data['business_name'] ?? "Docket Site {$site_number}";
-        $this->log("Creating new site: URL={$site_url}, Title={$site_title}");
-        
-        $new_site_id = wpmu_create_blog(
-            get_current_site()->domain,
-            "/{$site_url}/", 
-            $site_title,
-            1, // Admin user ID
-            array('public' => 1),
-            get_current_network_id()
-        );
-        
-        if (is_wp_error($new_site_id)) {
-            $this->log("ERROR creating site: " . $new_site_id->get_error_message());
-            return new WP_Error('site_creation_failed', $new_site_id->get_error_message());
-        }
-        
-        $this->log("New site created successfully with ID: " . $new_site_id);
-        
-        // ✅ Clone from selected template ONLY
-        $this->log("Starting clone process from template {$template_site_id} to new site {$new_site_id}");
-        $clone_result = $this->clone_from_template($new_site_id, $template_site_id, $form_data);
-        $this->log("Clone process completed. Result: " . ($clone_result ? 'SUCCESS' : 'FAILED'));
-        
-        // Debug new site content after cloning
-        $this->debug_new_site_content($new_site_id);
-        
-        $site_url_full = "https://" . get_current_site()->domain . "/{$site_url}/";
-        $this->log("Site creation complete. Full URL: " . $site_url_full);
-        $this->log("=== SITE CREATION DEBUG COMPLETE ===");
-        
-        return array(
-            'success' => true,
-            'site_id' => $new_site_id,
-            'site_url' => $site_url_full,
-            'site_path' => "/{$site_url}/",
-            'template_used' => $selected_template,
-            'template_site_id' => $template_site_id,
-            'debug_log' => "Check docket-automated-site-creator.log for detailed debugging info"
-        );
-    }
-    
-    /**
-     * Register REST API endpoints
-     */
-    public function register_api_endpoints() {
-        // Site creation endpoint
-        register_rest_route('docket/v1', '/create-site', array(
-            'methods' => 'POST',
-            'callback' => array($this, 'create_site_from_form'),
-            'permission_callback' => array($this, 'verify_api_key'),
-        ));
-        
-        // Debug endpoint to view logs
-        register_rest_route('docket/v1', '/debug-logs', array(
-            'methods' => 'GET',
-            'callback' => array($this, 'get_debug_logs'),
-            'permission_callback' => array($this, 'verify_api_key'),
-        ));
-        
-        // Clear logs endpoint for fresh debugging
-        register_rest_route('docket/v1', '/clear-logs', array(
-            'methods' => 'DELETE',
-            'callback' => array($this, 'clear_debug_logs'),
-            'permission_callback' => array($this, 'verify_api_key'),
-        ));
-        
-        // Easy web interface for viewing logs (no API key needed for convenience)
-        register_rest_route('docket/v1', '/debug-interface', array(
-            'methods' => 'GET',
-            'callback' => array($this, 'show_debug_interface'),
-            'permission_callback' => '__return_true', // Public access for easy debugging
-        ));
     }
     
     /**
@@ -942,4 +1099,50 @@
         echo $html;
         die(); // Stop WordPress from adding any additional content
     }
-} 
+    
+    /**
+     * Get site ID by path
+     */
+    private function get_site_id_by_path($path) {
+        $site = get_sites(array(
+            'path' => $path,
+            'number' => 1
+        ));
+        
+        return !empty($site) ? $site[0]->blog_id : false;
+    }
+    
+    /**
+     * Get next available site number
+     */
+    private function get_next_site_number() {
+        $sites = get_sites(array(
+            'path__like' => '/docketsite'
+        ));
+        
+        $highest_number = 0;
+        foreach ($sites as $site) {
+            if (preg_match('/\/docketsite(\d+)\//i', $site->path, $matches)) {
+                $number = intval($matches[1]);
+                if ($number > $highest_number) {
+                    $highest_number = $number;
+                }
+            }
+        }
+        
+        return $highest_number + 1;
+    }
+    
+    /**
+     * Log debugging information
+     */
+    private function log($message) {
+        $log_file = WP_CONTENT_DIR . '/docket-automated-site-creator.log';
+        $timestamp = date('Y-m-d H:i:s');
+        $log_entry = "[{$timestamp}] {$message}" . PHP_EOL;
+        file_put_contents($log_file, $log_entry, FILE_APPEND | LOCK_EX);
+    }
+}
+
+// Initialize the plugin
+new DocketAutomatedSiteCreator(); 

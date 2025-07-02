@@ -258,6 +258,98 @@ jQuery(document).ready(function($) {
         }
     });
     
+    // Show processing screen
+    function showProcessingScreen() {
+        const processingHTML = `
+            <div class="processing-overlay">
+                <div class="processing-content">
+                    <div class="processing-spinner"></div>
+                    <h2 class="processing-title">Processing Your Website VIP Order</h2>
+                    <p class="processing-message">We're setting up your premium website experience. This may take a moment...</p>
+                    
+                    <div class="processing-progress">
+                        <div class="processing-progress-bar"></div>
+                    </div>
+                    
+                    <div class="processing-steps">
+                        <div class="processing-step" data-step="1">
+                            <div class="processing-step-icon">1</div>
+                            <span>Validating VIP form data</span>
+                        </div>
+                        <div class="processing-step" data-step="2">
+                            <div class="processing-step-icon">2</div>
+                            <span>Creating premium client profile</span>
+                        </div>
+                        <div class="processing-step" data-step="3">
+                            <div class="processing-step-icon">3</div>
+                            <span>Processing content & assets</span>
+                        </div>
+                        <div class="processing-step" data-step="4">
+                            <div class="processing-step-icon">4</div>
+                            <span>Setting up VIP project workspace</span>
+                        </div>
+                        <div class="processing-step" data-step="5">
+                            <div class="processing-step-icon">5</div>
+                            <span>Configuring premium support access</span>
+                        </div>
+                        <div class="processing-step" data-step="6">
+                            <div class="processing-step-icon">6</div>
+                            <span>Notifying VIP team</span>
+                        </div>
+                        <div class="processing-step" data-step="7">
+                            <div class="processing-step-icon">7</div>
+                            <span>Sending VIP welcome package</span>
+                        </div>
+                    </div>
+                    
+                    <div class="processing-reassurance">
+                        <strong>VIP Treatment!</strong> We're preparing your premium website experience. This typically takes 60-120 seconds.
+                    </div>
+                    
+                    <p class="processing-note">Crafting your exceptional website journey...</p>
+                </div>
+            </div>
+        `;
+        
+        $('body').append(processingHTML);
+        
+        // Animate progress steps
+        let currentProgressStep = 1;
+        const totalSteps = 7;
+        
+        function animateStep() {
+            $('.processing-step').removeClass('active completed');
+            
+            // Mark previous steps as completed
+            for (let i = 1; i < currentProgressStep; i++) {
+                $(`.processing-step[data-step="${i}"]`).addClass('completed');
+            }
+            
+            // Mark current step as active
+            $(`.processing-step[data-step="${currentProgressStep}"]`).addClass('active');
+            
+            // Update progress bar
+            const progressPercent = (currentProgressStep / totalSteps) * 100;
+            $('.processing-progress-bar').css('width', progressPercent + '%');
+            
+            currentProgressStep++;
+            
+            if (currentProgressStep <= totalSteps) {
+                setTimeout(animateStep, 900 + Math.random() * 500); // Randomize timing slightly
+            }
+        }
+        
+        // Start animation after a brief delay
+        setTimeout(animateStep, 500);
+    }
+    
+    // Hide processing screen
+    function hideProcessingScreen() {
+        $('.processing-overlay').fadeOut(300, function() {
+            $(this).remove();
+        });
+    }
+
     // Form submission
     form.on('submit', function(e) {
         e.preventDefault();
@@ -266,8 +358,8 @@ jQuery(document).ready(function($) {
             return;
         }
         
-        // Show loading
-        form.addClass('form-loading');
+        // Show enhanced processing screen
+        showProcessingScreen();
         
         // Collect form data
         const formData = new FormData(this);
@@ -282,26 +374,45 @@ jQuery(document).ready(function($) {
             processData: false,
             contentType: false,
             success: function(response) {
-                if (response.success) {
-                    // Check if there's a redirect URL
-                    if (response.data && response.data.redirect_url) {
-                        // Redirect to the client portal
-                        window.location.href = response.data.redirect_url;
+                // Small delay to show completion
+                setTimeout(function() {
+                    hideProcessingScreen();
+                    
+                    if (response.success) {
+                        // Check if there's a redirect URL
+                        if (response.data && response.data.redirect_url) {
+                            // Show brief success message before redirect
+                            const successOverlay = `
+                                <div class="processing-overlay">
+                                    <div class="processing-content">
+                                        <div style="width: 60px; height: 60px; background: #7eb10f; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 24px; font-weight: bold;">✓</div>
+                                        <h2 class="processing-title">VIP Order Submitted Successfully!</h2>
+                                        <p class="processing-message">Redirecting to your premium client portal...</p>
+                                    </div>
+                                </div>
+                            `;
+                            $('body').append(successOverlay);
+                            
+                            setTimeout(() => {
+                                window.location.href = response.data.redirect_url;
+                            }, 1500);
+                        } else {
+                            // Fallback to showing success message
+                            $('.docket-vip-form form').hide();
+                            $('.docket-form-progress').hide();
+                            $('.form-success').show();
+                        }
                     } else {
-                        // Fallback to showing success message
-                        $('.docket-vip-form form').hide();
-                        $('.docket-form-progress').hide();
-                        $('.form-success').show();
+                        alert('Error: ' + (response.data.message || 'Something went wrong'));
                     }
-                } else {
-                    alert('Error: ' + (response.data.message || 'Something went wrong'));
-                    form.removeClass('form-loading');
-                }
+                }, 3000); // Longer for VIP processing
             },
             error: function(xhr, status, error) {
-                console.error('AJAX Error:', status, error);
-                alert('Connection error. Please try again. Error: ' + error);
-                form.removeClass('form-loading');
+                setTimeout(function() {
+                    hideProcessingScreen();
+                    console.error('AJAX Error:', status, error);
+                    alert('Connection error. Please try again. Error: ' + error);
+                }, 1000);
             }
         });
     });

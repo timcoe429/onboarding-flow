@@ -58,6 +58,11 @@ class DocketOnboarding {
         require_once plugin_dir_path(__FILE__) . 'includes/client-portal/portal-display.php';
         require_once plugin_dir_path(__FILE__) . 'includes/trello-sync.php';
         
+        // Include NS Cloner integration if available
+        if (file_exists(plugin_dir_path(__FILE__) . 'includes/ns-cloner-integration.php')) {
+            require_once plugin_dir_path(__FILE__) . 'includes/ns-cloner-integration.php';
+        }
+        
         // 🆕 CLIENT PORTAL - Easy to remove by commenting out these lines
         if (file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/client-portal/portal-functions.php')) {
             require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/client-portal/portal-functions.php';

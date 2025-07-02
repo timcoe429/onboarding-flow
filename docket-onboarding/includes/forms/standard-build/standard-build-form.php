@@ -266,17 +266,34 @@ $headers = array(
 $sent = wp_mail($to, $subject, $email_content, $headers, $attachments);
 
 if ($sent) {
+    // ✅ NEW: Trigger automated site creation via API
+    $site_creation_response = create_site_via_api($_POST, 'standard-build');
+    
+    // Trigger NS Cloner integration (if available) - FALLBACK
+    do_action('docket_after_form_submission', $_POST, 'standard-build');
+    
     // Create client portal entry after successful email send
     $portal_url = null;
+    $new_site_url = null;
+    
+    if ($site_creation_response && $site_creation_response['success']) {
+        $new_site_url = $site_creation_response['site_url'];
+    }
+    
     if (class_exists('DocketClientPortal')) {
         // Get portal instance and create project
         global $docket_client_portal;
         if ($docket_client_portal) {
-            $portal_url = $docket_client_portal->create_client_project($_POST, 'standard-build');
+            // Pass the new site URL to the portal creation
+            $portal_url = $docket_client_portal->create_client_project($_POST, 'standard-build', $new_site_url);
         }
     }
     
     $response_data = array('message' => 'Form submitted successfully');
+    if ($new_site_url) {
+        $response_data['new_site_url'] = $new_site_url;
+        $response_data['message'] = 'Form submitted and site created successfully!';
+    }
     if ($portal_url) {
         $response_data['redirect_url'] = $portal_url;
     } else {
@@ -294,4 +311,86 @@ if (!empty($attachments)) {
         @unlink($file);
     }
 }
+}
+
+/**
+ * Create site via API call to dockethosting5.com
+ */
+function create_site_via_api($form_data, $form_type) {
+    // Map form template selection to our templates
+    $template_mapping = array(
+        'template-1' => 'template1',
+        'template-2' => 'template2', 
+        'template-3' => 'template3',
+        'template-4' => 'template4',
+        // Fallback mappings
+        'Template 1' => 'template1',
+        'Template 2' => 'template2',
+        'Template 3' => 'template3', 
+        'Template 4' => 'template4'
+    );
+    
+    $selected_template = 'template1'; // Default
+    if (!empty($form_data['website_template_selection'])) {
+        $user_selection = $form_data['website_template_selection'];
+        if (isset($template_mapping[$user_selection])) {
+            $selected_template = $template_mapping[$user_selection];
+        }
+    }
+    
+    // Prepare service areas
+    $service_areas = array();
+    for ($i = 1; $i <= 9; $i++) {
+        if (!empty($form_data['servicearea' . $i])) {
+            $service_areas[] = $form_data['servicearea' . $i];
+        }
+    }
+    
+    // Prepare API data
+    $api_data = array(
+        'selected_template' => $selected_template,
+        'business_name' => $form_data['business_name'] ?? '',
+        'contact_name' => $form_data['name'] ?? '',
+        'phone' => $form_data['phone_number'] ?? '',
+        'email' => $form_data['email'] ?? '',
+        'business_email' => $form_data['business_email'] ?? '',
+        'business_address' => $form_data['business_address'] ?? '',
+        'service_areas' => implode(', ', $service_areas),
+        'services' => implode(', ', (array)($form_data['services_offered'] ?? array())),
+        'form_type' => $form_type
+    );
+    
+    $api_url = 'https://dockethosting5.com/wp-json/docket/v1/create-site';
+    
+    $response = wp_remote_post($api_url, array(
+        'headers' => array(
+            'Content-Type' => 'application/json',
+            'X-API-Key' => 'docket_automation_key_2025' // Same key as multisite
+        ),
+        'body' => json_encode($api_data),
+        'timeout' => 60
+    ));
+    
+    if (is_wp_error($response)) {
+        error_log('Docket Site Creation API error: ' . $response->get_error_message());
+        return false;
+    }
+    
+    $response_code = wp_remote_retrieve_response_code($response);
+    if ($response_code !== 200) {
+        error_log('Docket Site Creation API returned status: ' . $response_code);
+        return false;
+    }
+    
+    $body = wp_remote_retrieve_body($response);
+    $result = json_decode($body, true);
+    
+    if ($result && isset($result['success']) && $result['success']) {
+        error_log('Docket Site Creation: Success! Site URL: ' . $result['site_url']);
+        return $result;
+    } else {
+        $error_msg = isset($result['message']) ? $result['message'] : 'Unknown error';
+        error_log('Docket Site Creation API failed: ' . $error_msg);
+        return false;
+    }
 }

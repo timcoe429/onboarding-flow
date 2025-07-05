@@ -6,7 +6,7 @@
     <div class="template-grid-2x2">
         <div class="template-option">
             <a href="https://dockethosting3.com/salesdemo1" target="_blank" class="template-preview-link">
-                <img src="https://yourdocketonline.com/wp-content/uploads/2025/05/Template-2.png" alt="Template 1">
+                <img src="https://yourdocketonline.com/wp-content/uploads/2025/05/Template-1.png" alt="Template 1">
                 <span class="template-preview-text">Click to View Template 1</span>
             </a>
             <label class="template-select">
@@ -17,7 +17,7 @@
         
         <div class="template-option">
             <a href="https://dockethosting3.com/salesdemo2/" target="_blank" class="template-preview-link">
-                <img src="https://yourdocketonline.com/wp-content/uploads/2025/05/Template-1.png" alt="Template 2">
+                <img src="https://yourdocketonline.com/wp-content/uploads/2025/05/Template-2.png" alt="Template 2">
                 <span class="template-preview-text">Click to View Template 2</span>
             </a>
             <label class="template-select">

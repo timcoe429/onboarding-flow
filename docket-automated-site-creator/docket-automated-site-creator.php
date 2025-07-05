@@ -130,15 +130,15 @@ class DocketAutomatedSiteCreator {
         $this->log("Forcing theme activation immediately after site creation");
         switch_to_blog($new_site_id);
         
-        // Get available themes and force hello-elementor-child
+        // Get available themes and force hello-theme-child-master
         $themes = wp_get_themes();
         $this->log("Available themes on new site: " . implode(', ', array_keys($themes)));
         
-        if (array_key_exists('hello-elementor-child', $themes)) {
-            switch_theme('hello-elementor-child');
-            $this->log("Successfully activated hello-elementor-child theme");
+        if (array_key_exists('hello-theme-child-master', $themes)) {
+            switch_theme('hello-theme-child-master');
+            $this->log("Successfully activated hello-theme-child-master theme");
         } else {
-            $this->log("ERROR: hello-elementor-child theme not found!");
+            $this->log("ERROR: hello-theme-child-master theme not found!");
         }
         
         // Verify theme activation
@@ -456,7 +456,26 @@ class DocketAutomatedSiteCreator {
             $this->log("Elementor plugin not found - cache not cleared");
         }
         
-        // 13. Final theme verification
+        // 13. FORCE FINAL THEME ACTIVATION (override any cloned theme settings)
+        $this->log("=== FORCE FINAL THEME ACTIVATION ===");
+        
+        // Force theme activation one more time to override anything from cloning
+        $themes = wp_get_themes();
+        $this->log("Available themes: " . implode(', ', array_keys($themes)));
+        
+        if (array_key_exists('hello-theme-child-master', $themes)) {
+            switch_theme('hello-theme-child-master');
+            
+            // Also directly update the database options to be absolutely sure
+            update_option('stylesheet', 'hello-theme-child-master');
+            update_option('template', 'hello-elementor');
+            
+            $this->log("FORCED theme to hello-theme-child-master");
+        } else {
+            $this->log("ERROR: hello-theme-child-master theme not available!");
+        }
+        
+        // 14. Final theme verification
         $this->log("=== FINAL THEME VERIFICATION ===");
         $this->verify_theme_activation();
         
@@ -671,7 +690,7 @@ class DocketAutomatedSiteCreator {
         
         // Try to activate Hello Elementor Child first
         $preferred_themes = array(
-            'hello-elementor-child',
+            'hello-theme-child-master',
             'hello-elementor',
             'hello-theme-child', 
             'hellochild'

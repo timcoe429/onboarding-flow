@@ -5,7 +5,7 @@
 
 /* Form Container */
 .docket-standard-form {
-    max-width: 1000px;
+    width: 750px;
     margin: 0 auto;
     padding: 20px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -450,9 +450,10 @@
 }
 
 .template-preview-link img {
-    width: 100%;
-    height: auto;
+    width: 350px;
+    height: 350px;
     display: block;
+    object-fit: cover;
 }
 
 .template-preview-text {

@@ -2,8 +2,8 @@
 /**
  * Plugin Name: Docket Automated Site Creator
  * Description: Creates new WordPress sites from templates via API calls from onboarding forms
- * Version: 1.0
- * Author: Docket
+ * Version: 1.1
+ * Author: Tim Coe
  */
 
 // Prevent direct access

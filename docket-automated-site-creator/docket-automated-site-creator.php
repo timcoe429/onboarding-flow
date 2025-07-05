@@ -378,10 +378,7 @@ class DocketAutomatedSiteCreator {
                         $this->log("  Raw data sample: " . substr($meta_value, 0, 200) . '...');
                     }
                     
-                    // Update post IDs in Elementor data
-                    foreach ($post_id_map as $old_id => $new_id) {
-                        $meta_value = str_replace('"' . $old_id . '"', '"' . $new_id . '"', $meta_value);
-                    }
+                    // DON'T modify data here - we'll fix references later in fix_elementor_data()
                 }
                 
                 $result = add_post_meta(
@@ -428,11 +425,81 @@ class DocketAutomatedSiteCreator {
         }
         $this->log("Cloned {$option_count} Elementor options (excluding theme options)");
         
-        // 9. Replace placeholder content with form data
+        // 9. Fix Elementor post ID references FIRST
+        $this->log("=== FIXING ELEMENTOR DATA ===");
+        $this->fix_elementor_data($post_id_map);
+        
+        // 9.5 Clone Elementor-specific post settings
+        $this->log("=== CLONING ELEMENTOR POST SETTINGS ===");
+        global $wpdb;
+        
+        // Elementor uses these meta keys for various settings
+        $elementor_meta_keys = array(
+            '_elementor_edit_mode',
+            '_elementor_template_type',
+            '_elementor_version',
+            '_elementor_pro_version',
+            '_elementor_page_settings',
+            '_elementor_controls_usage'
+        );
+        
+        foreach ($post_id_map as $old_post_id => $new_post_id) {
+            switch_to_blog($template_site_id);
+            
+            foreach ($elementor_meta_keys as $meta_key) {
+                $meta_value = get_post_meta($old_post_id, $meta_key, true);
+                if (!empty($meta_value)) {
+                    restore_current_blog();
+                    switch_to_blog($new_site_id);
+                    update_post_meta($new_post_id, $meta_key, $meta_value);
+                    $this->log("Cloned Elementor setting {$meta_key} for post {$new_post_id}");
+                }
+            }
+            
+            restore_current_blog();
+            switch_to_blog($new_site_id);
+        }
+        
+        // 9.6 Copy Elementor Kit settings
+        $this->log("=== COPYING ELEMENTOR KIT ===");
+        switch_to_blog($template_site_id);
+        
+        // Get the active kit ID from template site
+        $template_kit_id = get_option('elementor_active_kit');
+        if ($template_kit_id) {
+            $this->log("Template site has active kit ID: {$template_kit_id}");
+            
+            restore_current_blog();
+            switch_to_blog($new_site_id);
+            
+            // Find the corresponding kit in the new site
+            $kit_posts = get_posts(array(
+                'post_type' => 'elementor_library',
+                'post_status' => 'publish',
+                'meta_key' => '_elementor_template_type',
+                'meta_value' => 'kit',
+                'posts_per_page' => 1
+            ));
+            
+            if (!empty($kit_posts)) {
+                $new_kit_id = $kit_posts[0]->ID;
+                update_option('elementor_active_kit', $new_kit_id);
+                $this->log("Set active kit to ID: {$new_kit_id}");
+            } else {
+                $this->log("No kit found in new site!");
+            }
+        } else {
+            $this->log("No active kit in template site");
+        }
+        
+        restore_current_blog();
+        switch_to_blog($new_site_id);
+        
+        // 10. Replace placeholder content with form data
         $this->log("=== REPLACING PLACEHOLDERS ===");
         $this->replace_placeholder_content($form_data, $post_id_map);
         
-        // 10. Set homepage
+        // 11. Set homepage
         $this->log("=== SETTING HOMEPAGE ===");
         $home_page = get_page_by_path('home');
         if ($home_page) {
@@ -443,11 +510,25 @@ class DocketAutomatedSiteCreator {
             $this->log("No 'home' page found to set as homepage");
         }
         
-        // 11. Regenerate Elementor CSS
+        // 12. Regenerate Elementor CSS
         $this->log("=== REGENERATING ELEMENTOR CSS ===");
+        
+        // Ensure Elementor is properly initialized
+        if (defined('ELEMENTOR_VERSION')) {
+            // Force Elementor to load if not already loaded
+            if (!did_action('elementor/loaded')) {
+                do_action('elementor/loaded');
+            }
+            
+            // Clear any existing Elementor cache
+            if (class_exists('\Elementor\Plugin')) {
+                \Elementor\Plugin::$instance->files_manager->clear_cache();
+            }
+        }
+        
         $this->regenerate_elementor_css();
         
-        // 12. Flush Elementor cache
+        // 13. Flush Elementor cache
         $this->log("=== FLUSHING ELEMENTOR CACHE ===");
         if (class_exists('\Elementor\Plugin')) {
             \Elementor\Plugin::$instance->files_manager->clear_cache();
@@ -456,7 +537,7 @@ class DocketAutomatedSiteCreator {
             $this->log("Elementor plugin not found - cache not cleared");
         }
         
-        // 13. FORCE FINAL THEME ACTIVATION (override any cloned theme settings)
+        // 14. FORCE FINAL THEME ACTIVATION (override any cloned theme settings)
         $this->log("=== FORCE FINAL THEME ACTIVATION ===");
         
         // Force theme activation one more time to override anything from cloning
@@ -475,7 +556,7 @@ class DocketAutomatedSiteCreator {
             $this->log("ERROR: hello-theme-child-master theme not available!");
         }
         
-        // 14. Final theme verification
+        // 15. Final theme verification
         $this->log("=== FINAL THEME VERIFICATION ===");
         $this->verify_theme_activation();
         
@@ -549,6 +630,11 @@ class DocketAutomatedSiteCreator {
             $meta_fields = get_post_meta($new_post_id);
             
             foreach ($meta_fields as $meta_key => $meta_values) {
+                // Skip Elementor data - we handle it separately to preserve JSON structure
+                if ($meta_key === '_elementor_data') {
+                    continue;
+                }
+                
                 foreach ($meta_values as $meta_value) {
                     if (is_string($meta_value)) {
                         $original_meta = $meta_value;
@@ -598,6 +684,9 @@ class DocketAutomatedSiteCreator {
                 }
             }
         }
+        
+        // Handle Elementor data separately to preserve JSON structure
+        $this->replace_elementor_placeholders($replacements);
         
         $this->log("Placeholder replacement completed");
     }
@@ -830,6 +919,134 @@ class DocketAutomatedSiteCreator {
         } catch (Exception $e) {
             $this->log("Error regenerating global CSS: " . $e->getMessage());
         }
+    }
+    
+    /**
+     * Fix Elementor data by updating internal references
+     */
+    private function fix_elementor_data($post_id_map) {
+        global $wpdb;
+        
+        $this->log("=== FIXING ELEMENTOR DATA REFERENCES ===");
+        
+        // Get all posts with Elementor data
+        $posts_with_elementor = $wpdb->get_results(
+            "SELECT post_id, meta_value FROM {$wpdb->prefix}postmeta 
+             WHERE meta_key = '_elementor_data' AND meta_value != '' AND meta_value != '[]'"
+        );
+        
+        $fixed_count = 0;
+        
+        foreach ($posts_with_elementor as $post_data) {
+            $post_id = $post_data->post_id;
+            $elementor_data = $post_data->meta_value;
+            
+            // Check if it's valid JSON first
+            $data_array = json_decode($elementor_data, true);
+            if (!is_array($data_array)) {
+                $this->log("Skipping post {$post_id} - invalid JSON");
+                continue;
+            }
+            
+            // Update post ID references in the Elementor data
+            $updated_data = $this->update_elementor_references($elementor_data, $post_id_map);
+            
+            if ($updated_data !== $elementor_data) {
+                // Update the database
+                update_post_meta($post_id, '_elementor_data', $updated_data);
+                $fixed_count++;
+                $this->log("Fixed Elementor data references for post ID: {$post_id}");
+            }
+        }
+        
+        $this->log("Fixed Elementor data references in {$fixed_count} posts");
+    }
+    
+    /**
+     * Update post ID references within Elementor data
+     */
+    private function update_elementor_references($elementor_data, $post_id_map) {
+        // Convert old post IDs to new post IDs in the JSON
+        foreach ($post_id_map as $old_id => $new_id) {
+            // Update various reference patterns in Elementor data
+            $patterns = [
+                '/"post_id":' . $old_id . '(?![0-9])/',
+                '/"page_id":' . $old_id . '(?![0-9])/',
+                '/"post":"' . $old_id . '"/',
+                '/"page":"' . $old_id . '"/',
+                '/\\\\"post_id\\\\":' . $old_id . '(?![0-9])/',
+                '/\\\\"page_id\\\\":' . $old_id . '(?![0-9])/',
+            ];
+            
+            $replacements = [
+                '"post_id":' . $new_id,
+                '"page_id":' . $new_id,
+                '"post":"' . $new_id . '"',
+                '"page":"' . $new_id . '"',
+                '\\"post_id\\":' . $new_id,
+                '\\"page_id\\":' . $new_id,
+            ];
+            
+            $elementor_data = preg_replace($patterns, $replacements, $elementor_data);
+        }
+        
+        return $elementor_data;
+    }
+    
+    /**
+     * Replace placeholders in Elementor data safely
+     */
+    private function replace_elementor_placeholders($replacements) {
+        global $wpdb;
+        
+        $this->log("=== REPLACING ELEMENTOR PLACEHOLDERS ===");
+        
+        // Get all posts with Elementor data
+        $posts_with_elementor = $wpdb->get_results(
+            "SELECT post_id, meta_value FROM {$wpdb->prefix}postmeta 
+             WHERE meta_key = '_elementor_data' AND meta_value != '' AND meta_value != '[]'"
+        );
+        
+        $updated_count = 0;
+        
+        foreach ($posts_with_elementor as $post_data) {
+            $post_id = $post_data->post_id;
+            $elementor_data = $post_data->meta_value;
+            
+            // Parse JSON
+            $data_array = json_decode($elementor_data, true);
+            if (!is_array($data_array)) {
+                $this->log("Skipping Elementor placeholder replacement for post {$post_id} - invalid JSON");
+                continue;
+            }
+            
+            // Convert back to string for replacement
+            $elementor_string = json_encode($data_array);
+            $original_string = $elementor_string;
+            
+            // Do replacements
+            foreach ($replacements as $placeholder => $replacement) {
+                if (strpos($elementor_string, $placeholder) !== false) {
+                    // Escape replacement for JSON
+                    $json_safe_replacement = str_replace(['\\', '"', "\n", "\r", "\t"], ['\\\\', '\\"', '\\n', '\\r', '\\t'], $replacement);
+                    $elementor_string = str_replace($placeholder, $json_safe_replacement, $elementor_string);
+                    $this->log("Replaced '{$placeholder}' in Elementor data for post ID: {$post_id}");
+                }
+            }
+            
+            if ($elementor_string !== $original_string) {
+                // Validate JSON before saving
+                $test_decode = json_decode($elementor_string, true);
+                if (is_array($test_decode)) {
+                    update_post_meta($post_id, '_elementor_data', $elementor_string);
+                    $updated_count++;
+                } else {
+                    $this->log("ERROR: JSON validation failed after placeholder replacement for post {$post_id}");
+                }
+            }
+        }
+        
+        $this->log("Updated Elementor placeholders in {$updated_count} posts");
     }
 
     /**

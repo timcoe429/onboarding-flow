@@ -126,6 +126,27 @@ class DocketAutomatedSiteCreator {
         
         $this->log("New site created successfully with ID: " . $new_site_id);
         
+        // ✅ IMMEDIATELY force correct theme activation (before cloning)
+        $this->log("Forcing theme activation immediately after site creation");
+        switch_to_blog($new_site_id);
+        
+        // Get available themes and force hello-elementor-child
+        $themes = wp_get_themes();
+        $this->log("Available themes on new site: " . implode(', ', array_keys($themes)));
+        
+        if (array_key_exists('hello-elementor-child', $themes)) {
+            switch_theme('hello-elementor-child');
+            $this->log("Successfully activated hello-elementor-child theme");
+        } else {
+            $this->log("ERROR: hello-elementor-child theme not found!");
+        }
+        
+        // Verify theme activation
+        $current_theme = get_option('stylesheet');
+        $this->log("Current theme after force activation: " . $current_theme);
+        
+        restore_current_blog();
+        
         // ✅ Clone from selected template ONLY
         $this->log("Starting clone process from template {$template_site_id} to new site {$new_site_id}");
         $clone_result = $this->clone_from_template($new_site_id, $template_site_id, $form_data);
@@ -422,7 +443,11 @@ class DocketAutomatedSiteCreator {
             $this->log("No 'home' page found to set as homepage");
         }
         
-        // 11. Flush Elementor cache
+        // 11. Regenerate Elementor CSS
+        $this->log("=== REGENERATING ELEMENTOR CSS ===");
+        $this->regenerate_elementor_css();
+        
+        // 12. Flush Elementor cache
         $this->log("=== FLUSHING ELEMENTOR CACHE ===");
         if (class_exists('\Elementor\Plugin')) {
             \Elementor\Plugin::$instance->files_manager->clear_cache();
@@ -431,7 +456,7 @@ class DocketAutomatedSiteCreator {
             $this->log("Elementor plugin not found - cache not cleared");
         }
         
-        // 12. Final theme verification
+        // 13. Final theme verification
         $this->log("=== FINAL THEME VERIFICATION ===");
         $this->verify_theme_activation();
         
@@ -705,6 +730,86 @@ class DocketAutomatedSiteCreator {
             }
         } else {
             $this->log("ERROR: Theme directory does not exist: {$theme_dir}");
+        }
+    }
+    
+    /**
+     * Regenerate Elementor CSS for all posts with Elementor data
+     */
+    private function regenerate_elementor_css() {
+        if (!class_exists('\Elementor\Plugin')) {
+            $this->log("Elementor plugin not found - skipping CSS regeneration");
+            return;
+        }
+        
+        global $wpdb;
+        
+        // Get all posts with Elementor data
+        $posts_with_elementor = $wpdb->get_results(
+            "SELECT DISTINCT post_id FROM {$wpdb->prefix}postmeta 
+             WHERE meta_key = '_elementor_data' AND meta_value != ''"
+        );
+        
+        $this->log("Found " . count($posts_with_elementor) . " posts with Elementor data");
+        
+        if (empty($posts_with_elementor)) {
+            $this->log("No posts with Elementor data found - skipping CSS regeneration");
+            return;
+        }
+        
+        $regenerated_count = 0;
+        
+        foreach ($posts_with_elementor as $post_data) {
+            $post_id = $post_data->post_id;
+            
+            try {
+                // Get Elementor data
+                $elementor_data = get_post_meta($post_id, '_elementor_data', true);
+                
+                if (empty($elementor_data)) {
+                    $this->log("No Elementor data found for post ID: {$post_id}");
+                    continue;
+                }
+                
+                // Parse Elementor data
+                $elements = json_decode($elementor_data, true);
+                if (!is_array($elements)) {
+                    $this->log("Invalid Elementor data for post ID: {$post_id}");
+                    continue;
+                }
+                
+                // Use Elementor's CSS file manager to regenerate CSS
+                $css_file = \Elementor\Core\Files\CSS\Post::create($post_id);
+                $css_file->delete();
+                $css_file->enqueue();
+                
+                // Also regenerate the post meta CSS
+                $css_content = $css_file->get_content();
+                if (!empty($css_content)) {
+                    update_post_meta($post_id, '_elementor_css', $css_content);
+                    $regenerated_count++;
+                    $this->log("Regenerated CSS for post ID: {$post_id}");
+                } else {
+                    $this->log("Warning: Empty CSS generated for post ID: {$post_id}");
+                }
+                
+            } catch (Exception $e) {
+                $this->log("Error regenerating CSS for post ID {$post_id}: " . $e->getMessage());
+            }
+        }
+        
+        $this->log("CSS regeneration complete. Regenerated CSS for {$regenerated_count} posts");
+        
+        // Also regenerate global CSS
+        try {
+            if (method_exists('\Elementor\Plugin', 'instance')) {
+                $global_css = \Elementor\Core\Files\CSS\Global_CSS::create();
+                $global_css->delete();
+                $global_css->enqueue();
+                $this->log("Regenerated global Elementor CSS");
+            }
+        } catch (Exception $e) {
+            $this->log("Error regenerating global CSS: " . $e->getMessage());
         }
     }
 

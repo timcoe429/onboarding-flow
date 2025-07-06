@@ -348,6 +348,23 @@ class DocketAutomatedSiteCreator {
             }
         }
         
+        // 5.5 Fix nav menu item references
+        $this->log("=== FIXING NAV MENU ITEMS ===");
+        foreach ($post_id_map as $old_post_id => $new_post_id) {
+            $post_type = get_post_type($new_post_id);
+            if ($post_type === 'nav_menu_item') {
+                // Get the object ID it's pointing to
+                $object_id = get_post_meta($new_post_id, '_menu_item_object_id', true);
+                
+                // If it's pointing to an old post ID, update it
+                if ($object_id && isset($post_id_map[$object_id])) {
+                    update_post_meta($new_post_id, '_menu_item_object_id', $post_id_map[$object_id]);
+                    $this->log("Updated nav menu item {$new_post_id} to point to new page {$post_id_map[$object_id]}");
+                }
+            }
+        }
+        $this->log("Nav menu items fixed");
+        
         // 6. Clone post meta (including Elementor data) - Moving this earlier for better debugging
         $this->log("=== CLONING POST META ===");
         $meta_count = 0;
@@ -497,7 +514,9 @@ class DocketAutomatedSiteCreator {
         
         // 10. Replace placeholder content with form data
         $this->log("=== REPLACING PLACEHOLDERS ===");
-        $this->replace_placeholder_content($form_data, $post_id_map);
+        // TEMPORARILY DISABLED FOR TESTING PURE CLONE
+        // $this->replace_placeholder_content($form_data, $post_id_map);
+        $this->log("PLACEHOLDER REPLACEMENT DISABLED FOR TESTING");
         
         // 11. Set homepage
         $this->log("=== SETTING HOMEPAGE ===");
@@ -559,6 +578,31 @@ class DocketAutomatedSiteCreator {
         // 15. Final theme verification
         $this->log("=== FINAL THEME VERIFICATION ===");
         $this->verify_theme_activation();
+        
+        // 16. Set permalink structure to "Post name"
+        $this->log("=== SETTING PERMALINK STRUCTURE ===");
+        update_option('permalink_structure', '/%postname%/');
+        $this->log("Set permalink structure to /%postname%/");
+        
+        // 17. Ensure Elementor recognizes all pages with Elementor data
+        $this->log("=== ENSURING ELEMENTOR PAGE RECOGNITION ===");
+        $elementor_pages = $wpdb->get_results(
+            "SELECT p.ID FROM {$wpdb->prefix}posts p
+             INNER JOIN {$wpdb->prefix}postmeta pm ON p.ID = pm.post_id
+             WHERE pm.meta_key = '_elementor_data' 
+             AND pm.meta_value != ''
+             AND pm.meta_value != '[]'
+             AND p.post_type IN ('page', 'post')"
+        );
+        
+        foreach ($elementor_pages as $page) {
+            $edit_mode = get_post_meta($page->ID, '_elementor_edit_mode', true);
+            if ($edit_mode !== 'builder') {
+                update_post_meta($page->ID, '_elementor_edit_mode', 'builder');
+                $this->log("Set _elementor_edit_mode=builder for post ID: {$page->ID}");
+            }
+        }
+        $this->log("Elementor page recognition complete");
         
         restore_current_blog();
         

@@ -112,7 +112,15 @@ class ESC_Debug_Utility {
     public static function force_update_urls($site_id) {
         global $wpdb;
         
-        $site_url = get_site_url($site_id);
+        // Get site details
+        $site = get_site($site_id);
+        if (!$site) {
+            return false;
+        }
+        
+        // Construct the correct URL from site details
+        $scheme = is_ssl() ? 'https' : 'http';
+        $site_url = $scheme . '://' . $site->domain . $site->path;
         $site_url_no_slash = rtrim($site_url, '/');
         
         switch_to_blog($site_id);
@@ -138,6 +146,12 @@ class ESC_Debug_Utility {
         ));
         
         restore_current_blog();
+        
+        // Clear all caches
+        wp_cache_delete('alloptions', 'options');
+        wp_cache_delete('siteurl', 'options');
+        wp_cache_delete('home', 'options');
+        wp_cache_flush();
         
         return true;
     }

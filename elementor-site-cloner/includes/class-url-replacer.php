@@ -20,22 +20,38 @@ class ESC_URL_Replacer {
         $this->source_site_id = $source_site_id;
         $this->destination_site_id = $destination_site_id;
         
-        // Get URLs
+        // Get source URLs
         switch_to_blog($source_site_id);
         $this->source_url = trailingslashit(get_site_url());
         $upload_dir = wp_upload_dir();
         $this->source_upload_url = trailingslashit($upload_dir['baseurl']);
         restore_current_blog();
         
-        switch_to_blog($destination_site_id);
-        $this->destination_url = trailingslashit(get_site_url());
-        $upload_dir = wp_upload_dir();
-        $this->destination_upload_url = trailingslashit($upload_dir['baseurl']);
-        restore_current_blog();
+        // Get destination site details
+        $dest_site = get_site($destination_site_id);
+        if ($dest_site) {
+            // Construct URL from site details instead of using get_site_url()
+            $scheme = is_ssl() ? 'https' : 'http';
+            $this->destination_url = trailingslashit($scheme . '://' . $dest_site->domain . $dest_site->path);
+            
+            // Construct upload URL
+            $this->destination_upload_url = $this->destination_url . 'wp-content/uploads/sites/' . $destination_site_id . '/';
+        } else {
+            // Fallback to get_site_url if site not found
+            switch_to_blog($destination_site_id);
+            $this->destination_url = trailingslashit(get_site_url());
+            $upload_dir = wp_upload_dir();
+            $this->destination_upload_url = trailingslashit($upload_dir['baseurl']);
+            restore_current_blog();
+        }
         
         // Get table prefixes
         $this->source_prefix = $wpdb->get_blog_prefix($source_site_id);
         $this->destination_prefix = $wpdb->get_blog_prefix($destination_site_id);
+        
+        // Log the URLs being used for replacement (helpful for debugging)
+        error_log('ESC URL Replacer - Source URL: ' . $this->source_url);
+        error_log('ESC URL Replacer - Destination URL: ' . $this->destination_url);
     }
     
     /**

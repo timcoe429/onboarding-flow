@@ -37,6 +37,9 @@ class ESC_Clone_Manager {
                 throw new Exception($result->get_error_message());
             }
             
+            // Step 2.5: Update site name and basic settings after clone
+            $this->update_site_basics($new_site_id, $site_name);
+            
             // Step 3: Update URLs
             $this->update_log_status('updating_urls');
             $url_replacer = new ESC_URL_Replacer($source_site_id, $new_site_id);
@@ -134,28 +137,78 @@ class ESC_Clone_Manager {
     }
     
     /**
+     * Update site basics after database clone
+     */
+    private function update_site_basics($site_id, $site_name) {
+        switch_to_blog($site_id);
+        
+        // Update site name (blogname)
+        update_option('blogname', $site_name);
+        
+        // Update site description if it contains template references
+        $description = get_option('blogdescription');
+        if (strpos(strtolower($description), 'template') !== false) {
+            update_option('blogdescription', 'Another WordPress site');
+        }
+        
+        // Ensure permalink structure is set
+        update_option('permalink_structure', '/%postname%/');
+        
+        restore_current_blog();
+    }
+    
+    /**
      * Finalize the cloning process
      */
     private function finalize_clone($site_id) {
+        global $wpdb;
+        
+        // Get site details
+        $site = get_site($site_id);
+        if (!$site) {
+            return;
+        }
+        
+        // Construct the correct URL
+        $scheme = is_ssl() ? 'https' : 'http';
+        $site_url = $scheme . '://' . $site->domain . $site->path;
+        $site_url_no_slash = rtrim($site_url, '/');
+        
         switch_to_blog($site_id);
+        
+        // Force update URLs one more time
+        update_option('home', $site_url_no_slash);
+        update_option('siteurl', $site_url_no_slash);
+        
+        // Direct database update to ensure it's set
+        $prefix = $wpdb->get_blog_prefix($site_id);
+        $wpdb->query($wpdb->prepare(
+            "UPDATE {$prefix}options SET option_value = %s WHERE option_name = 'siteurl'",
+            $site_url_no_slash
+        ));
+        $wpdb->query($wpdb->prepare(
+            "UPDATE {$prefix}options SET option_value = %s WHERE option_name = 'home'",
+            $site_url_no_slash
+        ));
         
         // Clear all caches
         wp_cache_flush();
+        wp_cache_delete('alloptions', 'options');
+        wp_cache_delete('siteurl', 'options');
+        wp_cache_delete('home', 'options');
         
         // Clear Elementor cache
         if (class_exists('\Elementor\Plugin')) {
             \Elementor\Plugin::$instance->files_manager->clear_cache();
         }
         
-        // Update home and siteurl if needed
-        $site_url = get_site_url($site_id);
-        update_option('home', $site_url);
-        update_option('siteurl', $site_url);
-        
         // Flush rewrite rules
         flush_rewrite_rules();
         
         restore_current_blog();
+        
+        // Final cache clear
+        wp_cache_flush();
     }
     
     /**
@@ -164,30 +217,36 @@ class ESC_Clone_Manager {
     private function verify_url_update($site_id) {
         global $wpdb;
         
-        // Get the expected URL for the new site
-        $expected_url = get_site_url($site_id);
+        // Get the site details
+        $site = get_site($site_id);
+        if (!$site) {
+            return;
+        }
+        
+        // Construct the expected URL from site details
+        $scheme = is_ssl() ? 'https' : 'http';
+        $expected_url = $scheme . '://' . $site->domain . $site->path;
         $expected_url_no_slash = rtrim($expected_url, '/');
         
         // Switch to the new site
         switch_to_blog($site_id);
         
-        // Get actual values from database
-        $siteurl = get_option('siteurl');
-        $home = get_option('home');
+        // Force update critical options
+        update_option('siteurl', $expected_url_no_slash);
+        update_option('home', $expected_url_no_slash);
         
-        // Force update if they don't match
-        if ($siteurl !== $expected_url_no_slash) {
-            update_option('siteurl', $expected_url_no_slash);
-        }
-        
-        if ($home !== $expected_url_no_slash) {
-            update_option('home', $expected_url_no_slash);
-        }
-        
-        // Also check in the database directly to ensure no caching issues
+        // Also update in database directly to bypass any caching
         $prefix = $wpdb->get_blog_prefix($site_id);
+        
+        // Update siteurl
         $wpdb->query($wpdb->prepare(
-            "UPDATE {$prefix}options SET option_value = %s WHERE option_name = 'siteurl' OR option_name = 'home'",
+            "UPDATE {$prefix}options SET option_value = %s WHERE option_name = 'siteurl'",
+            $expected_url_no_slash
+        ));
+        
+        // Update home
+        $wpdb->query($wpdb->prepare(
+            "UPDATE {$prefix}options SET option_value = %s WHERE option_name = 'home'",
             $expected_url_no_slash
         ));
         
@@ -197,6 +256,7 @@ class ESC_Clone_Manager {
         wp_cache_delete('alloptions', 'options');
         wp_cache_delete('siteurl', 'options');
         wp_cache_delete('home', 'options');
+        wp_cache_flush();
     }
     
     /**

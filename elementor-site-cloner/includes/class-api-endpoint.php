@@ -20,6 +20,12 @@ class ESC_API_Endpoint {
      */
     public function __construct() {
         add_action('rest_api_init', array($this, 'register_routes'));
+        
+        // Add CORS headers to REST API responses
+        add_action('rest_pre_serve_request', array($this, 'add_cors_headers'), 10, 3);
+        
+        // Handle preflight OPTIONS requests
+        add_action('init', array($this, 'handle_preflight_request'));
     }
     
     /**
@@ -176,6 +182,67 @@ class ESC_API_Endpoint {
             'site_url' => get_site_url(),
             'allowed_templates' => $allowed_templates,
         ), 200);
+    }
+    
+    /**
+     * Add CORS headers to REST API responses
+     */
+    public function add_cors_headers($served, $result, $request) {
+        // Only add headers for our API endpoints
+        $route = $request->get_route();
+        if (strpos($route, '/' . self::API_NAMESPACE . '/') !== 0) {
+            return $served;
+        }
+        
+        // Get allowed origins from settings or use default
+        $allowed_origins = get_option('esc_allowed_origins', array('https://yourdocketonline.com'));
+        
+        // Check if the request origin is allowed
+        $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
+        
+        if (in_array($origin, $allowed_origins) || in_array('*', $allowed_origins)) {
+            header('Access-Control-Allow-Origin: ' . $origin);
+            header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+            header('Access-Control-Allow-Headers: Content-Type, X-API-Key, Authorization');
+            header('Access-Control-Allow-Credentials: true');
+            header('Access-Control-Max-Age: 86400'); // 24 hours
+        }
+        
+        return $served;
+    }
+    
+    /**
+     * Handle preflight OPTIONS requests
+     */
+    public function handle_preflight_request() {
+        // Only handle if it's an OPTIONS request to our API endpoint
+        if ($_SERVER['REQUEST_METHOD'] !== 'OPTIONS') {
+            return;
+        }
+        
+        // Check if it's our API endpoint
+        $request_uri = $_SERVER['REQUEST_URI'];
+        if (strpos($request_uri, '/wp-json/' . self::API_NAMESPACE . '/') === false) {
+            return;
+        }
+        
+        // Get allowed origins from settings or use default
+        $allowed_origins = get_option('esc_allowed_origins', array('https://yourdocketonline.com'));
+        
+        // Check if the request origin is allowed
+        $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
+        
+        if (in_array($origin, $allowed_origins) || in_array('*', $allowed_origins)) {
+            header('Access-Control-Allow-Origin: ' . $origin);
+            header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+            header('Access-Control-Allow-Headers: Content-Type, X-API-Key, Authorization');
+            header('Access-Control-Allow-Credentials: true');
+            header('Access-Control-Max-Age: 86400'); // 24 hours
+            header('Content-Length: 0');
+            header('Content-Type: text/plain');
+            http_response_code(200);
+            exit;
+        }
     }
     
     /**

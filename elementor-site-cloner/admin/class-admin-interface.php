@@ -456,12 +456,22 @@ class ESC_Admin_Interface {
                 $allowed_templates = array_map('sanitize_text_field', $_POST['esc_allowed_templates']);
             }
             update_option('esc_allowed_templates', $allowed_templates);
+
+            // Save allowed origins
+            $allowed_origins = array();
+            if (isset($_POST['esc_allowed_origins'])) {
+                $origins_text = sanitize_textarea_field($_POST['esc_allowed_origins']);
+                $origins_array = explode("\n", $origins_text);
+                $allowed_origins = array_filter(array_map('trim', $origins_array));
+            }
+            update_option('esc_allowed_origins', $allowed_origins);
             
             echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings saved successfully!', 'elementor-site-cloner') . '</p></div>';
         }
         
         $api_key = get_option('esc_api_key', 'esc_docket_2025_secure_key');
         $allowed_templates = get_option('esc_allowed_templates', array('template1', 'template2', 'template3', 'template4', 'template5'));
+        $allowed_origins = get_option('esc_allowed_origins', array());
         
         // Get all sites that could be templates
         $sites = get_sites(array(
@@ -473,7 +483,8 @@ class ESC_Admin_Interface {
         <div class="esc-settings-container">
             <div class="esc-settings-form">
                 <h2><?php echo esc_html__('API Settings', 'elementor-site-cloner'); ?></h2>
-                <p><?php echo esc_html__('Configure the API key for external access to the cloning service.', 'elementor-site-cloner'); ?></p>
+                
+                <p>Configure API access for external sites to trigger cloning.</p>
                 
                 <form method="post">
                     <?php wp_nonce_field('esc-settings-save', 'esc_settings_nonce'); ?>
@@ -484,14 +495,25 @@ class ESC_Admin_Interface {
                                 <label for="esc_api_key"><?php echo esc_html__('API Key', 'elementor-site-cloner'); ?></label>
                             </th>
                             <td>
-                                <input type="text" name="esc_api_key" id="esc_api_key" class="regular-text" value="<?php echo esc_attr($api_key); ?>" />
-                                <p class="description"><?php echo esc_html__('This key is required for external applications to access the cloning API.', 'elementor-site-cloner'); ?></p>
+                                <input type="text" name="esc_api_key" id="esc_api_key" value="<?php echo esc_attr($api_key); ?>" class="regular-text" />
+                                <p class="description">Use this key in the X-API-Key header when making API requests.</p>
                             </td>
                         </tr>
-                        <tr>
-                            <th scope="row">
-                                <?php echo esc_html__('Allowed Templates', 'elementor-site-cloner'); ?>
-                            </th>
+                    
+                    <tr>
+                        <th scope="row">
+                            <label for="esc_allowed_origins"><?php echo esc_html__('Allowed Origins (CORS)', 'elementor-site-cloner'); ?></label>
+                        </th>
+                        <td>
+                            <textarea name="esc_allowed_origins" id="esc_allowed_origins" rows="5" cols="50" class="large-text"><?php echo esc_textarea(implode("\n", $allowed_origins)); ?></textarea>
+                            <p class="description">Enter one origin per line (e.g., https://yourdocketonline.com). These domains will be allowed to make API requests.</p>
+                        </td>
+                    </tr>
+                    
+                    <tr>
+                        <th scope="row">
+                            <label><?php echo esc_html__('Allowed Templates', 'elementor-site-cloner'); ?></label>
+                        </th>
                             <td>
                                 <fieldset>
                                     <p class="description"><?php echo esc_html__('Select which sites can be used as templates for API cloning:', 'elementor-site-cloner'); ?></p>

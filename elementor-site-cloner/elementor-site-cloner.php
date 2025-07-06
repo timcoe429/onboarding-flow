@@ -44,10 +44,15 @@ spl_autoload_register(function ($class) {
     }
 });
 
-// Include admin class separately as it's in a different directory
-if (is_admin()) {
-    require_once ESC_PLUGIN_DIR . 'admin/class-admin-interface.php';
-}
+// Include required files
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-clone-manager.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-database-cloner.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-url-replacer.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-file-cloner.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-elementor-handler.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-admin-interface.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-debug-utility.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-api-endpoint.php';
 
 // Initialize the plugin
 add_action('init', 'esc_init');
@@ -72,10 +77,13 @@ function esc_init() {
         return;
     }
     
-    // Initialize admin interface if in admin area
-    if (is_admin()) {
+    // Initialize admin interface
+    if ( is_admin() ) {
         new ESC_Admin_Interface();
     }
+    
+    // Initialize API endpoint
+    new ESC_API_Endpoint();
 }
 
 // Activation hook

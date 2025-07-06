@@ -53,12 +53,17 @@ class ESC_Admin_Interface {
                 <a href="<?php echo network_admin_url('admin.php?page=elementor-site-cloner&tab=debug'); ?>" class="nav-tab <?php echo $current_tab === 'debug' ? 'nav-tab-active' : ''; ?>">
                     <?php echo esc_html__('Debug Tools', 'elementor-site-cloner'); ?>
                 </a>
+                <a href="<?php echo network_admin_url('admin.php?page=elementor-site-cloner&tab=settings'); ?>" class="nav-tab <?php echo $current_tab === 'settings' ? 'nav-tab-active' : ''; ?>">
+                    <?php echo esc_html__('API Settings', 'elementor-site-cloner'); ?>
+                </a>
             </nav>
             
             <div class="tab-content">
                 <?php
                 if ($current_tab === 'debug') {
                     $this->render_debug_tab();
+                } elseif ($current_tab === 'settings') {
+                    $this->render_settings_tab();
                 } else {
                     $this->render_clone_tab();
                 }
@@ -424,6 +429,95 @@ class ESC_Admin_Interface {
             });
         });
         </script>
+        <?php
+    }
+    
+    /**
+     * Render the API settings tab content
+     */
+    private function render_settings_tab() {
+        // Check if settings were saved
+        if (isset($_POST['esc_save_settings']) && wp_verify_nonce($_POST['esc_settings_nonce'], 'esc-settings-save')) {
+            update_option('esc_api_key', sanitize_text_field($_POST['esc_api_key']));
+            echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings saved successfully!', 'elementor-site-cloner') . '</p></div>';
+        }
+        
+        $api_key = get_option('esc_api_key', 'esc_docket_2025_secure_key');
+        ?>
+        <div class="esc-settings-container">
+            <div class="esc-settings-form">
+                <h2><?php echo esc_html__('API Settings', 'elementor-site-cloner'); ?></h2>
+                <p><?php echo esc_html__('Configure the API key for external access to the cloning service.', 'elementor-site-cloner'); ?></p>
+                
+                <form method="post">
+                    <?php wp_nonce_field('esc-settings-save', 'esc_settings_nonce'); ?>
+                    
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row">
+                                <label for="esc_api_key"><?php echo esc_html__('API Key', 'elementor-site-cloner'); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" name="esc_api_key" id="esc_api_key" class="regular-text" value="<?php echo esc_attr($api_key); ?>" />
+                                <p class="description"><?php echo esc_html__('This key is required for external applications to access the cloning API.', 'elementor-site-cloner'); ?></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <?php echo esc_html__('API Endpoints', 'elementor-site-cloner'); ?>
+                            </th>
+                            <td>
+                                <p><strong>Base URL:</strong> <code><?php echo esc_html(get_site_url()); ?></code></p>
+                                <p><strong>Clone Endpoint:</strong> <code>/wp-json/elementor-site-cloner/v1/clone</code></p>
+                                <p><strong>Status Endpoint:</strong> <code>/wp-json/elementor-site-cloner/v1/status</code></p>
+                                <p class="description"><?php echo esc_html__('Use these endpoints to integrate with external applications.', 'elementor-site-cloner'); ?></p>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <h3><?php echo esc_html__('Example API Usage', 'elementor-site-cloner'); ?></h3>
+                    <pre style="background: #f0f0f1; padding: 15px; border-radius: 3px; overflow-x: auto;">
+// Clone a site
+POST <?php echo esc_html(get_site_url()); ?>/wp-json/elementor-site-cloner/v1/clone
+Headers:
+  Content-Type: application/json
+  X-API-Key: YOUR_API_KEY
+
+Body:
+{
+  "template": "template1",
+  "site_name": "My New Site",
+  "site_path": "mynewsite", // optional
+  "form_data": {} // optional additional data
+}</pre>
+                    
+                    <p class="submit">
+                        <button type="submit" name="esc_save_settings" class="button button-primary">
+                            <?php echo esc_html__('Save Settings', 'elementor-site-cloner'); ?>
+                        </button>
+                    </p>
+                </form>
+            </div>
+        </div>
+        
+        <style>
+            .esc-settings-container {
+                max-width: 800px;
+            }
+            
+            .esc-settings-form {
+                background: #fff;
+                border: 1px solid #ccd0d4;
+                border-radius: 4px;
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .esc-settings-form pre {
+                white-space: pre-wrap;
+                word-wrap: break-word;
+            }
+        </style>
         <?php
     }
     

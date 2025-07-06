@@ -63,6 +63,11 @@ class DocketOnboarding {
             require_once plugin_dir_path(__FILE__) . 'includes/ns-cloner-integration.php';
         }
         
+        // Include Cloner Settings for API configuration
+        if (file_exists(plugin_dir_path(__FILE__) . 'includes/cloner-settings.php')) {
+            require_once plugin_dir_path(__FILE__) . 'includes/cloner-settings.php';
+        }
+        
         // 🆕 CLIENT PORTAL - Easy to remove by commenting out these lines
         if (file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/client-portal/portal-functions.php')) {
             require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/client-portal/portal-functions.php';

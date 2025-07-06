@@ -398,24 +398,66 @@ function docket_load_avada_form() {
 }
 
 /**
- * Handle form submission
+ * Handle generic form submission (backward compatibility)
  */
 add_action('wp_ajax_docket_submit_onboarding', 'docket_handle_form_submission');
 add_action('wp_ajax_nopriv_docket_submit_onboarding', 'docket_handle_form_submission');
 
 function docket_handle_form_submission() {
-    // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'docket_onboarding_nonce')) {
+    return docket_handle_any_form_submission('generic');
+}
+
+/**
+ * Handle Fast Build form submission
+ */
+add_action('wp_ajax_docket_submit_fast_build_form', 'docket_handle_fast_build_submission');
+add_action('wp_ajax_nopriv_docket_submit_fast_build_form', 'docket_handle_fast_build_submission');
+
+function docket_handle_fast_build_submission() {
+    return docket_handle_any_form_submission('fast_build');
+}
+
+/**
+ * Handle Standard Build form submission
+ */
+add_action('wp_ajax_docket_submit_standard_build_form', 'docket_handle_standard_build_submission');
+add_action('wp_ajax_nopriv_docket_submit_standard_build_form', 'docket_handle_standard_build_submission');
+
+function docket_handle_standard_build_submission() {
+    return docket_handle_any_form_submission('standard_build');
+}
+
+/**
+ * Handle Website VIP form submission
+ */
+add_action('wp_ajax_docket_submit_website_vip_form', 'docket_handle_website_vip_submission');
+add_action('wp_ajax_nopriv_docket_submit_website_vip_form', 'docket_handle_website_vip_submission');
+
+function docket_handle_website_vip_submission() {
+    return docket_handle_any_form_submission('website_vip');
+}
+
+/**
+ * Unified form submission handler that creates sites using Elementor Site Cloner
+ */
+function docket_handle_any_form_submission($form_type = 'generic') {
+    // Verify nonce - check for different nonce field names
+    $nonce = isset($_POST['nonce']) ? $_POST['nonce'] : 
+             (isset($_POST['_wpnonce']) ? $_POST['_wpnonce'] : 
+             (isset($_POST['docket_nonce']) ? $_POST['docket_nonce'] : ''));
+    
+    if (!$nonce || !wp_verify_nonce($nonce, 'docket_onboarding_nonce')) {
         wp_send_json_error(array('message' => 'Security check failed'));
         wp_die();
     }
     
     // Process the form data
     $form_data = array();
+    $form_data['form_type'] = $form_type;
     
     // Sanitize all form fields
     foreach ($_POST as $key => $value) {
-        if ($key !== 'nonce' && $key !== 'action') {
+        if (!in_array($key, array('nonce', '_wpnonce', 'docket_nonce', 'action'))) {
             if (is_array($value)) {
                 $form_data[$key] = array_map('sanitize_text_field', $value);
             } else {
@@ -424,18 +466,84 @@ function docket_handle_form_submission() {
         }
     }
     
-    // You can add custom processing here
-    // For example: save to database, send emails, create user accounts, etc.
-    
-    // Example: Save to options table
-    $submission_id = time();
+    // Save form submission for reference
+    $submission_id = time() . '_' . rand(1000, 9999);
     update_option('docket_submission_' . $submission_id, $form_data);
+    
+    // Get configuration for remote API
+    $api_url = get_option('docket_cloner_api_url', 'https://dockethosting5.com');
+    $api_key = get_option('docket_cloner_api_key', 'esc_docket_2025_secure_key');
+    
+    // Make API call to Elementor Site Cloner on dockethosting5.com
+    error_log('Docket Onboarding: Making API call to ' . $api_url . ' for ' . $form_type . ' form submission');
+    
+    // Get the template selection (default to template1 if not specified)
+    $selected_template = isset($form_data['website_template_selection']) ? $form_data['website_template_selection'] : 'template1';
+    
+    // Get the business name from the form
+    $site_name = !empty($form_data['business_name']) ? $form_data['business_name'] : 'Docket Site ' . time();
+    
+    // Prepare API request data
+    $api_data = array(
+        'template' => $selected_template,
+        'site_name' => $site_name,
+        'form_data' => $form_data
+    );
+    
+    // Make the API request
+    $response = wp_remote_post($api_url . '/wp-json/elementor-site-cloner/v1/clone', array(
+        'timeout' => 60,
+        'headers' => array(
+            'Content-Type' => 'application/json',
+            'X-API-Key' => $api_key
+        ),
+        'body' => json_encode($api_data)
+    ));
+    
+    // Check for errors
+    if (is_wp_error($response)) {
+        error_log('Docket Onboarding: API request failed - ' . $response->get_error_message());
+        wp_send_json_error(array(
+            'message' => 'Failed to connect to site creation service: ' . $response->get_error_message()
+        ));
+        wp_die();
+    }
+    
+    // Parse the response
+    $body = wp_remote_retrieve_body($response);
+    $data = json_decode($body, true);
+    
+    if (empty($data) || !isset($data['success'])) {
+        error_log('Docket Onboarding: Invalid API response - ' . $body);
+        wp_send_json_error(array(
+            'message' => 'Invalid response from site creation service'
+        ));
+        wp_die();
+    }
+    
+    if (!$data['success']) {
+        error_log('Docket Onboarding: Site creation failed - ' . ($data['message'] ?? 'Unknown error'));
+        wp_send_json_error(array(
+            'message' => 'Site creation failed: ' . ($data['message'] ?? 'Unknown error')
+        ));
+        wp_die();
+    }
+    
+    // Success! Store the new site information with the form submission
+    $form_data['new_site_id'] = $data['site_id'];
+    $form_data['new_site_url'] = $data['site_url'];
+    update_option('docket_submission_' . $submission_id, $form_data);
+    
+    error_log('Docket Onboarding: Site created successfully - ID: ' . $data['site_id'] . ', URL: ' . $data['site_url']);
     
     // Send success response
     wp_send_json_success(array(
-        'message' => 'Form submitted successfully',
+        'message' => 'Form submitted and site created successfully',
         'submission_id' => $submission_id,
-        'redirect_url' => home_url('/thank-you/') // Adjust as needed
+        'site_id' => $data['site_id'],
+        'site_url' => $data['site_url'],
+        'admin_url' => $data['admin_url'],
+        'redirect_url' => $data['admin_url'] // Redirect to new site admin
     ));
     
     wp_die();

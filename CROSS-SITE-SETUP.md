@@ -14,7 +14,8 @@ This guide explains how to set up the cross-site integration between the Docket 
 1. Install and activate the **Elementor Site Cloner** plugin (network activated)
 2. Go to **Network Admin → Elementor Site Cloner → API Settings**
 3. Set your API key (default: `esc_docket_2025_secure_key`)
-4. Note the API endpoints shown on the settings page
+4. Select which sites can be used as templates (by default: template1-5)
+5. Note the API endpoints shown on the settings page
 
 ### 2. On the Forms Site (yourdocketonline.com)
 
@@ -65,6 +66,14 @@ The forms use these template selections:
 - `template3` - Template 3
 - `template4` - Template 4
 - `template5` - Template 5
+
+### Template Restrictions
+
+You can control which sites are allowed to be cloned via the API:
+1. Go to **Network Admin → Elementor Site Cloner → API Settings**
+2. Check/uncheck sites in the "Allowed Templates" section
+3. Only checked sites can be cloned through the API
+4. This helps prevent accidental cloning of non-template sites
 
 ## Security Notes
 

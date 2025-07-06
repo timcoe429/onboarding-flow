@@ -92,6 +92,17 @@ class ESC_API_Endpoint {
         $site_path = sanitize_text_field($request->get_param('site_path'));
         $form_data = $request->get_param('form_data');
         
+        // Validate template against whitelist
+        $allowed_templates = $this->get_allowed_templates();
+        if (!empty($allowed_templates) && !in_array($template, $allowed_templates)) {
+            error_log('ESC API: Template not allowed - ' . $template);
+            return new WP_REST_Response(array(
+                'success' => false,
+                'message' => 'Template not allowed: ' . $template,
+                'allowed_templates' => $allowed_templates,
+            ), 403);
+        }
+        
         // Find template site ID
         $template_path = '/' . $template . '/';
         $template_site_id = null;
@@ -154,6 +165,8 @@ class ESC_API_Endpoint {
      * Handle status request
      */
     public function handle_status_request($request) {
+        $allowed_templates = $this->get_allowed_templates();
+        
         return new WP_REST_Response(array(
             'status' => 'active',
             'plugin' => 'Elementor Site Cloner',
@@ -161,6 +174,7 @@ class ESC_API_Endpoint {
             'api_version' => self::API_VERSION,
             'multisite' => is_multisite(),
             'site_url' => get_site_url(),
+            'allowed_templates' => $allowed_templates,
         ), 200);
     }
     
@@ -184,5 +198,20 @@ class ESC_API_Endpoint {
         }
         
         return $highest_number + 1;
+    }
+    
+    /**
+     * Get allowed templates for API cloning
+     */
+    private function get_allowed_templates() {
+        // Get from option, default to standard templates
+        $allowed = get_option('esc_allowed_templates', array());
+        
+        // If empty, return default templates
+        if (empty($allowed)) {
+            return array('template1', 'template2', 'template3', 'template4', 'template5');
+        }
+        
+        return $allowed;
     }
 } 

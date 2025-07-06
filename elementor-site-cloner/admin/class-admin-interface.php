@@ -84,6 +84,9 @@ class ESC_Admin_Interface {
             'deleted' => 0
         ));
         
+        // Get allowed templates
+        $allowed_templates = get_option('esc_allowed_templates', array('template1', 'template2', 'template3', 'template4', 'template5'));
+        
         ?>
         <div class="esc-admin-container">
             <div class="esc-clone-form">
@@ -98,7 +101,14 @@ class ESC_Admin_Interface {
                             <td>
                                 <select name="source_site" id="source_site" required>
                                     <option value=""><?php echo esc_html__('Select a site to clone', 'elementor-site-cloner'); ?></option>
-                                    <?php foreach ($sites as $site) : ?>
+                                    <?php 
+                                    foreach ($sites as $site) : 
+                                        // Check if this site is allowed as a template
+                                        $site_path = trim($site->path, '/');
+                                        if (!empty($allowed_templates) && !empty($site_path) && !in_array($site_path, $allowed_templates)) {
+                                            continue; // Skip non-allowed templates
+                                        }
+                                    ?>
                                         <option value="<?php echo esc_attr($site->blog_id); ?>">
                                             <?php echo esc_html($site->domain . $site->path); ?> - <?php echo esc_html(get_blog_option($site->blog_id, 'blogname')); ?>
                                         </option>
@@ -439,10 +449,26 @@ class ESC_Admin_Interface {
         // Check if settings were saved
         if (isset($_POST['esc_save_settings']) && wp_verify_nonce($_POST['esc_settings_nonce'], 'esc-settings-save')) {
             update_option('esc_api_key', sanitize_text_field($_POST['esc_api_key']));
+            
+            // Save allowed templates
+            $allowed_templates = array();
+            if (isset($_POST['esc_allowed_templates']) && is_array($_POST['esc_allowed_templates'])) {
+                $allowed_templates = array_map('sanitize_text_field', $_POST['esc_allowed_templates']);
+            }
+            update_option('esc_allowed_templates', $allowed_templates);
+            
             echo '<div class="notice notice-success is-dismissible"><p>' . esc_html__('Settings saved successfully!', 'elementor-site-cloner') . '</p></div>';
         }
         
         $api_key = get_option('esc_api_key', 'esc_docket_2025_secure_key');
+        $allowed_templates = get_option('esc_allowed_templates', array('template1', 'template2', 'template3', 'template4', 'template5'));
+        
+        // Get all sites that could be templates
+        $sites = get_sites(array(
+            'number' => 1000,
+            'archived' => 0,
+            'deleted' => 0
+        ));
         ?>
         <div class="esc-settings-container">
             <div class="esc-settings-form">
@@ -460,6 +486,33 @@ class ESC_Admin_Interface {
                             <td>
                                 <input type="text" name="esc_api_key" id="esc_api_key" class="regular-text" value="<?php echo esc_attr($api_key); ?>" />
                                 <p class="description"><?php echo esc_html__('This key is required for external applications to access the cloning API.', 'elementor-site-cloner'); ?></p>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <?php echo esc_html__('Allowed Templates', 'elementor-site-cloner'); ?>
+                            </th>
+                            <td>
+                                <fieldset>
+                                    <p class="description"><?php echo esc_html__('Select which sites can be used as templates for API cloning:', 'elementor-site-cloner'); ?></p>
+                                    <?php
+                                    // Show template options
+                                    foreach ($sites as $site) {
+                                        $site_path = trim($site->path, '/');
+                                        if (empty($site_path)) continue; // Skip main site
+                                        
+                                        $checked = in_array($site_path, $allowed_templates) ? 'checked' : '';
+                                        $site_name = get_blog_option($site->blog_id, 'blogname');
+                                        ?>
+                                        <label style="display: block; margin: 5px 0;">
+                                            <input type="checkbox" name="esc_allowed_templates[]" value="<?php echo esc_attr($site_path); ?>" <?php echo $checked; ?> />
+                                            <strong><?php echo esc_html($site_path); ?></strong> - <?php echo esc_html($site_name); ?>
+                                            <span style="color: #666;">(<?php echo esc_html($site->domain . $site->path); ?>)</span>
+                                        </label>
+                                        <?php
+                                    }
+                                    ?>
+                                </fieldset>
                             </td>
                         </tr>
                         <tr>

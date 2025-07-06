@@ -52,7 +52,6 @@ class DocketOnboarding {
         // Include required files
         require_once plugin_dir_path(__FILE__) . 'includes/form-handler.php';
         require_once plugin_dir_path(__FILE__) . 'includes/shortcode.php';
-        require_once plugin_dir_path(__FILE__) . 'includes/client-portal/portal-admin.php';
         require_once plugin_dir_path(__FILE__) . 'includes/client-portal/portal-database.php';
         require_once plugin_dir_path(__FILE__) . 'includes/client-portal/portal-functions.php';
         require_once plugin_dir_path(__FILE__) . 'includes/client-portal/portal-display.php';

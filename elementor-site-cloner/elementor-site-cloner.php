@@ -50,7 +50,7 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/class-database-cloner.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-url-replacer.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-file-cloner.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-elementor-handler.php';
-require_once plugin_dir_path( __FILE__ ) . 'includes/class-admin-interface.php';
+require_once plugin_dir_path( __FILE__ ) . 'admin/class-admin-interface.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-debug-utility.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-api-endpoint.php';
 

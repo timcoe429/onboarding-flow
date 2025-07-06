@@ -32,21 +32,46 @@ class ESC_Admin_Interface {
             'dashicons-admin-multisite',
             30
         );
-        
-        add_submenu_page(
-            'elementor-site-cloner',
-            __('Debug Tools', 'elementor-site-cloner'),
-            __('Debug', 'elementor-site-cloner'),
-            'manage_network',
-            'elementor-site-cloner-debug',
-            array($this, 'render_debug_page')
-        );
     }
     
     /**
      * Render the admin page
      */
     public function render_admin_page() {
+        // Get current tab
+        $current_tab = isset($_GET['tab']) ? sanitize_text_field($_GET['tab']) : 'clone';
+        
+        ?>
+        <div class="wrap">
+            <h1><?php echo esc_html__('Elementor Site Cloner', 'elementor-site-cloner'); ?></h1>
+            
+            <!-- Tabs -->
+            <nav class="nav-tab-wrapper">
+                <a href="<?php echo network_admin_url('admin.php?page=elementor-site-cloner&tab=clone'); ?>" class="nav-tab <?php echo $current_tab === 'clone' ? 'nav-tab-active' : ''; ?>">
+                    <?php echo esc_html__('Clone Sites', 'elementor-site-cloner'); ?>
+                </a>
+                <a href="<?php echo network_admin_url('admin.php?page=elementor-site-cloner&tab=debug'); ?>" class="nav-tab <?php echo $current_tab === 'debug' ? 'nav-tab-active' : ''; ?>">
+                    <?php echo esc_html__('Debug Tools', 'elementor-site-cloner'); ?>
+                </a>
+            </nav>
+            
+            <div class="tab-content">
+                <?php
+                if ($current_tab === 'debug') {
+                    $this->render_debug_tab();
+                } else {
+                    $this->render_clone_tab();
+                }
+                ?>
+            </div>
+        </div>
+        <?php
+    }
+    
+    /**
+     * Render the clone tab content
+     */
+    private function render_clone_tab() {
         // Get all sites in the network
         $sites = get_sites(array(
             'number' => 1000,
@@ -55,94 +80,93 @@ class ESC_Admin_Interface {
         ));
         
         ?>
-        <div class="wrap">
-            <h1><?php echo esc_html__('Elementor Site Cloner', 'elementor-site-cloner'); ?></h1>
-            
-            <div class="esc-admin-container">
-                <div class="esc-clone-form">
-                    <h2><?php echo esc_html__('Clone a Site', 'elementor-site-cloner'); ?></h2>
-                    
-                    <form id="esc-clone-form">
-                        <table class="form-table">
-                            <tr>
-                                <th scope="row">
-                                    <label for="source_site"><?php echo esc_html__('Source Site', 'elementor-site-cloner'); ?></label>
-                                </th>
-                                <td>
-                                    <select name="source_site" id="source_site" required>
-                                        <option value=""><?php echo esc_html__('Select a site to clone', 'elementor-site-cloner'); ?></option>
-                                        <?php foreach ($sites as $site) : ?>
-                                            <option value="<?php echo esc_attr($site->blog_id); ?>">
-                                                <?php echo esc_html($site->domain . $site->path); ?> - <?php echo esc_html(get_blog_option($site->blog_id, 'blogname')); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                    <p class="description"><?php echo esc_html__('Select the site you want to clone', 'elementor-site-cloner'); ?></p>
-                                </td>
-                            </tr>
-                            
-                            <tr>
-                                <th scope="row">
-                                    <label for="site_name"><?php echo esc_html__('New Site Name', 'elementor-site-cloner'); ?></label>
-                                </th>
-                                <td>
-                                    <input type="text" name="site_name" id="site_name" class="regular-text" required />
-                                    <p class="description"><?php echo esc_html__('Enter the name for the new site', 'elementor-site-cloner'); ?></p>
-                                </td>
-                            </tr>
-                            
-                            <tr>
-                                <th scope="row">
-                                    <label for="site_url"><?php echo esc_html__('New Site URL', 'elementor-site-cloner'); ?></label>
-                                </th>
-                                <td>
-                                    <?php
-                                    $network = get_network();
-                                    if (is_subdomain_install()) {
-                                        ?>
-                                        <input type="text" name="site_subdomain" id="site_subdomain" class="regular-text" required />
-                                        <span>.<?php echo esc_html($network->domain); ?></span>
-                                        <?php
-                                    } else {
-                                        ?>
-                                        <span><?php echo esc_html($network->domain . $network->path); ?></span>
-                                        <input type="text" name="site_path" id="site_path" class="regular-text" required />
-                                        <?php
-                                    }
-                                    ?>
-                                    <p class="description"><?php echo esc_html__('Enter the URL path or subdomain for the new site', 'elementor-site-cloner'); ?></p>
-                                </td>
-                            </tr>
-                        </table>
+        <div class="esc-admin-container">
+            <div class="esc-clone-form">
+                <h2><?php echo esc_html__('Clone a Site', 'elementor-site-cloner'); ?></h2>
+                
+                <form id="esc-clone-form">
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row">
+                                <label for="source_site"><?php echo esc_html__('Source Site', 'elementor-site-cloner'); ?></label>
+                            </th>
+                            <td>
+                                <select name="source_site" id="source_site" required>
+                                    <option value=""><?php echo esc_html__('Select a site to clone', 'elementor-site-cloner'); ?></option>
+                                    <?php foreach ($sites as $site) : ?>
+                                        <option value="<?php echo esc_attr($site->blog_id); ?>">
+                                            <?php echo esc_html($site->domain . $site->path); ?> - <?php echo esc_html(get_blog_option($site->blog_id, 'blogname')); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                                <p class="description"><?php echo esc_html__('Select the site you want to clone', 'elementor-site-cloner'); ?></p>
+                            </td>
+                        </tr>
                         
-                        <p class="submit">
-                            <button type="submit" class="button button-primary" id="start-clone">
-                                <?php echo esc_html__('Start Cloning', 'elementor-site-cloner'); ?>
-                            </button>
-                        </p>
-                    </form>
+                        <tr>
+                            <th scope="row">
+                                <label for="site_name"><?php echo esc_html__('New Site Name', 'elementor-site-cloner'); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" name="site_name" id="site_name" class="regular-text" required />
+                                <p class="description"><?php echo esc_html__('Enter the name for the new site', 'elementor-site-cloner'); ?></p>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <th scope="row">
+                                <label for="site_url"><?php echo esc_html__('New Site URL', 'elementor-site-cloner'); ?></label>
+                            </th>
+                            <td>
+                                <?php
+                                $network = get_network();
+                                if (is_subdomain_install()) {
+                                    ?>
+                                    <input type="text" name="site_subdomain" id="site_subdomain" class="regular-text" required />
+                                    <span>.<?php echo esc_html($network->domain); ?></span>
+                                    <?php
+                                } else {
+                                    ?>
+                                    <span><?php echo esc_html($network->domain . $network->path); ?></span>
+                                    <input type="text" name="site_path" id="site_path" class="regular-text" required />
+                                    <?php
+                                }
+                                ?>
+                                <p class="description"><?php echo esc_html__('Enter the URL path or subdomain for the new site', 'elementor-site-cloner'); ?></p>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <p class="submit">
+                        <button type="submit" class="button button-primary" id="start-clone">
+                            <?php echo esc_html__('Start Cloning', 'elementor-site-cloner'); ?>
+                        </button>
+                    </p>
+                </form>
+            </div>
+            
+            <div class="esc-progress-container" style="display: none;">
+                <h2><?php echo esc_html__('Cloning Progress', 'elementor-site-cloner'); ?></h2>
+                <div class="esc-progress-bar">
+                    <div class="esc-progress-fill"></div>
                 </div>
-                
-                <div class="esc-progress-container" style="display: none;">
-                    <h2><?php echo esc_html__('Cloning Progress', 'elementor-site-cloner'); ?></h2>
-                    <div class="esc-progress-bar">
-                        <div class="esc-progress-fill"></div>
-                    </div>
-                    <div class="esc-status-message"></div>
-                    <div class="esc-error-message" style="display: none;"></div>
-                </div>
-                
-                <div class="esc-recent-clones">
-                    <h2><?php echo esc_html__('Recent Clones', 'elementor-site-cloner'); ?></h2>
-                    <?php $this->display_recent_clones(); ?>
-                </div>
+                <div class="esc-status-message"></div>
+                <div class="esc-error-message" style="display: none;"></div>
+            </div>
+            
+            <div class="esc-recent-clones">
+                <h2><?php echo esc_html__('Recent Clones', 'elementor-site-cloner'); ?></h2>
+                <?php $this->display_recent_clones(); ?>
             </div>
         </div>
         
         <style>
+            .tab-content {
+                margin-top: 20px;
+            }
+            
             .esc-admin-container {
                 max-width: 800px;
-                margin-top: 20px;
             }
             
             .esc-clone-form,
@@ -223,9 +247,9 @@ class ESC_Admin_Interface {
     }
     
     /**
-     * Render the debug page
+     * Render the debug tab content
      */
-    public function render_debug_page() {
+    private function render_debug_tab() {
         // Get all sites
         $sites = get_sites(array(
             'number' => 1000,
@@ -234,64 +258,59 @@ class ESC_Admin_Interface {
         ));
         
         ?>
-        <div class="wrap">
-            <h1><?php echo esc_html__('Elementor Site Cloner - Debug Tools', 'elementor-site-cloner'); ?></h1>
-            
-            <div class="esc-debug-container">
-                <div class="esc-debug-form">
-                    <h2><?php echo esc_html__('Check Site URLs', 'elementor-site-cloner'); ?></h2>
-                    <p><?php echo esc_html__('Select a site to check its URL configuration and find any remaining source URLs.', 'elementor-site-cloner'); ?></p>
-                    
-                    <form id="esc-debug-form">
-                        <table class="form-table">
-                            <tr>
-                                <th scope="row">
-                                    <label for="debug_site"><?php echo esc_html__('Site to Debug', 'elementor-site-cloner'); ?></label>
-                                </th>
-                                <td>
-                                    <select name="debug_site" id="debug_site" required>
-                                        <option value=""><?php echo esc_html__('Select a site', 'elementor-site-cloner'); ?></option>
-                                        <?php foreach ($sites as $site) : ?>
-                                            <option value="<?php echo esc_attr($site->blog_id); ?>">
-                                                <?php echo esc_html($site->domain . $site->path); ?> - <?php echo esc_html(get_blog_option($site->blog_id, 'blogname')); ?>
-                                            </option>
-                                        <?php endforeach; ?>
-                                    </select>
-                                </td>
-                            </tr>
-                            <tr>
-                                <th scope="row">
-                                    <label for="source_url"><?php echo esc_html__('Source URL to Search', 'elementor-site-cloner'); ?></label>
-                                </th>
-                                <td>
-                                    <input type="text" name="source_url" id="source_url" class="regular-text" placeholder="https://example.com/template1" />
-                                    <p class="description"><?php echo esc_html__('Optional: Enter the source URL to search for in the database', 'elementor-site-cloner'); ?></p>
-                                </td>
-                            </tr>
-                        </table>
-                        
-                        <p class="submit">
-                            <button type="submit" class="button button-primary" id="check-urls">
-                                <?php echo esc_html__('Check URLs', 'elementor-site-cloner'); ?>
-                            </button>
-                            <button type="button" class="button" id="force-fix-urls">
-                                <?php echo esc_html__('Force Fix URLs', 'elementor-site-cloner'); ?>
-                            </button>
-                        </p>
-                    </form>
-                </div>
+        <div class="esc-debug-container">
+            <div class="esc-debug-form">
+                <h2><?php echo esc_html__('Check Site URLs', 'elementor-site-cloner'); ?></h2>
+                <p><?php echo esc_html__('Select a site to check its URL configuration and find any remaining source URLs.', 'elementor-site-cloner'); ?></p>
                 
-                <div class="esc-debug-results" style="display: none;">
-                    <h2><?php echo esc_html__('Debug Results', 'elementor-site-cloner'); ?></h2>
-                    <div class="esc-debug-output"></div>
-                </div>
+                <form id="esc-debug-form">
+                    <table class="form-table">
+                        <tr>
+                            <th scope="row">
+                                <label for="debug_site"><?php echo esc_html__('Site to Debug', 'elementor-site-cloner'); ?></label>
+                            </th>
+                            <td>
+                                <select name="debug_site" id="debug_site" required>
+                                    <option value=""><?php echo esc_html__('Select a site', 'elementor-site-cloner'); ?></option>
+                                    <?php foreach ($sites as $site) : ?>
+                                        <option value="<?php echo esc_attr($site->blog_id); ?>">
+                                            <?php echo esc_html($site->domain . $site->path); ?> - <?php echo esc_html(get_blog_option($site->blog_id, 'blogname')); ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </td>
+                        </tr>
+                        <tr>
+                            <th scope="row">
+                                <label for="source_url"><?php echo esc_html__('Source URL to Search', 'elementor-site-cloner'); ?></label>
+                            </th>
+                            <td>
+                                <input type="text" name="source_url" id="source_url" class="regular-text" placeholder="https://example.com/template1" />
+                                <p class="description"><?php echo esc_html__('Optional: Enter the source URL to search for in the database', 'elementor-site-cloner'); ?></p>
+                            </td>
+                        </tr>
+                    </table>
+                    
+                    <p class="submit">
+                        <button type="submit" class="button button-primary" id="check-urls">
+                            <?php echo esc_html__('Check URLs', 'elementor-site-cloner'); ?>
+                        </button>
+                        <button type="button" class="button" id="force-fix-urls">
+                            <?php echo esc_html__('Force Fix URLs', 'elementor-site-cloner'); ?>
+                        </button>
+                    </p>
+                </form>
+            </div>
+            
+            <div class="esc-debug-results" style="display: none;">
+                <h2><?php echo esc_html__('Debug Results', 'elementor-site-cloner'); ?></h2>
+                <div class="esc-debug-output"></div>
             </div>
         </div>
         
         <style>
             .esc-debug-container {
                 max-width: 1000px;
-                margin-top: 20px;
             }
             
             .esc-debug-form,
@@ -479,7 +498,8 @@ class ESC_Admin_Interface {
      * Enqueue admin assets
      */
     public function enqueue_admin_assets($hook) {
-        if ($hook !== 'toplevel_page_elementor-site-cloner') {
+        // Check if we're on the Site Cloner page (network admin uses different hook format)
+        if (strpos($hook, 'elementor-site-cloner') === false) {
             return;
         }
         

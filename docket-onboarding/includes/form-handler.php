@@ -548,6 +548,18 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     
     if (empty($data) || !isset($data['success'])) {
         error_log('Docket Onboarding: Invalid API response - ' . $body);
+        error_log('Docket Onboarding: Response code - ' . wp_remote_retrieve_response_code($response));
+        error_log('Docket Onboarding: Response headers - ' . print_r(wp_remote_retrieve_headers($response), true));
+        
+        // Check if it's an HTML error page
+        if (strpos($body, '<html') !== false || strpos($body, 'Access denied') !== false) {
+            error_log('Docket Onboarding: Received HTML response instead of JSON - possible security plugin blocking');
+            wp_send_json_error(array(
+                'message' => 'Site creation blocked by security settings. Please check server configuration.'
+            ));
+            wp_die();
+        }
+        
         wp_send_json_error(array(
             'message' => 'Invalid response from site creation service'
         ));

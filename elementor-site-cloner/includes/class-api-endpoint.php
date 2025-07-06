@@ -32,7 +32,7 @@ class ESC_API_Endpoint {
      * Register REST API routes
      */
     public function register_routes() {
-        // Clone site endpoint
+        // Clone endpoint
         register_rest_route(self::API_NAMESPACE . '/' . self::API_VERSION, '/clone', array(
             'methods' => 'POST',
             'callback' => array($this, 'handle_clone_request'),
@@ -40,32 +40,38 @@ class ESC_API_Endpoint {
             'args' => array(
                 'template' => array(
                     'required' => true,
-                    'type' => 'string',
-                    'description' => 'Template identifier (e.g., template1, template2)',
+                    'validate_callback' => function($param) {
+                        return !empty($param);
+                    }
                 ),
                 'site_name' => array(
                     'required' => true,
-                    'type' => 'string',
-                    'description' => 'Name for the new site',
+                    'validate_callback' => function($param) {
+                        return !empty($param);
+                    }
                 ),
                 'site_path' => array(
                     'required' => false,
-                    'type' => 'string',
-                    'description' => 'Optional custom path for the new site',
+                    'validate_callback' => function($param) {
+                        return true;
+                    }
                 ),
                 'form_data' => array(
                     'required' => false,
-                    'type' => 'object',
-                    'description' => 'Additional form data for future placeholder replacement',
+                    'validate_callback' => function($param) {
+                        return true;
+                    }
                 ),
             ),
+            'show_in_index' => false,
         ));
         
-        // Status check endpoint
+        // Status endpoint  
         register_rest_route(self::API_NAMESPACE . '/' . self::API_VERSION, '/status', array(
             'methods' => 'GET',
             'callback' => array($this, 'handle_status_request'),
-            'permission_callback' => array($this, 'verify_api_key'),
+            'permission_callback' => '__return_true',  // Allow public access for status checks
+            'show_in_index' => false,
         ));
     }
     

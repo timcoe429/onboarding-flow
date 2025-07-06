@@ -31,6 +31,7 @@ add_action('admin_init', 'docket_cloner_settings_init');
 function docket_cloner_settings_init() {
     register_setting('docket_cloner_settings', 'docket_cloner_api_url');
     register_setting('docket_cloner_settings', 'docket_cloner_api_key');
+    register_setting('docket_cloner_settings', 'docket_disable_api_calls');
 }
 
 /**
@@ -88,6 +89,16 @@ function docket_cloner_settings_page() {
                         <p class="description">
                             The API key for authenticating with the Elementor Site Cloner
                         </p>
+                    </td>
+                </tr>
+                
+                <tr>
+                    <th scope="row">
+                        <label for="docket_disable_api_calls">Disable API Calls</label>
+                    </th>
+                    <td>
+                        <input type="checkbox" name="docket_disable_api_calls" value="1" <?php checked(get_option('docket_disable_api_calls', false)); ?> />
+                        <p class="description">Check this to disable API calls for debugging. Forms will submit successfully but no sites will be created.</p>
                     </td>
                 </tr>
             </table>

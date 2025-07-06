@@ -376,4 +376,3 @@ error_log('Docket Portal Debug: Initializing global DocketClientPortal');
 global $docket_client_portal;
 $docket_client_portal = new DocketClientPortal();
 error_log('Docket Portal Debug: Global DocketClientPortal created');
-?>

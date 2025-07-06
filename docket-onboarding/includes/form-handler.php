@@ -470,6 +470,27 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     $submission_id = time() . '_' . rand(1000, 9999);
     update_option('docket_submission_' . $submission_id, $form_data);
     
+    // Check if API calls are disabled (for debugging)
+    if (get_option('docket_disable_api_calls', false)) {
+        error_log('Docket Onboarding: API calls disabled, returning success without site creation');
+        
+        // Create client portal entry if available
+        if (class_exists('DocketClientPortal')) {
+            global $docket_client_portal;
+            if ($docket_client_portal) {
+                $portal_url = $docket_client_portal->create_client_project($form_data, $form_type);
+                error_log('Docket Onboarding: Client portal created at ' . $portal_url);
+            }
+        }
+        
+        wp_send_json_success(array(
+            'message' => 'Form submitted successfully (API calls disabled)',
+            'submission_id' => $submission_id,
+            'debug_mode' => true
+        ));
+        wp_die();
+    }
+    
     // Get configuration for remote API
     $api_url = get_option('docket_cloner_api_url', 'https://dockethosting5.com');
     $api_key = get_option('docket_cloner_api_key', 'esc_docket_2025_secure_key');
@@ -490,15 +511,27 @@ function docket_handle_any_form_submission($form_type = 'generic') {
         'form_data' => $form_data
     );
     
-    // Make the API request
-    $response = wp_remote_post($api_url . '/wp-json/elementor-site-cloner/v1/clone', array(
-        'timeout' => 60,
-        'headers' => array(
-            'Content-Type' => 'application/json',
-            'X-API-Key' => $api_key
-        ),
-        'body' => json_encode($api_data)
-    ));
+    // Add error logging for debugging
+    error_log('Docket Onboarding: API Request Data: ' . json_encode($api_data));
+    
+    // Make the API request with better error handling
+    try {
+        $response = wp_remote_post($api_url . '/wp-json/elementor-site-cloner/v1/clone', array(
+            'timeout' => 60,
+            'headers' => array(
+                'Content-Type' => 'application/json',
+                'X-API-Key' => $api_key
+            ),
+            'body' => json_encode($api_data),
+            'sslverify' => false // Temporarily disable SSL verification for debugging
+        ));
+    } catch (Exception $e) {
+        error_log('Docket Onboarding: Exception during API call - ' . $e->getMessage());
+        wp_send_json_error(array(
+            'message' => 'Error connecting to site creation service: ' . $e->getMessage()
+        ));
+        wp_die();
+    }
     
     // Check for errors
     if (is_wp_error($response)) {
@@ -536,6 +569,16 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     
     error_log('Docket Onboarding: Site created successfully - ID: ' . $data['site_id'] . ', URL: ' . $data['site_url']);
     
+    // Create client portal entry after successful site creation
+    $portal_url = '';
+    if (class_exists('DocketClientPortal')) {
+        global $docket_client_portal;
+        if ($docket_client_portal) {
+            $portal_url = $docket_client_portal->create_client_project($form_data, $form_type, $data['site_url']);
+            error_log('Docket Onboarding: Client portal created at ' . $portal_url);
+        }
+    }
+    
     // Send success response
     wp_send_json_success(array(
         'message' => 'Form submitted and site created successfully',
@@ -543,10 +586,9 @@ function docket_handle_any_form_submission($form_type = 'generic') {
         'site_id' => $data['site_id'],
         'site_url' => $data['site_url'],
         'admin_url' => $data['admin_url'],
+        'portal_url' => $portal_url,
         'redirect_url' => $data['admin_url'] // Redirect to new site admin
     ));
     
     wp_die();
 }
-
-?>

@@ -73,16 +73,52 @@ class ESC_API_Endpoint {
      * Verify API key
      */
     public function verify_api_key($request) {
-        $api_key = $request->get_header('X-API-Key');
+        error_log('ESC API: verify_api_key called');
         
+        // TEMPORARY BYPASS FOR TESTING
+        $bypass = get_site_option('esc_auth_bypass_test', 0);
+        if ($bypass && (time() - $bypass < 300)) {
+            error_log('ESC API: AUTH BYPASS ACTIVE - Allowing request');
+            return true;
+        }
+        
+        // Try different methods to get the API key
+        $api_key = $request->get_header('X-API-Key');
+        error_log('ESC API: Header X-API-Key: ' . ($api_key ? $api_key : 'EMPTY'));
+        
+        // Try lowercase
+        if (empty($api_key)) {
+            $api_key = $request->get_header('x-api-key');
+            error_log('ESC API: Header x-api-key: ' . ($api_key ? $api_key : 'EMPTY'));
+        }
+        
+        // Try from $_SERVER directly
+        if (empty($api_key) && isset($_SERVER['HTTP_X_API_KEY'])) {
+            $api_key = $_SERVER['HTTP_X_API_KEY'];
+            error_log('ESC API: $_SERVER HTTP_X_API_KEY: ' . $api_key);
+        }
+        
+        // Try from request params
         if (empty($api_key)) {
             $api_key = $request->get_param('api_key');
+            error_log('ESC API: Param API Key: ' . ($api_key ? $api_key : 'EMPTY'));
         }
+        
+        // Debug all headers
+        error_log('ESC API: All headers: ' . print_r($request->get_headers(), true));
         
         // Get the stored API key
         $stored_key = get_option('esc_api_key', 'esc_docket_2025_secure_key');
+        error_log('ESC API: Stored API Key: ' . $stored_key);
         
-        return $api_key === $stored_key;
+        $result = $api_key === $stored_key;
+        error_log('ESC API: Authentication result: ' . ($result ? 'SUCCESS' : 'FAILED'));
+        
+        if (!$result) {
+            error_log('ESC API: Key comparison - Received: "' . $api_key . '" vs Stored: "' . $stored_key . '"');
+        }
+        
+        return $result;
     }
     
     /**

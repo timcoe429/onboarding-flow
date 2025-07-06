@@ -12,6 +12,8 @@ class ESC_Admin_Interface {
         // Handle AJAX requests
         add_action('wp_ajax_esc_start_clone', array($this, 'ajax_start_clone'));
         add_action('wp_ajax_esc_check_status', array($this, 'ajax_check_status'));
+        add_action('wp_ajax_esc_debug_check_urls', array($this, 'ajax_debug_check_urls'));
+        add_action('wp_ajax_esc_force_fix_urls', array($this, 'ajax_force_fix_urls'));
         
         // Enqueue admin scripts and styles
         add_action('admin_enqueue_scripts', array($this, 'enqueue_admin_assets'));
@@ -29,6 +31,15 @@ class ESC_Admin_Interface {
             array($this, 'render_admin_page'),
             'dashicons-admin-multisite',
             30
+        );
+        
+        add_submenu_page(
+            'elementor-site-cloner',
+            __('Debug Tools', 'elementor-site-cloner'),
+            __('Debug', 'elementor-site-cloner'),
+            'manage_network',
+            'elementor-site-cloner-debug',
+            array($this, 'render_debug_page')
         );
     }
     
@@ -212,6 +223,192 @@ class ESC_Admin_Interface {
     }
     
     /**
+     * Render the debug page
+     */
+    public function render_debug_page() {
+        // Get all sites
+        $sites = get_sites(array(
+            'number' => 1000,
+            'archived' => 0,
+            'deleted' => 0
+        ));
+        
+        ?>
+        <div class="wrap">
+            <h1><?php echo esc_html__('Elementor Site Cloner - Debug Tools', 'elementor-site-cloner'); ?></h1>
+            
+            <div class="esc-debug-container">
+                <div class="esc-debug-form">
+                    <h2><?php echo esc_html__('Check Site URLs', 'elementor-site-cloner'); ?></h2>
+                    <p><?php echo esc_html__('Select a site to check its URL configuration and find any remaining source URLs.', 'elementor-site-cloner'); ?></p>
+                    
+                    <form id="esc-debug-form">
+                        <table class="form-table">
+                            <tr>
+                                <th scope="row">
+                                    <label for="debug_site"><?php echo esc_html__('Site to Debug', 'elementor-site-cloner'); ?></label>
+                                </th>
+                                <td>
+                                    <select name="debug_site" id="debug_site" required>
+                                        <option value=""><?php echo esc_html__('Select a site', 'elementor-site-cloner'); ?></option>
+                                        <?php foreach ($sites as $site) : ?>
+                                            <option value="<?php echo esc_attr($site->blog_id); ?>">
+                                                <?php echo esc_html($site->domain . $site->path); ?> - <?php echo esc_html(get_blog_option($site->blog_id, 'blogname')); ?>
+                                            </option>
+                                        <?php endforeach; ?>
+                                    </select>
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">
+                                    <label for="source_url"><?php echo esc_html__('Source URL to Search', 'elementor-site-cloner'); ?></label>
+                                </th>
+                                <td>
+                                    <input type="text" name="source_url" id="source_url" class="regular-text" placeholder="https://example.com/template1" />
+                                    <p class="description"><?php echo esc_html__('Optional: Enter the source URL to search for in the database', 'elementor-site-cloner'); ?></p>
+                                </td>
+                            </tr>
+                        </table>
+                        
+                        <p class="submit">
+                            <button type="submit" class="button button-primary" id="check-urls">
+                                <?php echo esc_html__('Check URLs', 'elementor-site-cloner'); ?>
+                            </button>
+                            <button type="button" class="button" id="force-fix-urls">
+                                <?php echo esc_html__('Force Fix URLs', 'elementor-site-cloner'); ?>
+                            </button>
+                        </p>
+                    </form>
+                </div>
+                
+                <div class="esc-debug-results" style="display: none;">
+                    <h2><?php echo esc_html__('Debug Results', 'elementor-site-cloner'); ?></h2>
+                    <div class="esc-debug-output"></div>
+                </div>
+            </div>
+        </div>
+        
+        <style>
+            .esc-debug-container {
+                max-width: 1000px;
+                margin-top: 20px;
+            }
+            
+            .esc-debug-form,
+            .esc-debug-results {
+                background: #fff;
+                border: 1px solid #ccd0d4;
+                border-radius: 4px;
+                padding: 20px;
+                margin-bottom: 20px;
+            }
+            
+            .esc-debug-output {
+                font-family: monospace;
+                background: #f0f0f1;
+                padding: 15px;
+                border-radius: 3px;
+                overflow-x: auto;
+            }
+            
+            .esc-debug-output h3 {
+                margin-top: 20px;
+                margin-bottom: 10px;
+                color: #1d2327;
+            }
+            
+            .esc-debug-output pre {
+                margin: 0;
+                white-space: pre-wrap;
+            }
+            
+            .esc-url-issue {
+                background: #fcf0f1;
+                border-left: 4px solid #d63638;
+                padding: 10px;
+                margin: 10px 0;
+            }
+            
+            .esc-url-ok {
+                background: #edfaef;
+                border-left: 4px solid #00a32a;
+                padding: 10px;
+                margin: 10px 0;
+            }
+        </style>
+        
+        <script>
+        jQuery(document).ready(function($) {
+            $('#esc-debug-form').on('submit', function(e) {
+                e.preventDefault();
+                
+                var site_id = $('#debug_site').val();
+                var source_url = $('#source_url').val();
+                
+                if (!site_id) return;
+                
+                $('#check-urls').prop('disabled', true).text('Checking...');
+                $('.esc-debug-results').show();
+                $('.esc-debug-output').html('<p>Loading...</p>');
+                
+                $.post(ajaxurl, {
+                    action: 'esc_debug_check_urls',
+                    nonce: '<?php echo wp_create_nonce('esc-debug-nonce'); ?>',
+                    site_id: site_id,
+                    source_url: source_url
+                }, function(response) {
+                    if (response.success) {
+                        var html = '<h3>Critical URLs:</h3><pre>' + JSON.stringify(response.data.critical_urls, null, 2) + '</pre>';
+                        
+                        if (response.data.remaining_urls && Object.keys(response.data.remaining_urls).length > 0) {
+                            html += '<div class="esc-url-issue"><h3>⚠️ Found Source URLs:</h3><pre>' + JSON.stringify(response.data.remaining_urls, null, 2) + '</pre></div>';
+                        } else if (source_url) {
+                            html += '<div class="esc-url-ok"><h3>✅ No source URLs found!</h3></div>';
+                        }
+                        
+                        $('.esc-debug-output').html(html);
+                    } else {
+                        $('.esc-debug-output').html('<p class="error">' + response.data.message + '</p>');
+                    }
+                    
+                    $('#check-urls').prop('disabled', false).text('Check URLs');
+                });
+            });
+            
+            $('#force-fix-urls').on('click', function() {
+                var site_id = $('#debug_site').val();
+                if (!site_id) {
+                    alert('Please select a site first');
+                    return;
+                }
+                
+                if (!confirm('This will force update the siteurl and home options. Continue?')) {
+                    return;
+                }
+                
+                $(this).prop('disabled', true).text('Fixing...');
+                
+                $.post(ajaxurl, {
+                    action: 'esc_force_fix_urls',
+                    nonce: '<?php echo wp_create_nonce('esc-debug-nonce'); ?>',
+                    site_id: site_id
+                }, function(response) {
+                    if (response.success) {
+                        alert('URLs have been force updated. Please check the site again.');
+                        $('#esc-debug-form').submit();
+                    } else {
+                        alert('Error: ' + response.data.message);
+                    }
+                    
+                    $('#force-fix-urls').prop('disabled', false).text('Force Fix URLs');
+                });
+            });
+        });
+        </script>
+        <?php
+    }
+    
+    /**
      * Display recent clones table
      */
     private function display_recent_clones() {
@@ -371,6 +568,74 @@ class ESC_Admin_Interface {
         } else {
             wp_send_json_error(array(
                 'message' => 'Clone log not found'
+            ));
+        }
+    }
+    
+    /**
+     * AJAX handler to check URLs in debug
+     */
+    public function ajax_debug_check_urls() {
+        // Verify nonce
+        if (!check_ajax_referer('esc-debug-nonce', 'nonce', false)) {
+            wp_die('Security check failed');
+        }
+        
+        // Check permissions
+        if (!current_user_can('manage_network')) {
+            wp_die('Insufficient permissions');
+        }
+        
+        $site_id = intval($_POST['site_id']);
+        $source_url = sanitize_text_field($_POST['source_url']);
+        
+        // Include debug utility
+        require_once ESC_PLUGIN_DIR . 'includes/class-debug-utility.php';
+        
+        // Get critical URLs
+        $critical_urls = ESC_Debug_Utility::get_critical_urls($site_id);
+        
+        // Check for remaining source URLs if provided
+        $remaining_urls = array();
+        if (!empty($source_url)) {
+            $remaining_urls = ESC_Debug_Utility::check_remaining_urls($site_id, $source_url);
+        }
+        
+        wp_send_json_success(array(
+            'critical_urls' => $critical_urls,
+            'remaining_urls' => $remaining_urls
+        ));
+    }
+    
+    /**
+     * AJAX handler to force fix URLs
+     */
+    public function ajax_force_fix_urls() {
+        // Verify nonce
+        if (!check_ajax_referer('esc-debug-nonce', 'nonce', false)) {
+            wp_die('Security check failed');
+        }
+        
+        // Check permissions
+        if (!current_user_can('manage_network')) {
+            wp_die('Insufficient permissions');
+        }
+        
+        $site_id = intval($_POST['site_id']);
+        
+        // Include debug utility
+        require_once ESC_PLUGIN_DIR . 'includes/class-debug-utility.php';
+        
+        // Force update URLs
+        $result = ESC_Debug_Utility::force_update_urls($site_id);
+        
+        if ($result) {
+            wp_send_json_success(array(
+                'message' => 'URLs updated successfully'
+            ));
+        } else {
+            wp_send_json_error(array(
+                'message' => 'Failed to update URLs'
             ));
         }
     }

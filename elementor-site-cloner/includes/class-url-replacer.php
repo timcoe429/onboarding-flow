@@ -75,11 +75,103 @@ class ESC_URL_Replacer {
         
         $options_table = $this->destination_prefix . 'options';
         
-        // Get all options that might contain URLs
+        // CRITICAL: First update the most important options explicitly
+        // These are the ones that cause redirect issues if not updated
+        $critical_options = array('siteurl', 'home');
+        
+        foreach ($critical_options as $option_name) {
+            // Get the current value
+            $current_value = $wpdb->get_var($wpdb->prepare(
+                "SELECT option_value FROM $options_table WHERE option_name = %s",
+                $option_name
+            ));
+            
+            // If it contains the source URL (with or without trailing slash), replace it
+            if ($current_value) {
+                $source_url_no_slash = rtrim($this->source_url, '/');
+                $dest_url_no_slash = rtrim($this->destination_url, '/');
+                
+                // Replace both with and without trailing slashes
+                $new_value = str_replace(
+                    array($this->source_url, $source_url_no_slash),
+                    array($this->destination_url, $dest_url_no_slash),
+                    $current_value
+                );
+                
+                // If the value still contains the old URL or doesn't match the new site URL, force update
+                if (strpos($new_value, $source_url_no_slash) !== false || $new_value !== $dest_url_no_slash) {
+                    $new_value = $dest_url_no_slash;
+                }
+                
+                $wpdb->update(
+                    $options_table,
+                    array('option_value' => $new_value),
+                    array('option_name' => $option_name),
+                    array('%s'),
+                    array('%s')
+                );
+            }
+        }
+        
+        // Handle any redirect plugins that might be installed
+        $redirect_options = array(
+            'redirection_options',
+            'wpseo_redirects',
+            'redirect_canonical',
+            'wp_redirect_*',
+            '_redirection_*'
+        );
+        
+        foreach ($redirect_options as $option_pattern) {
+            if (strpos($option_pattern, '*') !== false) {
+                // Handle wildcard patterns
+                $pattern = str_replace('*', '%', $option_pattern);
+                $redirect_opts = $wpdb->get_results($wpdb->prepare(
+                    "SELECT option_name, option_value FROM $options_table WHERE option_name LIKE %s",
+                    $pattern
+                ));
+                
+                foreach ($redirect_opts as $opt) {
+                    $new_value = $this->replace_value($opt->option_value);
+                    if ($new_value !== $opt->option_value) {
+                        $wpdb->update(
+                            $options_table,
+                            array('option_value' => $new_value),
+                            array('option_name' => $opt->option_name),
+                            array('%s'),
+                            array('%s')
+                        );
+                    }
+                }
+            } else {
+                // Handle exact option names
+                $option_value = $wpdb->get_var($wpdb->prepare(
+                    "SELECT option_value FROM $options_table WHERE option_name = %s",
+                    $option_pattern
+                ));
+                
+                if ($option_value) {
+                    $new_value = $this->replace_value($option_value);
+                    if ($new_value !== $option_value) {
+                        $wpdb->update(
+                            $options_table,
+                            array('option_value' => $new_value),
+                            array('option_name' => $option_pattern),
+                            array('%s'),
+                            array('%s')
+                        );
+                    }
+                }
+            }
+        }
+        
+        // Now handle all other options that might contain URLs
+        $source_url_no_slash = rtrim($this->source_url, '/');
         $options = $wpdb->get_results(
             "SELECT option_id, option_name, option_value 
              FROM $options_table 
              WHERE option_value LIKE '%{$this->source_url}%' 
+             OR option_value LIKE '%{$source_url_no_slash}%'
              OR option_value LIKE '%{$this->source_upload_url}%'"
         );
         
@@ -94,6 +186,33 @@ class ESC_URL_Replacer {
                     array('%s'),
                     array('%d')
                 );
+            }
+        }
+        
+        // Additional WordPress options that might contain URLs
+        $url_options = array(
+            'upload_url_path',
+            'upload_path',
+            'fileupload_url'
+        );
+        
+        foreach ($url_options as $option_name) {
+            $option_value = $wpdb->get_var($wpdb->prepare(
+                "SELECT option_value FROM $options_table WHERE option_name = %s",
+                $option_name
+            ));
+            
+            if ($option_value) {
+                $new_value = $this->replace_value($option_value);
+                if ($new_value !== $option_value) {
+                    $wpdb->update(
+                        $options_table,
+                        array('option_value' => $new_value),
+                        array('option_name' => $option_name),
+                        array('%s'),
+                        array('%s')
+                    );
+                }
             }
         }
     }
@@ -183,9 +302,28 @@ class ESC_URL_Replacer {
             return json_encode($decoded);
         }
         
-        // Plain text replacement
-        $value = str_replace($this->source_url, $this->destination_url, $value);
-        $value = str_replace($this->source_upload_url, $this->destination_upload_url, $value);
+        // Plain text replacement - handle both with and without trailing slashes
+        $source_url_no_slash = rtrim($this->source_url, '/');
+        $dest_url_no_slash = rtrim($this->destination_url, '/');
+        $source_upload_no_slash = rtrim($this->source_upload_url, '/');
+        $dest_upload_no_slash = rtrim($this->destination_upload_url, '/');
+        
+        // Replace all variations
+        $value = str_replace(
+            array(
+                $this->source_url,
+                $source_url_no_slash,
+                $this->source_upload_url,
+                $source_upload_no_slash
+            ),
+            array(
+                $this->destination_url,
+                $dest_url_no_slash,
+                $this->destination_upload_url,
+                $dest_upload_no_slash
+            ),
+            $value
+        );
         
         return $value;
     }
@@ -223,8 +361,27 @@ class ESC_URL_Replacer {
                 $data->$key = $this->replace_in_array($value);
             }
         } elseif (is_string($data)) {
-            $data = str_replace($this->source_url, $this->destination_url, $data);
-            $data = str_replace($this->source_upload_url, $this->destination_upload_url, $data);
+            // Handle both with and without trailing slashes
+            $source_url_no_slash = rtrim($this->source_url, '/');
+            $dest_url_no_slash = rtrim($this->destination_url, '/');
+            $source_upload_no_slash = rtrim($this->source_upload_url, '/');
+            $dest_upload_no_slash = rtrim($this->destination_upload_url, '/');
+            
+            $data = str_replace(
+                array(
+                    $this->source_url,
+                    $source_url_no_slash,
+                    $this->source_upload_url,
+                    $source_upload_no_slash
+                ),
+                array(
+                    $this->destination_url,
+                    $dest_url_no_slash,
+                    $this->destination_upload_url,
+                    $dest_upload_no_slash
+                ),
+                $data
+            );
         }
         
         return $data;
@@ -236,14 +393,30 @@ class ESC_URL_Replacer {
     private function replace_in_elementor_array($data) {
         if (is_array($data)) {
             // Check for URL fields commonly used in Elementor
-            $url_fields = array('url', 'src', 'background_image', 'background_overlay_image');
+            $url_fields = array('url', 'src', 'background_image', 'background_overlay_image', 'link', 'video_link');
+            
+            // Get URL variations
+            $source_url_no_slash = rtrim($this->source_url, '/');
+            $dest_url_no_slash = rtrim($this->destination_url, '/');
+            $source_upload_no_slash = rtrim($this->source_upload_url, '/');
+            $dest_upload_no_slash = rtrim($this->destination_upload_url, '/');
             
             foreach ($data as $key => $value) {
                 if (in_array($key, $url_fields) && is_array($value) && isset($value['url'])) {
                     // Handle Elementor's URL structure
                     $data[$key]['url'] = str_replace(
-                        array($this->source_url, $this->source_upload_url),
-                        array($this->destination_url, $this->destination_upload_url),
+                        array(
+                            $this->source_url,
+                            $source_url_no_slash,
+                            $this->source_upload_url,
+                            $source_upload_no_slash
+                        ),
+                        array(
+                            $this->destination_url,
+                            $dest_url_no_slash,
+                            $this->destination_upload_url,
+                            $dest_upload_no_slash
+                        ),
                         $value['url']
                     );
                 } else {
@@ -251,8 +424,26 @@ class ESC_URL_Replacer {
                 }
             }
         } elseif (is_string($data)) {
-            $data = str_replace($this->source_url, $this->destination_url, $data);
-            $data = str_replace($this->source_upload_url, $this->destination_upload_url, $data);
+            $source_url_no_slash = rtrim($this->source_url, '/');
+            $dest_url_no_slash = rtrim($this->destination_url, '/');
+            $source_upload_no_slash = rtrim($this->source_upload_url, '/');
+            $dest_upload_no_slash = rtrim($this->destination_upload_url, '/');
+            
+            $data = str_replace(
+                array(
+                    $this->source_url,
+                    $source_url_no_slash,
+                    $this->source_upload_url,
+                    $source_upload_no_slash
+                ),
+                array(
+                    $this->destination_url,
+                    $dest_url_no_slash,
+                    $this->destination_upload_url,
+                    $dest_upload_no_slash
+                ),
+                $data
+            );
         }
         
         return $data;

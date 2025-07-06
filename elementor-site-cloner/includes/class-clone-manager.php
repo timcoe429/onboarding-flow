@@ -45,6 +45,9 @@ class ESC_Clone_Manager {
                 throw new Exception($result->get_error_message());
             }
             
+            // Step 3.5: Verify critical URLs were updated
+            $this->verify_url_update($new_site_id);
+            
             // Step 4: Clone files
             $this->update_log_status('cloning_files');
             $file_cloner = new ESC_File_Cloner($source_site_id, $new_site_id);
@@ -153,6 +156,47 @@ class ESC_Clone_Manager {
         flush_rewrite_rules();
         
         restore_current_blog();
+    }
+    
+    /**
+     * Verify that critical URLs were updated correctly
+     */
+    private function verify_url_update($site_id) {
+        global $wpdb;
+        
+        // Get the expected URL for the new site
+        $expected_url = get_site_url($site_id);
+        $expected_url_no_slash = rtrim($expected_url, '/');
+        
+        // Switch to the new site
+        switch_to_blog($site_id);
+        
+        // Get actual values from database
+        $siteurl = get_option('siteurl');
+        $home = get_option('home');
+        
+        // Force update if they don't match
+        if ($siteurl !== $expected_url_no_slash) {
+            update_option('siteurl', $expected_url_no_slash);
+        }
+        
+        if ($home !== $expected_url_no_slash) {
+            update_option('home', $expected_url_no_slash);
+        }
+        
+        // Also check in the database directly to ensure no caching issues
+        $prefix = $wpdb->get_blog_prefix($site_id);
+        $wpdb->query($wpdb->prepare(
+            "UPDATE {$prefix}options SET option_value = %s WHERE option_name = 'siteurl' OR option_name = 'home'",
+            $expected_url_no_slash
+        ));
+        
+        restore_current_blog();
+        
+        // Clear any object cache that might be holding old values
+        wp_cache_delete('alloptions', 'options');
+        wp_cache_delete('siteurl', 'options');
+        wp_cache_delete('home', 'options');
     }
     
     /**

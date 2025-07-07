@@ -449,6 +449,7 @@ class ESC_Admin_Interface {
         // Check if settings were saved
         if (isset($_POST['esc_save_settings']) && wp_verify_nonce($_POST['esc_settings_nonce'], 'esc-settings-save')) {
             update_option('esc_api_key', sanitize_text_field($_POST['esc_api_key']));
+            update_option('esc_api_clone_user_id', intval($_POST['esc_api_clone_user_id']));
             
             // Save allowed templates
             $allowed_templates = array();
@@ -470,6 +471,7 @@ class ESC_Admin_Interface {
         }
         
         $api_key = get_option('esc_api_key', 'esc_docket_2025_secure_key');
+        $api_clone_user_id = get_option('esc_api_clone_user_id', '');
         $allowed_templates = get_option('esc_allowed_templates', array('template1', 'template2', 'template3', 'template4', 'template5'));
         $allowed_origins = get_option('esc_allowed_origins', array());
         
@@ -497,6 +499,36 @@ class ESC_Admin_Interface {
                             <td>
                                 <input type="text" name="esc_api_key" id="esc_api_key" value="<?php echo esc_attr($api_key); ?>" class="regular-text" />
                                 <p class="description">Use this key in the X-API-Key header when making API requests.</p>
+                            </td>
+                        </tr>
+                        
+                        <tr>
+                            <th scope="row">
+                                <label for="esc_api_clone_user_id"><?php echo esc_html__('API Clone User', 'elementor-site-cloner'); ?></label>
+                            </th>
+                            <td>
+                                <select name="esc_api_clone_user_id" id="esc_api_clone_user_id">
+                                    <option value="">— Auto-detect (Super Admin) —</option>
+                                    <?php
+                                    // Get super admins
+                                    $super_admins = get_super_admins();
+                                    $admins = get_users(['role' => 'administrator', 'orderby' => 'login']);
+                                    
+                                    foreach ($admins as $admin) {
+                                        $is_super = in_array($admin->user_login, $super_admins);
+                                        $label = $admin->user_login . ' - ' . $admin->display_name;
+                                        if ($is_super) {
+                                            $label .= ' (Super Admin)';
+                                        }
+                                        ?>
+                                        <option value="<?php echo esc_attr($admin->ID); ?>" <?php selected($api_clone_user_id, $admin->ID); ?>>
+                                            <?php echo esc_html($label); ?>
+                                        </option>
+                                        <?php
+                                    }
+                                    ?>
+                                </select>
+                                <p class="description">Which user should own sites created via API. Defaults to first Super Admin if not set.</p>
                             </td>
                         </tr>
                     

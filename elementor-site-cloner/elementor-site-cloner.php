@@ -126,6 +126,31 @@ function esc_handle_ajax_clone() {
     $site_path = 'docketsite' . $site_number;
     $site_url = 'https://' . get_current_site()->domain . '/' . $site_path . '/';
     
+    // Set appropriate user for API calls (no logged-in user from external site)
+    if (!get_current_user_id()) {
+        // First check if there's a configured API clone user
+        $api_user_id = get_option('esc_api_clone_user_id');
+        
+        if ($api_user_id && get_user_by('id', $api_user_id)) {
+            wp_set_current_user($api_user_id);
+        } else {
+            // Look for super admins first
+            $super_admins = get_super_admins();
+            if (!empty($super_admins)) {
+                $super_admin = get_user_by('login', $super_admins[0]);
+                if ($super_admin) {
+                    wp_set_current_user($super_admin->ID);
+                }
+            } else {
+                // Fall back to first regular admin
+                $admins = get_users(['role' => 'administrator', 'number' => 1]);
+                if (!empty($admins)) {
+                    wp_set_current_user($admins[0]->ID);
+                }
+            }
+        }
+    }
+    
     // Clone the site
     $result = $clone_manager->clone_site($template_site_id, $site_name, $site_url);
     

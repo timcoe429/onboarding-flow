@@ -456,7 +456,7 @@ class ESC_Admin_Interface {
                 $allowed_templates = array_map('sanitize_text_field', $_POST['esc_allowed_templates']);
             }
             update_option('esc_allowed_templates', $allowed_templates);
-
+            
             // Save allowed origins
             $allowed_origins = array();
             if (isset($_POST['esc_allowed_origins'])) {
@@ -510,10 +510,10 @@ class ESC_Admin_Interface {
                         </td>
                     </tr>
                     
-                    <tr>
-                        <th scope="row">
+                        <tr>
+                            <th scope="row">
                             <label><?php echo esc_html__('Allowed Templates', 'elementor-site-cloner'); ?></label>
-                        </th>
+                            </th>
                             <td>
                                 <fieldset>
                                     <p class="description"><?php echo esc_html__('Select which sites can be used as templates for API cloning:', 'elementor-site-cloner'); ?></p>

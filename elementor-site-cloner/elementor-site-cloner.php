@@ -86,6 +86,61 @@ function esc_init() {
     new ESC_API_Endpoint();
 }
 
+// Add AJAX handler for external cloning (works on frontend too)
+add_action('wp_ajax_nopriv_esc_clone_site', 'esc_handle_ajax_clone');
+add_action('wp_ajax_esc_clone_site', 'esc_handle_ajax_clone');
+
+function esc_handle_ajax_clone() {
+    // Check API key
+    $api_key = $_POST['api_key'] ?? '';
+    $stored_key = get_option('esc_api_key', 'esc_docket_2025_secure_key');
+    
+    if ($api_key !== $stored_key) {
+        wp_send_json_error(['message' => 'Invalid API key']);
+    }
+    
+    // Get parameters
+    $template = sanitize_text_field($_POST['template'] ?? '');
+    $site_name = sanitize_text_field($_POST['site_name'] ?? '');
+    $form_data = $_POST['form_data'] ?? [];
+    
+    if (empty($template) || empty($site_name)) {
+        wp_send_json_error(['message' => 'Missing required parameters']);
+    }
+    
+    // Load clone manager
+    require_once ESC_PLUGIN_DIR . 'includes/class-clone-manager.php';
+    $clone_manager = new ESC_Clone_Manager();
+    
+    // Find template site
+    $template_path = '/' . $template . '/';
+    $sites = get_sites(['path' => $template_path]);
+    if (empty($sites)) {
+        wp_send_json_error(['message' => 'Template not found: ' . $template]);
+    }
+    
+    $template_site_id = $sites[0]->blog_id;
+    
+    // Generate site URL
+    $site_number = time();
+    $site_path = 'docketsite' . $site_number;
+    $site_url = 'https://' . get_current_site()->domain . '/' . $site_path . '/';
+    
+    // Clone the site
+    $result = $clone_manager->clone_site($template_site_id, $site_name, $site_url);
+    
+    if (is_wp_error($result)) {
+        wp_send_json_error(['message' => $result->get_error_message()]);
+    }
+    
+    // Return success
+    wp_send_json_success([
+        'site_id' => $result['site_id'],
+        'site_url' => $result['site_url'],
+        'admin_url' => $result['admin_url']
+    ]);
+}
+
 // Activation hook
 register_activation_hook(__FILE__, 'esc_activate');
 function esc_activate() {

@@ -508,7 +508,8 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     $api_data = array(
         'template' => $selected_template,
         'site_name' => $site_name,
-        'form_data' => $form_data
+        'form_data' => $form_data,
+        'api_key' => $api_key  // Add API key to body
     );
     
     // Add error logging for debugging
@@ -516,13 +517,13 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     
     // Make the API request with better error handling
     try {
-        $response = wp_remote_post($api_url . '/wp-json/elementor-site-cloner/v1/clone', array(
+        // Use WordPress AJAX endpoint which is always accessible
+        $response = wp_remote_post($api_url . '/wp-admin/admin-ajax.php', array(
             'timeout' => 60,
-            'headers' => array(
-                'Content-Type' => 'application/json',
-                'X-API-Key' => $api_key
-            ),
-            'body' => json_encode($api_data),
+            'body' => array_merge($api_data, array(
+                'action' => 'esc_clone_site',
+                'api_key' => $api_key
+            )),
             'sslverify' => false // Temporarily disable SSL verification for debugging
         ));
     } catch (Exception $e) {
@@ -567,26 +568,26 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     }
     
     if (!$data['success']) {
-        error_log('Docket Onboarding: Site creation failed - ' . ($data['message'] ?? 'Unknown error'));
+        error_log('Docket Onboarding: Site creation failed - ' . ($data['data']['message'] ?? 'Unknown error'));
         wp_send_json_error(array(
-            'message' => 'Site creation failed: ' . ($data['message'] ?? 'Unknown error')
+            'message' => 'Site creation failed: ' . ($data['data']['message'] ?? 'Unknown error')
         ));
         wp_die();
     }
     
     // Success! Store the new site information with the form submission
-    $form_data['new_site_id'] = $data['site_id'];
-    $form_data['new_site_url'] = $data['site_url'];
+    $form_data['new_site_id'] = $data['data']['site_id'];
+    $form_data['new_site_url'] = $data['data']['site_url'];
     update_option('docket_submission_' . $submission_id, $form_data);
     
-    error_log('Docket Onboarding: Site created successfully - ID: ' . $data['site_id'] . ', URL: ' . $data['site_url']);
+    error_log('Docket Onboarding: Site created successfully - ID: ' . $data['data']['site_id'] . ', URL: ' . $data['data']['site_url']);
     
     // Create client portal entry after successful site creation
     $portal_url = '';
     if (class_exists('DocketClientPortal')) {
         global $docket_client_portal;
         if ($docket_client_portal) {
-            $portal_url = $docket_client_portal->create_client_project($form_data, $form_type, $data['site_url']);
+            $portal_url = $docket_client_portal->create_client_project($form_data, $form_type, $data['data']['site_url']);
             error_log('Docket Onboarding: Client portal created at ' . $portal_url);
         }
     }
@@ -595,11 +596,11 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     wp_send_json_success(array(
         'message' => 'Form submitted and site created successfully',
         'submission_id' => $submission_id,
-        'site_id' => $data['site_id'],
-        'site_url' => $data['site_url'],
-        'admin_url' => $data['admin_url'],
+        'site_id' => $data['data']['site_id'],
+        'site_url' => $data['data']['site_url'],
+        'admin_url' => $data['data']['admin_url'],
         'portal_url' => $portal_url,
-        'redirect_url' => $data['admin_url'] // Redirect to new site admin
+        'redirect_url' => $data['data']['admin_url'] // Redirect to new site admin
     ));
     
     wp_die();

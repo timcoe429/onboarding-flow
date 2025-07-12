@@ -613,11 +613,17 @@ class DocketTrelloSync {
      * Add appropriate labels to the card
      */
     private function add_labels_to_card($card_id, $project_data) {
+        $trello_debug_log = WP_CONTENT_DIR . '/trello-debug.log';
+        $timestamp = date('Y-m-d H:i:s');
+        
         // Get all board labels
         $labels = $this->get_board_labels();
         if (!$labels) {
+            file_put_contents($trello_debug_log, "[$timestamp] ERROR: Failed to get board labels\n", FILE_APPEND);
             return false;
         }
+        
+        file_put_contents($trello_debug_log, "[$timestamp] Found " . count($labels) . " labels on board\n", FILE_APPEND);
         
         $labels_to_add = array();
         
@@ -626,27 +632,38 @@ class DocketTrelloSync {
         $management = $project_data['docket_management_type'] ?? $project_data['management'] ?? '';
         $form_type = $project_data['form_type'] ?? '';
         
+        file_put_contents($trello_debug_log, "[$timestamp] Plan: '$plan', Management: '$management', Form Type: '$form_type'\n", FILE_APPEND);
+        
         // Plan-based labels
         if (stripos($plan, 'grow') !== false || stripos($management, 'grow') !== false) {
             $labels_to_add[] = 'Grow';
+            file_put_contents($trello_debug_log, "[$timestamp] Adding 'Grow' label\n", FILE_APPEND);
         }
         if (stripos($plan, 'pro') !== false || stripos($management, 'pro') !== false) {
             $labels_to_add[] = 'Pro';
+            file_put_contents($trello_debug_log, "[$timestamp] Adding 'Pro' label\n", FILE_APPEND);
         }
         if (stripos($management, 'vip') !== false || $form_type === 'website_vip') {
             $labels_to_add[] = 'WebsiteVIP';
+            file_put_contents($trello_debug_log, "[$timestamp] Adding 'WebsiteVIP' label\n", FILE_APPEND);
         }
         
         // Build type labels
         if ($form_type === 'fast_build' || stripos($form_type, 'fast') !== false) {
             $labels_to_add[] = 'Fast Build';
+            file_put_contents($trello_debug_log, "[$timestamp] Adding 'Fast Build' label\n", FILE_APPEND);
         }
+        
+        file_put_contents($trello_debug_log, "[$timestamp] Labels to add: " . implode(', ', $labels_to_add) . "\n", FILE_APPEND);
         
         // Add each label to the card
         foreach ($labels_to_add as $label_name) {
             $label_id = $this->find_label_id($labels, $label_name);
             if ($label_id) {
+                file_put_contents($trello_debug_log, "[$timestamp] Found label '$label_name' with ID: $label_id\n", FILE_APPEND);
                 $this->attach_label_to_card($card_id, $label_id);
+            } else {
+                file_put_contents($trello_debug_log, "[$timestamp] ERROR: Label '$label_name' not found on board\n", FILE_APPEND);
             }
         }
         

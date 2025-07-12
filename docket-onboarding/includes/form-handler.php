@@ -600,7 +600,7 @@ function docket_handle_any_form_submission($form_type = 'generic') {
         'site_url' => $data['data']['site_url'],
         'admin_url' => $data['data']['admin_url'],
         'portal_url' => $portal_url,
-        'redirect_url' => $data['data']['admin_url'] // Redirect to new site admin
+        'redirect_url' => $portal_url // Redirect to client portal, not the admin
     ));
     
     wp_die();

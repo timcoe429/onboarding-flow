@@ -392,20 +392,48 @@ class ESC_API_Endpoint {
      * Get debug logs
      */
     private function get_debug_logs() {
-        $log_file = WP_CONTENT_DIR . '/debug.log';
+        // Check multiple log sources
+        $log_sources = array(
+            WP_CONTENT_DIR . '/debug.log',
+            WP_CONTENT_DIR . '/elementor-site-cloner.log',
+            WP_CONTENT_DIR . '/esc-debug.log',
+            WP_CONTENT_DIR . '/uploads/elementor-site-cloner.log'
+        );
         
-        if (!file_exists($log_file)) {
-            return array();
+        $all_logs = array();
+        
+        foreach ($log_sources as $log_file) {
+            if (file_exists($log_file)) {
+                $logs = file($log_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                if ($logs) {
+                    // Filter for relevant logs only
+                    foreach ($logs as $log) {
+                        if (stripos($log, 'ESC') !== false || 
+                            stripos($log, 'elementor') !== false || 
+                            stripos($log, 'clone') !== false ||
+                            stripos($log, 'docket onboarding') !== false ||
+                            stripos($log, 'api') !== false) {
+                            $all_logs[] = $log;
+                        }
+                    }
+                }
+            }
         }
         
-        $logs = file($log_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        if (!$logs) {
-            return array();
+        // If no filtered logs, show recent general logs
+        if (empty($all_logs)) {
+            $main_log = WP_CONTENT_DIR . '/debug.log';
+            if (file_exists($main_log)) {
+                $logs = file($main_log, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+                if ($logs) {
+                    $all_logs = array_slice($logs, -50); // Show last 50 general logs
+                }
+            }
         }
         
         // Get last 100 lines and reverse to show newest first
-        $logs = array_slice($logs, -100);
-        return array_reverse($logs);
+        $all_logs = array_slice($all_logs, -100);
+        return array_reverse($all_logs);
     }
     
     /**

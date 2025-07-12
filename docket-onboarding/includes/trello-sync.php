@@ -492,6 +492,11 @@ class DocketTrelloSync {
         // Add labels to the card
         $this->add_labels_to_card($card['id'], $project_data);
         
+        // Wait 3 seconds then update description to override automation
+        sleep(3);
+        file_put_contents($trello_debug_log, "[$timestamp] Updating card description after automation...\n", FILE_APPEND);
+        $this->update_card_description($card['id'], $card_desc);
+        
         return $card;
     }
     
@@ -662,6 +667,34 @@ class DocketTrelloSync {
         }
         
         return $desc;
+    }
+    
+    /**
+     * Update card description (to override automation)
+     */
+    private function update_card_description($card_id, $description) {
+        $trello_debug_log = WP_CONTENT_DIR . '/trello-debug.log';
+        $timestamp = date('Y-m-d H:i:s');
+        
+        $url = "{$this->api_base}/cards/{$card_id}";
+        $data = array(
+            'key' => $this->api_key,
+            'token' => $this->token,
+            'desc' => $description
+        );
+        
+        $response = wp_remote_request($url, array(
+            'method' => 'PUT',
+            'body' => $data
+        ));
+        
+        if (is_wp_error($response)) {
+            file_put_contents($trello_debug_log, "[$timestamp] ERROR: Failed to update card description - " . $response->get_error_message() . "\n", FILE_APPEND);
+            return false;
+        }
+        
+        file_put_contents($trello_debug_log, "[$timestamp] Card description updated successfully\n", FILE_APPEND);
+        return true;
     }
     
     /**

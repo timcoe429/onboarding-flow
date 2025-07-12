@@ -13,17 +13,17 @@ class DocketTrelloSync {
     
     // Map Trello list names to project status
     private $status_mapping = array(
-        'Docket Team' => 'docket_team',
-        'QA' => 'qa',
-        'New Builds Ready to Send' => 'ready_to_send',
-        'Waiting on Review Scheduling' => 'waiting_review_scheduling',
-        'Client Reviewing' => 'client_reviewing',
-        'Edits to Complete' => 'edits_to_complete',
-        'Review Edits Completed' => 'review_edits_completed',
-        'Pre Launch' => 'pre_launch',
-        'Ready for Launch' => 'ready_for_launch',
-        'Web Complete: Grow/Legacy' => 'web_complete_grow',
-        'Web Complete: Pro/ServiceCore' => 'web_complete_pro'
+        '1. Docket Team' => 'docket_team',
+        '2. QA' => 'qa',
+        '3. New Builds Ready to Send' => 'ready_to_send',
+        '4. Waiting on Review Scheduling' => 'waiting_review_scheduling',
+        '5. Client Reviewing' => 'client_reviewing',
+        '6. Edits to Complete' => 'edits_to_complete',
+        '7. Review Edits Completed' => 'review_edits_completed',
+        '8. Pre Launch' => 'pre_launch',
+        '9. Ready for Launch' => 'ready_for_launch',
+        '10. Web Complete: Grow/Legacy' => 'web_complete_grow',
+        '10. Web Complete: Pro/ServiceCore' => 'web_complete_pro'
     );
     
     public function __construct() {
@@ -434,23 +434,23 @@ class DocketTrelloSync {
         
         file_put_contents($trello_debug_log, "[$timestamp] Found " . count($lists) . " lists\n", FILE_APPEND);
         
-        // Find the first list (Docket Team)
+        // Find the first list (1. Docket Team)
         $first_list = null;
-        file_put_contents($trello_debug_log, "[$timestamp] Looking for 'Docket Team' list...\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Looking for '1. Docket Team' list...\n", FILE_APPEND);
         foreach ($lists as $list) {
             file_put_contents($trello_debug_log, "[$timestamp] Found list: " . $list['name'] . "\n", FILE_APPEND);
-            if ($list['name'] === 'Docket Team') {
+            if ($list['name'] === '1. Docket Team') {
                 $first_list = $list;
                 break;
             }
         }
         
         if (!$first_list) {
-            file_put_contents($trello_debug_log, "[$timestamp] ERROR: 'Docket Team' list not found\n", FILE_APPEND);
+            file_put_contents($trello_debug_log, "[$timestamp] ERROR: '1. Docket Team' list not found\n", FILE_APPEND);
             return false;
         }
         
-        file_put_contents($trello_debug_log, "[$timestamp] Found 'Docket Team' list with ID: " . $first_list['id'] . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Found '1. Docket Team' list with ID: " . $first_list['id'] . "\n", FILE_APPEND);
         
         // Build comprehensive card description
         $card_name = $project_data['business_name'] . ' - ' . ucwords(str_replace('_', ' ', $project_data['form_type']));

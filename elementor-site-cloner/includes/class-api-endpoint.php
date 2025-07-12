@@ -178,11 +178,41 @@ class ESC_API_Endpoint {
         
         error_log('ESC API: Creating site - Name: ' . $site_name . ', URL: ' . $site_url . ', Template: ' . $template);
         
+        // Build placeholder replacements from form data
+        $placeholders = array();
+        if (!empty($form_data)) {
+            // Map form fields to placeholders
+            if (!empty($form_data['business_name'])) {
+                $placeholders['{{company}}'] = $form_data['business_name'];
+            }
+            if (!empty($form_data['business_email'])) {
+                $placeholders['{{email}}'] = $form_data['business_email'];
+            }
+            if (!empty($form_data['business_phone']) || !empty($form_data['business_phone_number']) || !empty($form_data['phone_number'])) {
+                // Handle different possible field names
+                $phone = $form_data['business_phone'] ?? $form_data['business_phone_number'] ?? $form_data['phone_number'] ?? '';
+                if ($phone) {
+                    $placeholders['{{phone}}'] = $phone;
+                }
+            }
+            if (!empty($form_data['business_address'])) {
+                $placeholders['{{address}}'] = $form_data['business_address'];
+            }
+            if (!empty($form_data['business_city'])) {
+                $placeholders['{{city}}'] = $form_data['business_city'];
+            }
+            if (!empty($form_data['business_state'])) {
+                $placeholders['{{state}}'] = $form_data['business_state'];
+            }
+        }
+        
+        error_log('ESC API: Placeholder replacements: ' . print_r($placeholders, true));
+        
         // Create clone manager instance
         $clone_manager = new ESC_Clone_Manager();
         
-        // Clone the site
-        $result = $clone_manager->clone_site($template_site_id, $site_name, $site_url);
+        // Clone the site with placeholders
+        $result = $clone_manager->clone_site($template_site_id, $site_name, $site_url, $placeholders);
         
         if (is_wp_error($result)) {
             error_log('ESC API: Clone failed - ' . $result->get_error_message());

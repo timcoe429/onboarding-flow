@@ -9,16 +9,18 @@ class ESC_Clone_Manager {
     private $destination_site_id;
     private $log_id;
     private $errors = array();
+    private $placeholders = array();
     
     /**
      * Start the cloning process
      */
-    public function clone_site($source_site_id, $site_name, $site_url) {
+    public function clone_site($source_site_id, $site_name, $site_url, $placeholders = array()) {
         global $wpdb;
         
         // Start logging
         $this->log_id = $this->start_log($source_site_id);
         $this->source_site_id = $source_site_id;
+        $this->placeholders = $placeholders;
         
         try {
             // Step 1: Create new site
@@ -50,6 +52,16 @@ class ESC_Clone_Manager {
             
             // Step 3.5: Verify critical URLs were updated
             $this->verify_url_update($new_site_id);
+            
+            // Step 3.6: Replace placeholders if provided
+            if (!empty($this->placeholders)) {
+                $this->update_log_status('replacing_placeholders');
+                $placeholder_replacer = new ESC_Placeholder_Replacer($new_site_id, $this->placeholders);
+                $result = $placeholder_replacer->replace_placeholders();
+                if (is_wp_error($result)) {
+                    throw new Exception($result->get_error_message());
+                }
+            }
             
             // Step 4: Clone files
             $this->update_log_status('cloning_files');

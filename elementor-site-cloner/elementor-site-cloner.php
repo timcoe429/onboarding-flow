@@ -151,8 +151,36 @@ function esc_handle_ajax_clone() {
         }
     }
     
-    // Clone the site
-    $result = $clone_manager->clone_site($template_site_id, $site_name, $site_url);
+    // Build placeholder replacements from form data
+    $placeholders = array();
+    if (!empty($form_data)) {
+        // Map form fields to placeholders
+        if (!empty($form_data['business_name'])) {
+            $placeholders['{{company}}'] = $form_data['business_name'];
+        }
+        if (!empty($form_data['business_email'])) {
+            $placeholders['{{email}}'] = $form_data['business_email'];
+        }
+        if (!empty($form_data['business_phone']) || !empty($form_data['business_phone_number']) || !empty($form_data['phone_number'])) {
+            // Handle different possible field names
+            $phone = $form_data['business_phone'] ?? $form_data['business_phone_number'] ?? $form_data['phone_number'] ?? '';
+            if ($phone) {
+                $placeholders['{{phone}}'] = $phone;
+            }
+        }
+        if (!empty($form_data['business_address'])) {
+            $placeholders['{{address}}'] = $form_data['business_address'];
+        }
+        if (!empty($form_data['business_city'])) {
+            $placeholders['{{city}}'] = $form_data['business_city'];
+        }
+        if (!empty($form_data['business_state'])) {
+            $placeholders['{{state}}'] = $form_data['business_state'];
+        }
+    }
+    
+    // Clone the site with placeholders
+    $result = $clone_manager->clone_site($template_site_id, $site_name, $site_url, $placeholders);
     
     if (is_wp_error($result)) {
         wp_send_json_error(['message' => $result->get_error_message()]);

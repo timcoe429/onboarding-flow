@@ -382,7 +382,10 @@ class ESC_API_Endpoint {
         </body>
         </html>';
         
-        return new WP_REST_Response($html, 200, array('Content-Type' => 'text/html'));
+        // Output HTML directly instead of using REST response
+        header('Content-Type: text/html; charset=utf-8');
+        echo $html;
+        exit;
     }
     
     /**

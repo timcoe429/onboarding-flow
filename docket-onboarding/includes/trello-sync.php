@@ -177,23 +177,38 @@ class DocketTrelloSync {
      * Get all lists from the Trello board
      */
     private function get_board_lists() {
+        $trello_debug_log = WP_CONTENT_DIR . '/trello-debug.log';
+        $timestamp = date('Y-m-d H:i:s');
+        
         $url = "{$this->api_base}/boards/{$this->board_id}/lists";
         $url .= "?key={$this->api_key}&token={$this->token}";
+        
+        file_put_contents($trello_debug_log, "[$timestamp] API URL: $url\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Board ID: {$this->board_id}\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] API Key: " . substr($this->api_key, 0, 8) . "...\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Token: " . substr($this->token, 0, 8) . "...\n", FILE_APPEND);
         
         $response = wp_remote_get($url);
         
         if (is_wp_error($response)) {
-            error_log('Trello API Error: ' . $response->get_error_message());
+            file_put_contents($trello_debug_log, "[$timestamp] ERROR: API request failed - " . $response->get_error_message() . "\n", FILE_APPEND);
             return false;
         }
         
+        $response_code = wp_remote_retrieve_response_code($response);
+        file_put_contents($trello_debug_log, "[$timestamp] Response Code: $response_code\n", FILE_APPEND);
+        
         $body = wp_remote_retrieve_body($response);
+        file_put_contents($trello_debug_log, "[$timestamp] Response Body: $body\n", FILE_APPEND);
+        
         $lists = json_decode($body, true);
         
         if (!$lists) {
-            error_log('Trello API: Failed to decode lists response');
+            file_put_contents($trello_debug_log, "[$timestamp] ERROR: Failed to decode JSON response\n", FILE_APPEND);
             return false;
         }
+        
+        file_put_contents($trello_debug_log, "[$timestamp] Successfully got " . count($lists) . " lists\n", FILE_APPEND);
         
         return $lists;
     }
@@ -407,14 +422,23 @@ class DocketTrelloSync {
      * Create Trello card when project is submitted
      */
     public function create_trello_card($project_data) {
+        $trello_debug_log = WP_CONTENT_DIR . '/trello-debug.log';
+        $timestamp = date('Y-m-d H:i:s');
+        
+        file_put_contents($trello_debug_log, "[$timestamp] Getting board lists...\n", FILE_APPEND);
         $lists = $this->get_board_lists();
         if (!$lists) {
+            file_put_contents($trello_debug_log, "[$timestamp] ERROR: Failed to get board lists\n", FILE_APPEND);
             return false;
         }
         
+        file_put_contents($trello_debug_log, "[$timestamp] Found " . count($lists) . " lists\n", FILE_APPEND);
+        
         // Find the first list (Docket Team)
         $first_list = null;
+        file_put_contents($trello_debug_log, "[$timestamp] Looking for 'Docket Team' list...\n", FILE_APPEND);
         foreach ($lists as $list) {
+            file_put_contents($trello_debug_log, "[$timestamp] Found list: " . $list['name'] . "\n", FILE_APPEND);
             if ($list['name'] === 'Docket Team') {
                 $first_list = $list;
                 break;
@@ -422,8 +446,11 @@ class DocketTrelloSync {
         }
         
         if (!$first_list) {
+            file_put_contents($trello_debug_log, "[$timestamp] ERROR: 'Docket Team' list not found\n", FILE_APPEND);
             return false;
         }
+        
+        file_put_contents($trello_debug_log, "[$timestamp] Found 'Docket Team' list with ID: " . $first_list['id'] . "\n", FILE_APPEND);
         
         // Build comprehensive card description
         $card_name = $project_data['business_name'] . ' - ' . ucwords(str_replace('_', ' ', $project_data['form_type']));
@@ -439,22 +466,28 @@ class DocketTrelloSync {
             'desc' => $card_desc
         );
         
+        file_put_contents($trello_debug_log, "[$timestamp] Creating card: $card_name\n", FILE_APPEND);
+        
         $response = wp_remote_post($url, array(
             'body' => $data
         ));
         
         if (is_wp_error($response)) {
-            error_log('Trello Card Creation Error: ' . $response->get_error_message());
+            file_put_contents($trello_debug_log, "[$timestamp] ERROR: Card creation failed - " . $response->get_error_message() . "\n", FILE_APPEND);
             return false;
         }
         
         $body = wp_remote_retrieve_body($response);
+        file_put_contents($trello_debug_log, "[$timestamp] API Response: $body\n", FILE_APPEND);
+        
         $card = json_decode($body, true);
         
         if (!$card || !isset($card['id'])) {
-            error_log('Trello Card Creation: Invalid response');
+            file_put_contents($trello_debug_log, "[$timestamp] ERROR: Invalid card response\n", FILE_APPEND);
             return false;
         }
+        
+        file_put_contents($trello_debug_log, "[$timestamp] Card created successfully with ID: " . $card['id'] . "\n", FILE_APPEND);
         
         // Add labels to the card
         $this->add_labels_to_card($card['id'], $project_data);

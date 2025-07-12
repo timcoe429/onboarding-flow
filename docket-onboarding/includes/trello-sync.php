@@ -504,165 +504,77 @@ class DocketTrelloSync {
      * Build comprehensive card description
      */
     private function build_card_description($project_data) {
-        $desc = "## 🎯 PROJECT OVERVIEW\n";
-        $desc .= "**Business:** {$project_data['business_name']}\n";
-        $desc .= "**Project Type:** " . ucwords(str_replace('_', ' ', $project_data['form_type'])) . "\n";
-        $desc .= "**Submitted:** " . date('M j, Y g:i A') . "\n\n";
+        $desc = "PROJECT OVERVIEW\n";
+        $desc .= "Business: {$project_data['business_name']}\n";
+        $desc .= "Project Type: " . ucwords(str_replace('_', ' ', $project_data['form_type'])) . "\n";
+        $desc .= "Plan: " . ($project_data['select_your_docket_plan'] ?? 'Not specified') . "\n";
+        $desc .= "Submitted: " . date('M j, Y g:i A') . "\n\n";
         
-        // Add important links section
-        $desc .= "## 🔗 IMPORTANT LINKS\n";
+        // Important links
+        $desc .= "IMPORTANT LINKS\n";
         if (!empty($project_data['new_site_url'])) {
-            $desc .= "**🌐 Dev Site:** {$project_data['new_site_url']}\n";
+            $desc .= "Dev Site: {$project_data['new_site_url']}\n";
         }
         if (!empty($project_data['portal_url'])) {
-            $desc .= "**📊 Client Portal:** {$project_data['portal_url']}\n";
+            $desc .= "Client Portal: {$project_data['portal_url']}\n";
         }
         $desc .= "\n";
         
         // Contact Information
-        $desc .= "## 📞 CONTACT INFORMATION\n";
-        $desc .= "**Contact Name:** " . ($project_data['contact_name'] ?? $project_data['name'] ?? 'Not provided') . "\n";
-        $desc .= "**Contact Email:** " . ($project_data['contact_email_address'] ?? $project_data['email'] ?? 'Not provided') . "\n";
-        $desc .= "**Business Phone:** " . ($project_data['business_phone_number'] ?? $project_data['phone_number'] ?? 'Not provided') . "\n";
-        $desc .= "**Business Email:** " . ($project_data['business_email'] ?? 'Not provided') . "\n\n";
+        $desc .= "CONTACT INFORMATION\n";
+        $desc .= "Name: " . ($project_data['name'] ?? 'Not provided') . "\n";
+        $desc .= "Email: " . ($project_data['email'] ?? 'Not provided') . "\n";
+        $desc .= "Phone: " . ($project_data['phone_number'] ?? 'Not provided') . "\n";
+        $desc .= "Business Email: " . ($project_data['business_email'] ?? 'Not provided') . "\n\n";
         
         // Business Address
         if (!empty($project_data['business_address'])) {
-            $desc .= "## 📍 BUSINESS ADDRESS\n";
-            $desc .= "**Address:** {$project_data['business_address']}\n";
+            $desc .= "BUSINESS ADDRESS\n";
+            $desc .= "Address: {$project_data['business_address']}\n";
             if (!empty($project_data['business_city'])) {
-                $desc .= "**City:** {$project_data['business_city']}\n";
+                $desc .= "City: {$project_data['business_city']}\n";
             }
             if (!empty($project_data['business_state'])) {
-                $desc .= "**State:** {$project_data['business_state']}\n";
+                $desc .= "State: {$project_data['business_state']}\n";
             }
             $desc .= "\n";
         }
         
         // Template Selection
         if (!empty($project_data['website_template_selection'])) {
-            $desc .= "## 🎨 TEMPLATE SELECTION\n";
-            $desc .= "**Selected Template:** {$project_data['website_template_selection']}\n\n";
+            $desc .= "TEMPLATE SELECTION\n";
+            $desc .= "Selected Template: {$project_data['website_template_selection']}\n\n";
         }
         
-        // Service Areas
-        if (!empty($project_data['service_areas'])) {
-            $desc .= "## 🗺️ SERVICE AREAS\n";
-            if (is_array($project_data['service_areas'])) {
-                $desc .= implode(', ', $project_data['service_areas']) . "\n\n";
-            } else {
-                $desc .= "{$project_data['service_areas']}\n\n";
+        // Services and Colors
+        if (!empty($project_data['services_offered'])) {
+            $desc .= "SERVICES\n";
+            if (is_array($project_data['services_offered'])) {
+                $desc .= "Services: " . implode(', ', $project_data['services_offered']) . "\n";
             }
-        }
-        
-        // Branding Information
-        $branding_fields = array(
-            'logo_file' => '🎨 Logo File',
-            'brand_colors' => '🎨 Brand Colors',
-            'existing_website' => '🌐 Existing Website',
-            'website_likes' => '👍 Website Likes',
-            'website_dislikes' => '👎 Website Dislikes'
-        );
-        
-        $has_branding = false;
-        foreach ($branding_fields as $field => $label) {
-            if (!empty($project_data[$field])) {
-                if (!$has_branding) {
-                    $desc .= "## 🎨 BRANDING & DESIGN\n";
-                    $has_branding = true;
-                }
-                
-                if ($field === 'logo_file' && filter_var($project_data[$field], FILTER_VALIDATE_URL)) {
-                    $desc .= "**{$label}:** [View Logo]({$project_data[$field]})\n";
-                } else {
-                    $desc .= "**{$label}:** {$project_data[$field]}\n";
-                }
+            if (!empty($project_data['dumpster_types'])) {
+                $desc .= "Dumpster Types: " . implode(', ', $project_data['dumpster_types']) . "\n";
             }
-        }
-        if ($has_branding) $desc .= "\n";
-        
-        // Rental Information (if applicable)
-        $rental_fields = array(
-            'rental_items' => '📦 Rental Items',
-            'rental_pricing' => '💰 Rental Pricing',
-            'delivery_areas' => '🚚 Delivery Areas'
-        );
-        
-        $has_rental = false;
-        foreach ($rental_fields as $field => $label) {
-            if (!empty($project_data[$field])) {
-                if (!$has_rental) {
-                    $desc .= "## 🏗️ RENTAL INFORMATION\n";
-                    $has_rental = true;
-                }
-                
-                if (is_array($project_data[$field])) {
-                    $desc .= "**{$label}:** " . implode(', ', $project_data[$field]) . "\n";
-                } else {
-                    $desc .= "**{$label}:** {$project_data[$field]}\n";
-                }
+            if (!empty($project_data['company_colors'])) {
+                $desc .= "Primary Color: {$project_data['company_colors']}\n";
             }
-        }
-        if ($has_rental) $desc .= "\n";
-        
-        // Marketing Information
-        $marketing_fields = array(
-            'marketing_goals' => '🎯 Marketing Goals',
-            'target_audience' => '👥 Target Audience',
-            'competitors' => '🏢 Competitors',
-            'marketing_budget' => '💰 Marketing Budget'
-        );
-        
-        $has_marketing = false;
-        foreach ($marketing_fields as $field => $label) {
-            if (!empty($project_data[$field])) {
-                if (!$has_marketing) {
-                    $desc .= "## 📈 MARKETING INFORMATION\n";
-                    $has_marketing = true;
-                }
-                
-                if (is_array($project_data[$field])) {
-                    $desc .= "**{$label}:** " . implode(', ', $project_data[$field]) . "\n";
-                } else {
-                    $desc .= "**{$label}:** {$project_data[$field]}\n";
-                }
+            if (!empty($project_data['company_colors2'])) {
+                $desc .= "Secondary Color: {$project_data['company_colors2']}\n";
             }
-        }
-        if ($has_marketing) $desc .= "\n";
-        
-        // Content Information (for standard/VIP builds)
-        $content_fields = array(
-            'content_provided' => '📝 Content Provided',
-            'content_writing_needed' => '✍️ Content Writing Needed',
-            'additional_pages' => '📄 Additional Pages',
-            'special_features' => '⭐ Special Features'
-        );
-        
-        $has_content = false;
-        foreach ($content_fields as $field => $label) {
-            if (!empty($project_data[$field])) {
-                if (!$has_content) {
-                    $desc .= "## 📝 CONTENT INFORMATION\n";
-                    $has_content = true;
-                }
-                
-                if (is_array($project_data[$field])) {
-                    $desc .= "**{$label}:** " . implode(', ', $project_data[$field]) . "\n";
-                } else {
-                    $desc .= "**{$label}:** {$project_data[$field]}\n";
-                }
+            if (!empty($project_data['dumpster_color'])) {
+                $desc .= "Dumpster Color: {$project_data['dumpster_color']}\n";
             }
+            $desc .= "\n";
         }
-        if ($has_content) $desc .= "\n";
         
         // Additional Notes
         if (!empty($project_data['additional_notes']) || !empty($project_data['special_requests'])) {
-            $desc .= "## 📋 ADDITIONAL NOTES\n";
+            $desc .= "ADDITIONAL NOTES\n";
             if (!empty($project_data['additional_notes'])) {
-                $desc .= "**Notes:** {$project_data['additional_notes']}\n";
+                $desc .= "Notes: {$project_data['additional_notes']}\n";
             }
             if (!empty($project_data['special_requests'])) {
-                $desc .= "**Special Requests:** {$project_data['special_requests']}\n";
+                $desc .= "Special Requests: {$project_data['special_requests']}\n";
             }
         }
         
@@ -710,8 +622,8 @@ class DocketTrelloSync {
         $labels_to_add = array();
         
         // Determine plan type labels
-        $plan = $project_data['plan'] ?? '';
-        $management = $project_data['management'] ?? '';
+        $plan = $project_data['select_your_docket_plan'] ?? $project_data['plan'] ?? '';
+        $management = $project_data['docket_management_type'] ?? $project_data['management'] ?? '';
         $form_type = $project_data['form_type'] ?? '';
         
         // Plan-based labels

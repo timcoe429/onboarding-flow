@@ -583,18 +583,29 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     }
     
     // Create Trello card for the project
+    error_log('Trello Debug: DocketTrelloSync class exists: ' . (class_exists('DocketTrelloSync') ? 'YES' : 'NO'));
+    error_log('Trello Debug: About to attempt Trello card creation for: ' . $form_data['business_name']);
+    
     if (class_exists('DocketTrelloSync')) {
         // Add important URLs to form data for Trello card
         $form_data['new_site_url'] = $data['data']['site_url'];
         $form_data['portal_url'] = $portal_url;
         
+        error_log('Trello Debug: Creating DocketTrelloSync instance');
         $trello_sync = new DocketTrelloSync();
+        
+        error_log('Trello Debug: Calling create_trello_card with data: ' . json_encode($form_data));
         $trello_card = $trello_sync->create_trello_card($form_data);
+        
         if ($trello_card) {
             error_log('Docket Onboarding: Trello card created for ' . $form_data['business_name']);
+            error_log('Trello Debug: Card creation returned: ' . json_encode($trello_card));
         } else {
             error_log('Docket Onboarding: Failed to create Trello card for ' . $form_data['business_name']);
+            error_log('Trello Debug: Card creation returned FALSE or NULL');
         }
+    } else {
+        error_log('Trello Debug: DocketTrelloSync class NOT FOUND - Trello integration not loaded');
     }
     
     // Send success response

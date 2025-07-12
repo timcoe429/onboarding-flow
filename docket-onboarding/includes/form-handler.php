@@ -1,7 +1,7 @@
 <?php
 /**
- * Form Handler for Docket Onboarding
- * Handles AJAX requests and form integration
+ * Form Handler
+ * Handles all form-related functionality including AJAX loading and submission
  */
 
 // Prevent direct access
@@ -9,20 +9,10 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Include the fast build form file
-if (file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/fast-build/fast-build-form.php')) {
-    require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/fast-build/fast-build-form.php';
-}
-
-// Include the standard build form file
-if (file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/standard-build/standard-build-form.php')) {
-    require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/standard-build/standard-build-form.php';
-}
-
-// Include the website vip form file
-if (file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/website-vip/website-vip-form.php')) {
-    require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/website-vip/website-vip-form.php';
-}
+// Include form rendering functions
+require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/fast-build/fast-build-form.php';
+require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/standard-build/standard-build-form.php';
+require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/website-vip/website-vip-form.php';
 
 /**
  * Handle AJAX request to load fast build form

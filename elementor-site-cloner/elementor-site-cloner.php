@@ -48,6 +48,7 @@ spl_autoload_register(function ($class) {
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-clone-manager.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-database-cloner.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-url-replacer.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-placeholder-replacer.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-file-cloner.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-elementor-handler.php';
 require_once plugin_dir_path( __FILE__ ) . 'admin/class-admin-interface.php';
@@ -121,9 +122,9 @@ function esc_handle_ajax_clone() {
     
     $template_site_id = $sites[0]->blog_id;
     
-    // Generate site URL
-    $site_number = time();
-    $site_path = 'docketsite' . $site_number;
+    // Generate site URL from company name
+    $company_name = !empty($form_data['business_name']) ? $form_data['business_name'] : $site_name;
+    $site_path = esc_generate_site_path_from_company_name($company_name);
     $site_url = 'https://' . get_current_site()->domain . '/' . $site_path . '/';
     
     // Set appropriate user for API calls (no logged-in user from external site)
@@ -192,6 +193,47 @@ function esc_handle_ajax_clone() {
         'site_url' => $result['site_url'],
         'admin_url' => $result['admin_url']
     ]);
+}
+
+/**
+ * Generate site path from company name
+ * Converts company name to clean URL-friendly slug
+ */
+function esc_generate_site_path_from_company_name($company_name) {
+    // Convert to lowercase and remove all non-alphanumeric characters
+    $base_path = strtolower($company_name);
+    
+    // Remove all special characters and spaces, keep only letters and numbers
+    $base_path = preg_replace('/[^a-z0-9]/', '', $base_path);
+    
+    // If empty after cleaning, use a fallback
+    if (empty($base_path)) {
+        $base_path = 'docketsite' . time();
+        return $base_path;
+    }
+    
+    // Check if this path already exists
+    $path_to_check = $base_path;
+    $counter = 2;
+    
+    while (esc_site_path_exists($path_to_check)) {
+        $path_to_check = $base_path . $counter;
+        $counter++;
+    }
+    
+    return $path_to_check;
+}
+
+/**
+ * Check if a site path already exists
+ */
+function esc_site_path_exists($path) {
+    $sites = get_sites(array(
+        'path' => '/' . $path . '/',
+        'number' => 1
+    ));
+    
+    return !empty($sites);
 }
 
 // Activation hook

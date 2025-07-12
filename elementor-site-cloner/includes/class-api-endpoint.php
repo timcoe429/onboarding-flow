@@ -168,10 +168,11 @@ class ESC_API_Endpoint {
             ), 404);
         }
         
-        // Generate site URL if not provided
+        // Generate site URL from company name if not provided
         if (empty($site_path)) {
-            $site_number = $this->get_next_site_number();
-            $site_path = 'docketsite' . $site_number;
+            // Use business name from form data or site name
+            $company_name = !empty($form_data['business_name']) ? $form_data['business_name'] : $site_name;
+            $site_path = esc_generate_site_path_from_company_name($company_name);
         }
         
         $site_url = 'https://' . get_current_site()->domain . '/' . $site_path . '/';

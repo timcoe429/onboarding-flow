@@ -267,24 +267,6 @@ class DocketClientPortal {
     private function send_portal_email($email, $business_name, $portal_url, $new_site_url = null) {
         $subject = "Track Your Website Progress - {$business_name}";
         
-        // Include new site info if available
-        $site_info = '';
-        if ($new_site_url) {
-            $site_info = '
-                <div style="background: #e8f5e8; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
-                    <h3 style="margin-top: 0; color: #28a745;">🚀 Great News! Your Website is Already Live</h3>
-                    <p>We\'ve automatically created your website from your selected template. You can view it here:</p>
-                    
-                    <a href="' . esc_url($new_site_url) . '" style="display: inline-block; background: #28a745; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; font-weight: bold; margin: 10px 0;">
-                        🌐 Visit Your New Website
-                    </a>
-                    
-                    <p style="font-size: 14px; color: #666; margin-top: 15px;">
-                        This is your initial website created from your template selection. We\'ll continue customizing it based on your requirements.
-                    </p>
-                </div>';
-        }
-        
         $message = '
         <html>
         <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
@@ -294,8 +276,6 @@ class DocketClientPortal {
                 <p>Hi ' . esc_html($business_name) . ',</p>
                 
                 <p>Thanks for choosing us for your website! We\'ve received your order and are excited to get started.</p>
-                
-                ' . $site_info . '
                 
                 <div style="background: #f8f9fa; padding: 20px; border-radius: 8px; margin: 20px 0;">
                     <h3 style="margin-top: 0; color: #185fb0;">📊 Track Your Progress</h3>
@@ -313,7 +293,7 @@ class DocketClientPortal {
                 <p><strong>What happens next?</strong></p>
                 <ol>
                     <li>Our team will review your requirements</li>
-                    <li>We\'ll ' . ($new_site_url ? 'customize your existing website' : 'start building your website') . '</li>
+                    <li>We\'ll start building your website</li>
                     <li>You\'ll get a chance to review and request changes</li>
                     <li>We\'ll make final touches</li>
                     <li>Your website goes live! 🚀</li>

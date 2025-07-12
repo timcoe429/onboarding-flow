@@ -31,7 +31,17 @@
         
         <div class="form-field full-width">
             <label>Business Address *</label>
-            <textarea name="business_address" rows="2" placeholder="123 Main St, Denver, CO" required></textarea>
+            <input type="text" name="business_address" autocomplete="street-address" required>
+        </div>
+        
+        <div class="form-field">
+            <label>City *</label>
+            <input type="text" name="business_city" autocomplete="address-level2" required>
+        </div>
+        
+        <div class="form-field">
+            <label>State *</label>
+            <input type="text" name="business_state" autocomplete="address-level1" required>
         </div>
     </div>
 

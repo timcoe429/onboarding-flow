@@ -582,6 +582,21 @@ function docket_handle_any_form_submission($form_type = 'generic') {
         }
     }
     
+    // Create Trello card for the project
+    if (class_exists('DocketTrelloSync')) {
+        // Add important URLs to form data for Trello card
+        $form_data['new_site_url'] = $data['data']['site_url'];
+        $form_data['portal_url'] = $portal_url;
+        
+        $trello_sync = new DocketTrelloSync();
+        $trello_card = $trello_sync->create_trello_card($form_data);
+        if ($trello_card) {
+            error_log('Docket Onboarding: Trello card created for ' . $form_data['business_name']);
+        } else {
+            error_log('Docket Onboarding: Failed to create Trello card for ' . $form_data['business_name']);
+        }
+    }
+    
     // Send success response
     wp_send_json_success(array(
         'message' => 'Form submitted and site created successfully',

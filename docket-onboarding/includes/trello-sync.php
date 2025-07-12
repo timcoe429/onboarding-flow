@@ -407,9 +407,6 @@ class DocketTrelloSync {
      * Create Trello card when project is submitted
      */
     public function create_trello_card($project_data) {
-        // This is already handled by the BCC email integration
-        // But we could add direct API card creation here if needed
-        
         $lists = $this->get_board_lists();
         if (!$lists) {
             return false;
@@ -428,9 +425,11 @@ class DocketTrelloSync {
             return false;
         }
         
-        $card_name = $project_data['business_name'] . ' - ' . ucwords(str_replace('-', ' ', $project_data['form_type']));
-        $card_desc = "Business: {$project_data['business_name']}\nProject Type: {$project_data['form_type']}\nSubmitted: " . date('M j, Y g:i A');
+        // Build comprehensive card description
+        $card_name = $project_data['business_name'] . ' - ' . ucwords(str_replace('_', ' ', $project_data['form_type']));
+        $card_desc = $this->build_card_description($project_data);
         
+        // Create the card
         $url = "{$this->api_base}/cards";
         $data = array(
             'key' => $this->api_key,
@@ -452,7 +451,284 @@ class DocketTrelloSync {
         $body = wp_remote_retrieve_body($response);
         $card = json_decode($body, true);
         
+        if (!$card || !isset($card['id'])) {
+            error_log('Trello Card Creation: Invalid response');
+            return false;
+        }
+        
+        // Add labels to the card
+        $this->add_labels_to_card($card['id'], $project_data);
+        
         return $card;
+    }
+    
+    /**
+     * Build comprehensive card description
+     */
+    private function build_card_description($project_data) {
+        $desc = "## 🎯 PROJECT OVERVIEW\n";
+        $desc .= "**Business:** {$project_data['business_name']}\n";
+        $desc .= "**Project Type:** " . ucwords(str_replace('_', ' ', $project_data['form_type'])) . "\n";
+        $desc .= "**Submitted:** " . date('M j, Y g:i A') . "\n\n";
+        
+        // Add important links section
+        $desc .= "## 🔗 IMPORTANT LINKS\n";
+        if (!empty($project_data['new_site_url'])) {
+            $desc .= "**🌐 Dev Site:** {$project_data['new_site_url']}\n";
+        }
+        if (!empty($project_data['portal_url'])) {
+            $desc .= "**📊 Client Portal:** {$project_data['portal_url']}\n";
+        }
+        $desc .= "\n";
+        
+        // Contact Information
+        $desc .= "## 📞 CONTACT INFORMATION\n";
+        $desc .= "**Contact Name:** " . ($project_data['contact_name'] ?? $project_data['name'] ?? 'Not provided') . "\n";
+        $desc .= "**Contact Email:** " . ($project_data['contact_email_address'] ?? $project_data['email'] ?? 'Not provided') . "\n";
+        $desc .= "**Business Phone:** " . ($project_data['business_phone_number'] ?? $project_data['phone_number'] ?? 'Not provided') . "\n";
+        $desc .= "**Business Email:** " . ($project_data['business_email'] ?? 'Not provided') . "\n\n";
+        
+        // Business Address
+        if (!empty($project_data['business_address'])) {
+            $desc .= "## 📍 BUSINESS ADDRESS\n";
+            $desc .= "**Address:** {$project_data['business_address']}\n";
+            if (!empty($project_data['business_city'])) {
+                $desc .= "**City:** {$project_data['business_city']}\n";
+            }
+            if (!empty($project_data['business_state'])) {
+                $desc .= "**State:** {$project_data['business_state']}\n";
+            }
+            $desc .= "\n";
+        }
+        
+        // Template Selection
+        if (!empty($project_data['website_template_selection'])) {
+            $desc .= "## 🎨 TEMPLATE SELECTION\n";
+            $desc .= "**Selected Template:** {$project_data['website_template_selection']}\n\n";
+        }
+        
+        // Service Areas
+        if (!empty($project_data['service_areas'])) {
+            $desc .= "## 🗺️ SERVICE AREAS\n";
+            if (is_array($project_data['service_areas'])) {
+                $desc .= implode(', ', $project_data['service_areas']) . "\n\n";
+            } else {
+                $desc .= "{$project_data['service_areas']}\n\n";
+            }
+        }
+        
+        // Branding Information
+        $branding_fields = array(
+            'logo_file' => '🎨 Logo File',
+            'brand_colors' => '🎨 Brand Colors',
+            'existing_website' => '🌐 Existing Website',
+            'website_likes' => '👍 Website Likes',
+            'website_dislikes' => '👎 Website Dislikes'
+        );
+        
+        $has_branding = false;
+        foreach ($branding_fields as $field => $label) {
+            if (!empty($project_data[$field])) {
+                if (!$has_branding) {
+                    $desc .= "## 🎨 BRANDING & DESIGN\n";
+                    $has_branding = true;
+                }
+                
+                if ($field === 'logo_file' && filter_var($project_data[$field], FILTER_VALIDATE_URL)) {
+                    $desc .= "**{$label}:** [View Logo]({$project_data[$field]})\n";
+                } else {
+                    $desc .= "**{$label}:** {$project_data[$field]}\n";
+                }
+            }
+        }
+        if ($has_branding) $desc .= "\n";
+        
+        // Rental Information (if applicable)
+        $rental_fields = array(
+            'rental_items' => '📦 Rental Items',
+            'rental_pricing' => '💰 Rental Pricing',
+            'delivery_areas' => '🚚 Delivery Areas'
+        );
+        
+        $has_rental = false;
+        foreach ($rental_fields as $field => $label) {
+            if (!empty($project_data[$field])) {
+                if (!$has_rental) {
+                    $desc .= "## 🏗️ RENTAL INFORMATION\n";
+                    $has_rental = true;
+                }
+                
+                if (is_array($project_data[$field])) {
+                    $desc .= "**{$label}:** " . implode(', ', $project_data[$field]) . "\n";
+                } else {
+                    $desc .= "**{$label}:** {$project_data[$field]}\n";
+                }
+            }
+        }
+        if ($has_rental) $desc .= "\n";
+        
+        // Marketing Information
+        $marketing_fields = array(
+            'marketing_goals' => '🎯 Marketing Goals',
+            'target_audience' => '👥 Target Audience',
+            'competitors' => '🏢 Competitors',
+            'marketing_budget' => '💰 Marketing Budget'
+        );
+        
+        $has_marketing = false;
+        foreach ($marketing_fields as $field => $label) {
+            if (!empty($project_data[$field])) {
+                if (!$has_marketing) {
+                    $desc .= "## 📈 MARKETING INFORMATION\n";
+                    $has_marketing = true;
+                }
+                
+                if (is_array($project_data[$field])) {
+                    $desc .= "**{$label}:** " . implode(', ', $project_data[$field]) . "\n";
+                } else {
+                    $desc .= "**{$label}:** {$project_data[$field]}\n";
+                }
+            }
+        }
+        if ($has_marketing) $desc .= "\n";
+        
+        // Content Information (for standard/VIP builds)
+        $content_fields = array(
+            'content_provided' => '📝 Content Provided',
+            'content_writing_needed' => '✍️ Content Writing Needed',
+            'additional_pages' => '📄 Additional Pages',
+            'special_features' => '⭐ Special Features'
+        );
+        
+        $has_content = false;
+        foreach ($content_fields as $field => $label) {
+            if (!empty($project_data[$field])) {
+                if (!$has_content) {
+                    $desc .= "## 📝 CONTENT INFORMATION\n";
+                    $has_content = true;
+                }
+                
+                if (is_array($project_data[$field])) {
+                    $desc .= "**{$label}:** " . implode(', ', $project_data[$field]) . "\n";
+                } else {
+                    $desc .= "**{$label}:** {$project_data[$field]}\n";
+                }
+            }
+        }
+        if ($has_content) $desc .= "\n";
+        
+        // Additional Notes
+        if (!empty($project_data['additional_notes']) || !empty($project_data['special_requests'])) {
+            $desc .= "## 📋 ADDITIONAL NOTES\n";
+            if (!empty($project_data['additional_notes'])) {
+                $desc .= "**Notes:** {$project_data['additional_notes']}\n";
+            }
+            if (!empty($project_data['special_requests'])) {
+                $desc .= "**Special Requests:** {$project_data['special_requests']}\n";
+            }
+        }
+        
+        return $desc;
+    }
+    
+    /**
+     * Add appropriate labels to the card
+     */
+    private function add_labels_to_card($card_id, $project_data) {
+        // Get all board labels
+        $labels = $this->get_board_labels();
+        if (!$labels) {
+            return false;
+        }
+        
+        $labels_to_add = array();
+        
+        // Determine plan type labels
+        $plan = $project_data['plan'] ?? '';
+        $management = $project_data['management'] ?? '';
+        $form_type = $project_data['form_type'] ?? '';
+        
+        // Plan-based labels
+        if (stripos($plan, 'grow') !== false || stripos($management, 'grow') !== false) {
+            $labels_to_add[] = 'Grow';
+        }
+        if (stripos($plan, 'pro') !== false || stripos($management, 'pro') !== false) {
+            $labels_to_add[] = 'Pro';
+        }
+        if (stripos($management, 'vip') !== false || $form_type === 'website_vip') {
+            $labels_to_add[] = 'WebsiteVIP';
+        }
+        
+        // Build type labels
+        if ($form_type === 'fast_build' || stripos($form_type, 'fast') !== false) {
+            $labels_to_add[] = 'Fast Build';
+        }
+        
+        // Add each label to the card
+        foreach ($labels_to_add as $label_name) {
+            $label_id = $this->find_label_id($labels, $label_name);
+            if ($label_id) {
+                $this->attach_label_to_card($card_id, $label_id);
+            }
+        }
+        
+        return true;
+    }
+    
+    /**
+     * Get all labels from the board
+     */
+    private function get_board_labels() {
+        $url = "{$this->api_base}/boards/{$this->board_id}/labels";
+        $url .= "?key={$this->api_key}&token={$this->token}";
+        
+        $response = wp_remote_get($url);
+        
+        if (is_wp_error($response)) {
+            error_log('Trello API Error getting labels: ' . $response->get_error_message());
+            return false;
+        }
+        
+        $body = wp_remote_retrieve_body($response);
+        $labels = json_decode($body, true);
+        
+        return $labels ?: array();
+    }
+    
+    /**
+     * Find label ID by name
+     */
+    private function find_label_id($labels, $label_name) {
+        foreach ($labels as $label) {
+            if (strcasecmp($label['name'], $label_name) === 0) {
+                return $label['id'];
+            }
+        }
+        return null;
+    }
+    
+    /**
+     * Attach label to card
+     */
+    private function attach_label_to_card($card_id, $label_id) {
+        $url = "{$this->api_base}/cards/{$card_id}/idLabels";
+        
+        $data = array(
+            'key' => $this->api_key,
+            'token' => $this->token,
+            'value' => $label_id
+        );
+        
+        $response = wp_remote_post($url, array(
+            'body' => $data
+        ));
+        
+        if (is_wp_error($response)) {
+            error_log('Trello API Error adding label: ' . $response->get_error_message());
+            return false;
+        }
+        
+        return true;
     }
 }
 

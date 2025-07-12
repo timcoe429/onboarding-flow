@@ -73,6 +73,14 @@ class ESC_API_Endpoint {
             'permission_callback' => '__return_true',  // Allow public access for status checks
             'show_in_index' => false,
         ));
+        
+        // Debug interface endpoint
+        register_rest_route(self::API_NAMESPACE . '/' . self::API_VERSION, '/debug-interface', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'show_debug_interface'),
+            'permission_callback' => '__return_true',  // Allow public access for easy debugging
+            'show_in_index' => false,
+        ));
     }
     
     /**
@@ -260,28 +268,141 @@ class ESC_API_Endpoint {
     /**
      * Add CORS headers to REST API responses
      */
-    public function add_cors_headers($served, $result, $request) {
-        // Only add headers for our API endpoints
-        $route = $request->get_route();
-        if (strpos($route, '/' . self::API_NAMESPACE . '/') !== 0) {
-            return $served;
+    public function add_cors_headers() {
+        $allowed_origins = get_option('esc_allowed_origins', array());
+        
+        if (!empty($allowed_origins)) {
+            $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
+            if (in_array($origin, $allowed_origins)) {
+                header("Access-Control-Allow-Origin: $origin");
+            }
         }
         
-        // Get allowed origins from settings or use default
-        $allowed_origins = get_option('esc_allowed_origins', array('https://yourdocketonline.com'));
+        header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
+        header('Access-Control-Allow-Headers: Content-Type, Authorization, X-API-Key');
+        header('Access-Control-Allow-Credentials: true');
+    }
+    
+    /**
+     * Handle OPTIONS requests for CORS preflight
+     */
+    public function handle_cors_preflight() {
+        if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+            $this->add_cors_headers();
+            exit;
+        }
+    }
+    
+    /**
+     * Show debug interface for easy log viewing
+     */
+    public function show_debug_interface() {
+        $logs = $this->get_debug_logs();
         
-        // Check if the request origin is allowed
-        $origin = isset($_SERVER['HTTP_ORIGIN']) ? $_SERVER['HTTP_ORIGIN'] : '';
+        $html = '<!DOCTYPE html>
+        <html>
+        <head>
+            <title>Elementor Site Cloner - Debug Interface</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 20px; background: #f1f1f1; }
+                .container { max-width: 1200px; margin: 0 auto; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+                h1 { color: #333; border-bottom: 2px solid #0073aa; padding-bottom: 10px; }
+                .log-entry { margin: 10px 0; padding: 10px; background: #f9f9f9; border-left: 4px solid #0073aa; font-family: monospace; white-space: pre-wrap; }
+                .log-entry.error { border-left-color: #dc3232; background: #ffeaea; }
+                .log-entry.success { border-left-color: #46b450; background: #eafaea; }
+                .log-entry.warning { border-left-color: #ffb900; background: #fff8e5; }
+                .controls { margin: 20px 0; }
+                .btn { padding: 10px 20px; margin: 5px; background: #0073aa; color: white; border: none; border-radius: 4px; cursor: pointer; text-decoration: none; display: inline-block; }
+                .btn:hover { background: #005177; }
+                .btn.danger { background: #dc3232; }
+                .btn.danger:hover { background: #a02622; }
+                .status { padding: 10px; margin: 10px 0; border-radius: 4px; }
+                .status.online { background: #eafaea; color: #46b450; }
+                .status.offline { background: #ffeaea; color: #dc3232; }
+                .auto-refresh { margin: 10px 0; }
+                .timestamp { color: #666; font-size: 0.9em; }
+            </style>
+            <script>
+                function refreshLogs() {
+                    location.reload();
+                }
+                
+                function clearLogs() {
+                    if (confirm("Are you sure you want to clear all logs?")) {
+                        fetch("' . rest_url('elementor-site-cloner/v1/clear-logs') . '", {
+                            method: "DELETE"
+                        }).then(() => {
+                            location.reload();
+                        });
+                    }
+                }
+                
+                // Auto-refresh every 5 seconds
+                setInterval(refreshLogs, 5000);
+            </script>
+        </head>
+        <body>
+            <div class="container">
+                <h1>🔧 Elementor Site Cloner Debug Interface</h1>
+                
+                <div class="status online">
+                    <strong>Status:</strong> Online | <strong>Last Updated:</strong> ' . date('Y-m-d H:i:s') . ' | <strong>Auto-refresh:</strong> Every 5 seconds
+                </div>
+                
+                <div class="controls">
+                    <button class="btn" onclick="refreshLogs()">🔄 Refresh Now</button>
+                    <button class="btn danger" onclick="clearLogs()">🗑️ Clear Logs</button>
+                </div>
+                
+                <div class="auto-refresh">
+                    <strong>Debug Logs:</strong> (Last 100 entries)
+                </div>
+                
+                <div class="logs">';
         
-        if (in_array($origin, $allowed_origins) || in_array('*', $allowed_origins)) {
-            header('Access-Control-Allow-Origin: ' . $origin);
-            header('Access-Control-Allow-Methods: GET, POST, OPTIONS');
-            header('Access-Control-Allow-Headers: Content-Type, X-API-Key, Authorization');
-            header('Access-Control-Allow-Credentials: true');
-            header('Access-Control-Max-Age: 86400'); // 24 hours
+        if (empty($logs)) {
+            $html .= '<div class="log-entry">No logs found. Submit a form or perform an action to see debug information.</div>';
+        } else {
+            foreach ($logs as $log) {
+                $class = 'log-entry';
+                if (stripos($log, 'error') !== false) {
+                    $class .= ' error';
+                } elseif (stripos($log, 'success') !== false) {
+                    $class .= ' success';
+                } elseif (stripos($log, 'warning') !== false) {
+                    $class .= ' warning';
+                }
+                
+                $html .= '<div class="' . $class . '">' . esc_html($log) . '</div>';
+            }
         }
         
-        return $served;
+        $html .= '</div>
+            </div>
+        </body>
+        </html>';
+        
+        return new WP_REST_Response($html, 200, array('Content-Type' => 'text/html'));
+    }
+    
+    /**
+     * Get debug logs
+     */
+    private function get_debug_logs() {
+        $log_file = WP_CONTENT_DIR . '/debug.log';
+        
+        if (!file_exists($log_file)) {
+            return array();
+        }
+        
+        $logs = file($log_file, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+        if (!$logs) {
+            return array();
+        }
+        
+        // Get last 100 lines and reverse to show newest first
+        $logs = array_slice($logs, -100);
+        return array_reverse($logs);
     }
     
     /**

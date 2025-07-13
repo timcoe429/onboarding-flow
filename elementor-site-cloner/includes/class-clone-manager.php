@@ -27,6 +27,10 @@ class ESC_Clone_Manager {
         $site = get_site($source_site_id);
         if ($site && strpos($site->path, '/template4/') !== false) {
             $is_template4 = true;
+            
+            // Include the debug utility from main plugin directory
+            require_once ESC_PLUGIN_DIR . 'debug-utility.php';
+            
             ESC_Debug_Utility::clear_log();
             ESC_Debug_Utility::log("=== TEMPLATE 4 CLONE ATTEMPT START ===", [
                 'source_site_id' => $source_site_id,

@@ -49,6 +49,9 @@ class DocketOnboarding {
      * Include required files
      */
     private function includes() {
+        // Include error logger first
+        require_once plugin_dir_path(__FILE__) . 'includes/error-logger.php';
+        
         // Include required files
         require_once plugin_dir_path(__FILE__) . 'includes/form-handler.php';
         require_once plugin_dir_path(__FILE__) . 'includes/shortcode.php';

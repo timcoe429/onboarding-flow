@@ -425,6 +425,18 @@ class DocketTrelloSync {
         $trello_debug_log = WP_CONTENT_DIR . '/trello-debug.log';
         $timestamp = date('Y-m-d H:i:s');
         
+        // ENHANCED DEBUG: Log what data we received in Trello class
+        file_put_contents($trello_debug_log, "[$timestamp] === TRELLO CLASS DEBUG START ===\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Trello received template: " . ($project_data['website_template_selection'] ?? 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Trello received business_name: " . ($project_data['business_name'] ?? 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Trello received form_type: " . ($project_data['form_type'] ?? 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Trello received name: " . ($project_data['name'] ?? 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Trello received email: " . ($project_data['email'] ?? 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Trello received phone_number: " . ($project_data['phone_number'] ?? 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Trello received business_email: " . ($project_data['business_email'] ?? 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Trello received business_address: " . ($project_data['business_address'] ?? 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] === TRELLO CLASS DEBUG END ===\n", FILE_APPEND);
+        
         file_put_contents($trello_debug_log, "[$timestamp] Getting board lists...\n", FILE_APPEND);
         $lists = $this->get_board_lists();
         if (!$lists) {
@@ -504,6 +516,21 @@ class DocketTrelloSync {
      * Build comprehensive card description
      */
     private function build_card_description($project_data) {
+        $trello_debug_log = WP_CONTENT_DIR . '/trello-debug.log';
+        $timestamp = date('Y-m-d H:i:s');
+        
+        // ENHANCED DEBUG: Log what we're building the description from
+        file_put_contents($trello_debug_log, "[$timestamp] === BUILDING CARD DESCRIPTION ===\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Building desc from business_name: " . ($project_data['business_name'] ?? 'MISSING') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Building desc from form_type: " . ($project_data['form_type'] ?? 'MISSING') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Building desc from select_your_docket_plan: " . ($project_data['select_your_docket_plan'] ?? 'MISSING') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Building desc from name: " . ($project_data['name'] ?? 'MISSING') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Building desc from email: " . ($project_data['email'] ?? 'MISSING') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Building desc from phone_number: " . ($project_data['phone_number'] ?? 'MISSING') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Building desc from business_email: " . ($project_data['business_email'] ?? 'MISSING') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Building desc from business_address: " . ($project_data['business_address'] ?? 'MISSING') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Building desc from website_template_selection: " . ($project_data['website_template_selection'] ?? 'MISSING') . "\n", FILE_APPEND);
+        
         $desc = "PROJECT OVERVIEW\n";
         $desc .= "Business: {$project_data['business_name']}\n";
         $desc .= "Project Type: " . ucwords(str_replace('_', ' ', $project_data['form_type'])) . "\n";
@@ -577,6 +604,12 @@ class DocketTrelloSync {
                 $desc .= "Special Requests: {$project_data['special_requests']}\n";
             }
         }
+        
+        // ENHANCED DEBUG: Log the final description
+        file_put_contents($trello_debug_log, "[$timestamp] === FINAL CARD DESCRIPTION ===\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Final description length: " . strlen($desc) . " characters\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Final description:\n" . $desc . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] === END DESCRIPTION DEBUG ===\n", FILE_APPEND);
         
         return $desc;
     }

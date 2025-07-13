@@ -10,9 +10,9 @@ if (!defined('ABSPATH')) {
 }
 
 // Include form rendering functions
-require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/fast-build/fast-build-form.php';
-require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/standard-build/standard-build-form.php';
-require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/website-vip/website-vip-form.php';
+    require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/fast-build/fast-build-form.php';
+    require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/standard-build/standard-build-form.php';
+    require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/website-vip/website-vip-form.php';
 
 /**
  * Handle AJAX request to load fast build form
@@ -456,6 +456,14 @@ function docket_handle_any_form_submission($form_type = 'generic') {
         }
     }
     
+    // Log form submission
+    docket_log_info("Form submission started", [
+        'form_type' => $form_type,
+        'business_name' => $form_data['business_name'] ?? 'Unknown',
+        'template' => $form_data['website_template_selection'] ?? 'Unknown',
+        'user_ip' => $_SERVER['REMOTE_ADDR'] ?? 'Unknown'
+    ]);
+    
     // Save form submission for reference
     $submission_id = time() . '_' . rand(1000, 9999);
     update_option('docket_submission_' . $submission_id, $form_data);
@@ -486,7 +494,12 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     $api_key = get_option('docket_cloner_api_key', 'esc_docket_2025_secure_key');
     
     // Make API call to Elementor Site Cloner on dockethosting5.com
-    error_log('Docket Onboarding: Making API call to ' . $api_url . ' for ' . $form_type . ' form submission');
+    docket_log_info("Making API call to remote cloner", [
+        'api_url' => $api_url,
+        'form_type' => $form_type,
+        'template' => $selected_template,
+        'site_name' => $site_name
+    ]);
     
     // Get the template selection (default to template1 if not specified)
     $selected_template = isset($form_data['website_template_selection']) ? $form_data['website_template_selection'] : 'template1';
@@ -509,7 +522,7 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     try {
         // Use WordPress AJAX endpoint which is always accessible
         $response = wp_remote_post($api_url . '/wp-admin/admin-ajax.php', array(
-            'timeout' => 60,
+        'timeout' => 60,
             'body' => array_merge($api_data, array(
                 'action' => 'esc_clone_site',
                 'api_key' => $api_key
@@ -520,13 +533,17 @@ function docket_handle_any_form_submission($form_type = 'generic') {
         error_log('Docket Onboarding: Exception during API call - ' . $e->getMessage());
         wp_send_json_error(array(
             'message' => 'Error connecting to site creation service: ' . $e->getMessage()
-        ));
+    ));
         wp_die();
     }
     
     // Check for errors
     if (is_wp_error($response)) {
-        error_log('Docket Onboarding: API request failed - ' . $response->get_error_message());
+        docket_log_error("API request failed", [
+            'error' => $response->get_error_message(),
+            'template' => $selected_template,
+            'api_url' => $api_url
+        ]);
         wp_send_json_error(array(
             'message' => 'Failed to connect to site creation service: ' . $response->get_error_message()
         ));
@@ -558,7 +575,11 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     }
     
     if (!$data['success']) {
-        error_log('Docket Onboarding: Site creation failed - ' . ($data['data']['message'] ?? 'Unknown error'));
+        docket_log_error("Site creation failed", [
+            'error' => $data['data']['message'] ?? 'Unknown error',
+            'template' => $selected_template,
+            'api_response' => $data
+        ]);
         wp_send_json_error(array(
             'message' => 'Site creation failed: ' . ($data['data']['message'] ?? 'Unknown error')
         ));
@@ -570,7 +591,12 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     $form_data['new_site_url'] = $data['data']['site_url'];
     update_option('docket_submission_' . $submission_id, $form_data);
     
-    error_log('Docket Onboarding: Site created successfully - ID: ' . $data['data']['site_id'] . ', URL: ' . $data['data']['site_url']);
+    docket_log_info("Site created successfully", [
+        'site_id' => $data['data']['site_id'],
+        'site_url' => $data['data']['site_url'],
+        'template' => $selected_template,
+        'business_name' => $form_data['business_name']
+    ]);
     
     // Create client portal entry after successful site creation
     $portal_url = '';
@@ -597,7 +623,22 @@ function docket_handle_any_form_submission($form_type = 'generic') {
         file_put_contents($trello_debug_log, "[$timestamp] Trello Debug: Creating DocketTrelloSync instance\n", FILE_APPEND);
         $trello_sync = new DocketTrelloSync();
         
-        file_put_contents($trello_debug_log, "[$timestamp] Trello Debug: Calling create_trello_card with data: " . json_encode($form_data) . "\n", FILE_APPEND);
+        // ENHANCED DEBUG: Log ALL form data fields being passed to Trello
+        file_put_contents($trello_debug_log, "[$timestamp] === ENHANCED TRELLO DEBUG START ===\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Selected Template: " . ($form_data['website_template_selection'] ?? 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Business Name: " . ($form_data['business_name'] ?? 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Form Type: " . ($form_data['form_type'] ?? 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Contact Name: " . ($form_data['name'] ?? 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Contact Email: " . ($form_data['email'] ?? 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Phone: " . ($form_data['phone_number'] ?? 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Business Email: " . ($form_data['business_email'] ?? 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Business Address: " . ($form_data['business_address'] ?? 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Plan: " . ($form_data['select_your_docket_plan'] ?? 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] Services: " . (isset($form_data['services_offered']) ? (is_array($form_data['services_offered']) ? implode(', ', $form_data['services_offered']) : $form_data['services_offered']) : 'NOT SET') . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] === FULL FORM DATA DUMP ===\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] " . json_encode($form_data, JSON_PRETTY_PRINT) . "\n", FILE_APPEND);
+        file_put_contents($trello_debug_log, "[$timestamp] === ENHANCED TRELLO DEBUG END ===\n", FILE_APPEND);
+        
         $trello_card = $trello_sync->create_trello_card($form_data);
         
         if ($trello_card) {

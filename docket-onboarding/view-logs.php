@@ -4,6 +4,11 @@
  * Upload to yourdocketonline.com and visit directly
  */
 
+// Load WordPress if not already loaded
+if (!defined('ABSPATH')) {
+    require_once(dirname(__FILE__) . '/../../../wp-config.php');
+}
+
 // Get logs from multiple sources
 $log_files = [
     'Main Error Log' => ini_get('error_log'),

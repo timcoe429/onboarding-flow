@@ -1,158 +1,207 @@
 <?php
 /**
- * Debug Utility Class
- * Helps diagnose URL replacement issues
+ * Debug Utility for Elementor Site Cloner
+ * Provides detailed debugging for Template 4 cloning issues
  */
 class ESC_Debug_Utility {
     
-    /**
-     * Check for remaining source URLs in the database
-     */
-    public static function check_remaining_urls($site_id, $source_url) {
-        global $wpdb;
-        
-        $prefix = $wpdb->get_blog_prefix($site_id);
-        $results = array();
-        $source_url_no_slash = rtrim($source_url, '/');
-        
-        // Check options table
-        $options = $wpdb->get_results($wpdb->prepare(
-            "SELECT option_name, option_value 
-             FROM {$prefix}options 
-             WHERE option_value LIKE %s 
-             OR option_value LIKE %s
-             LIMIT 20",
-            '%' . $wpdb->esc_like($source_url) . '%',
-            '%' . $wpdb->esc_like($source_url_no_slash) . '%'
-        ));
-        
-        if (!empty($options)) {
-            $results['options'] = array();
-            foreach ($options as $option) {
-                $results['options'][] = array(
-                    'name' => $option->option_name,
-                    'value' => substr($option->option_value, 0, 200) . (strlen($option->option_value) > 200 ? '...' : '')
-                );
-            }
-        }
-        
-        // Check posts table
-        $posts = $wpdb->get_results($wpdb->prepare(
-            "SELECT ID, post_title, post_type 
-             FROM {$prefix}posts 
-             WHERE post_content LIKE %s 
-             OR post_content LIKE %s
-             OR guid LIKE %s
-             OR guid LIKE %s
-             LIMIT 20",
-            '%' . $wpdb->esc_like($source_url) . '%',
-            '%' . $wpdb->esc_like($source_url_no_slash) . '%',
-            '%' . $wpdb->esc_like($source_url) . '%',
-            '%' . $wpdb->esc_like($source_url_no_slash) . '%'
-        ));
-        
-        if (!empty($posts)) {
-            $results['posts'] = array();
-            foreach ($posts as $post) {
-                $results['posts'][] = array(
-                    'ID' => $post->ID,
-                    'title' => $post->post_title,
-                    'type' => $post->post_type
-                );
-            }
-        }
-        
-        // Check postmeta table
-        $postmeta = $wpdb->get_results($wpdb->prepare(
-            "SELECT post_id, meta_key 
-             FROM {$prefix}postmeta 
-             WHERE meta_value LIKE %s 
-             OR meta_value LIKE %s
-             LIMIT 20",
-            '%' . $wpdb->esc_like($source_url) . '%',
-            '%' . $wpdb->esc_like($source_url_no_slash) . '%'
-        ));
-        
-        if (!empty($postmeta)) {
-            $results['postmeta'] = array();
-            foreach ($postmeta as $meta) {
-                $results['postmeta'][] = array(
-                    'post_id' => $meta->post_id,
-                    'meta_key' => $meta->meta_key
-                );
-            }
-        }
-        
-        return $results;
+    private static $debug_log = '';
+    
+    public function __construct() {
+        self::$debug_log = WP_CONTENT_DIR . '/esc-template4-debug.log';
     }
     
     /**
-     * Get critical site URLs
+     * Log debug information with timestamp and context
      */
-    public static function get_critical_urls($site_id) {
-        switch_to_blog($site_id);
+    public static function log($message, $context = [], $level = 'INFO') {
+        $timestamp = date('Y-m-d H:i:s');
+        $memory = round(memory_get_usage() / 1024 / 1024, 2) . 'MB';
+        $peak_memory = round(memory_get_peak_usage() / 1024 / 1024, 2) . 'MB';
         
-        $urls = array(
-            'siteurl' => get_option('siteurl'),
-            'home' => get_option('home'),
-            'upload_url_path' => get_option('upload_url_path'),
-            'upload_path' => get_option('upload_path'),
-            'fileupload_url' => get_option('fileupload_url'),
-            'wp_upload_dir' => wp_upload_dir()
-        );
+        $log_entry = "[$timestamp] [$level] [Memory: $memory / Peak: $peak_memory] $message";
         
-        restore_current_blog();
+        if (!empty($context)) {
+            $log_entry .= " | Context: " . json_encode($context);
+        }
         
-        return $urls;
+        $log_entry .= "\n";
+        
+        // Write to debug log
+        file_put_contents(self::$debug_log, $log_entry, FILE_APPEND | LOCK_EX);
     }
     
     /**
-     * Force update critical URLs
+     * Debug Template 4 specific data
      */
-    public static function force_update_urls($site_id) {
+    public static function debug_template4_data($template_site_id) {
         global $wpdb;
         
-        // Get site details
-        $site = get_site($site_id);
-        if (!$site) {
-            return false;
+        self::log("=== TEMPLATE 4 DEBUG START ===", ['template_site_id' => $template_site_id]);
+        
+        // Check basic site info
+        $site = get_site($template_site_id);
+        self::log("Template 4 site info", [
+            'domain' => $site->domain,
+            'path' => $site->path,
+            'registered' => $site->registered,
+            'last_updated' => $site->last_updated
+        ]);
+        
+        // Switch to Template 4 to gather data
+        switch_to_blog($template_site_id);
+        
+        // Check database tables
+        $prefix = $wpdb->get_blog_prefix($template_site_id);
+        $tables = $wpdb->get_results("SHOW TABLES LIKE '{$prefix}%'");
+        self::log("Template 4 database tables", ['table_count' => count($tables)]);
+        
+        // Check for large tables that might cause issues
+        foreach ($tables as $table) {
+            $table_name = array_values((array)$table)[0];
+            $row_count = $wpdb->get_var("SELECT COUNT(*) FROM `$table_name`");
+            $table_size = $wpdb->get_var("SELECT ROUND(((data_length + index_length) / 1024 / 1024), 2) AS 'MB' FROM information_schema.TABLES WHERE table_schema = DATABASE() AND table_name = '$table_name'");
+            
+            if ($row_count > 1000 || $table_size > 10) {
+                self::log("Large table detected", [
+                    'table' => $table_name,
+                    'rows' => $row_count,
+                    'size_mb' => $table_size
+                ]);
+            }
         }
         
-        // Construct the correct URL from site details
-        $scheme = is_ssl() ? 'https' : 'http';
-        $site_url = $scheme . '://' . $site->domain . $site->path;
-        $site_url_no_slash = rtrim($site_url, '/');
+        // Check posts
+        $post_count = wp_count_posts();
+        self::log("Template 4 posts", [
+            'publish' => $post_count->publish,
+            'draft' => $post_count->draft,
+            'private' => $post_count->private
+        ]);
         
-        switch_to_blog($site_id);
+        // Check for problematic post content
+        $large_posts = $wpdb->get_results("
+            SELECT ID, post_title, CHAR_LENGTH(post_content) as content_length 
+            FROM {$prefix}posts 
+            WHERE CHAR_LENGTH(post_content) > 100000 
+            ORDER BY content_length DESC 
+            LIMIT 5
+        ");
         
-        // Force update options
-        update_option('siteurl', $site_url_no_slash);
-        update_option('home', $site_url_no_slash);
+        if (!empty($large_posts)) {
+            self::log("Large posts detected", ['posts' => $large_posts]);
+        }
         
-        // Clear any upload path settings that might cause issues
-        delete_option('upload_url_path');
-        delete_option('upload_path');
+        // Check Elementor data
+        $elementor_posts = $wpdb->get_results("
+            SELECT p.ID, p.post_title, CHAR_LENGTH(pm.meta_value) as data_length
+            FROM {$prefix}posts p
+            JOIN {$prefix}postmeta pm ON p.ID = pm.post_id
+            WHERE pm.meta_key = '_elementor_data'
+            ORDER BY data_length DESC
+            LIMIT 5
+        ");
         
-        // Clear caches
-        wp_cache_flush();
+        if (!empty($elementor_posts)) {
+            self::log("Elementor data found", ['elementor_posts' => count($elementor_posts)]);
+            foreach ($elementor_posts as $post) {
+                if ($post->data_length > 50000) {
+                    self::log("Large Elementor data", [
+                        'post_id' => $post->ID,
+                        'title' => $post->post_title,
+                        'data_size' => $post->data_length
+                    ]);
+                }
+            }
+        }
         
-        // Force update in database
-        $prefix = $wpdb->get_blog_prefix($site_id);
-        $wpdb->query($wpdb->prepare(
-            "UPDATE {$prefix}options 
-             SET option_value = %s 
-             WHERE option_name IN ('siteurl', 'home')",
-            $site_url_no_slash
-        ));
+        // Check upload directory size
+        $upload_dir = wp_upload_dir();
+        if (is_dir($upload_dir['basedir'])) {
+            $size = self::get_directory_size($upload_dir['basedir']);
+            self::log("Upload directory", [
+                'path' => $upload_dir['basedir'],
+                'size_mb' => round($size / 1024 / 1024, 2)
+            ]);
+        }
+        
+        // Check for corrupted options
+        $options_count = $wpdb->get_var("SELECT COUNT(*) FROM {$prefix}options");
+        self::log("Options table", ['option_count' => $options_count]);
+        
+        // Check for problematic serialized data
+        $bad_serialized = $wpdb->get_results("
+            SELECT option_name, CHAR_LENGTH(option_value) as value_length
+            FROM {$prefix}options 
+            WHERE option_value LIKE 'a:%' 
+            AND CHAR_LENGTH(option_value) > 10000
+            ORDER BY value_length DESC
+            LIMIT 5
+        ");
+        
+        if (!empty($bad_serialized)) {
+            self::log("Large serialized options", ['options' => $bad_serialized]);
+        }
         
         restore_current_blog();
         
-        // Clear all caches
-        wp_cache_delete('alloptions', 'options');
-        wp_cache_delete('siteurl', 'options');
-        wp_cache_delete('home', 'options');
-        wp_cache_flush();
+        self::log("=== TEMPLATE 4 DEBUG END ===");
+    }
+    
+    /**
+     * Get directory size recursively
+     */
+    private static function get_directory_size($directory) {
+        $size = 0;
+        if (is_dir($directory)) {
+            foreach (new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory)) as $file) {
+                if ($file->isFile()) {
+                    $size += $file->getSize();
+                }
+            }
+        }
+        return $size;
+    }
+    
+    /**
+     * Monitor clone process steps
+     */
+    public static function log_clone_step($step, $template_id, $status = 'started', $details = []) {
+        $context = array_merge([
+            'step' => $step,
+            'template_id' => $template_id,
+            'status' => $status
+        ], $details);
         
-        return true;
+        self::log("Clone step: $step ($status)", $context);
+        
+        // Log memory usage for each step
+        if ($status === 'completed') {
+            $memory_usage = memory_get_usage();
+            $peak_memory = memory_get_peak_usage();
+            self::log("Memory after $step", [
+                'current_mb' => round($memory_usage / 1024 / 1024, 2),
+                'peak_mb' => round($peak_memory / 1024 / 1024, 2)
+            ]);
+        }
+    }
+    
+    /**
+     * Clear debug log
+     */
+    public static function clear_log() {
+        if (file_exists(self::$debug_log)) {
+            file_put_contents(self::$debug_log, '');
+        }
+    }
+    
+    /**
+     * Get debug log contents
+     */
+    public static function get_log() {
+        if (file_exists(self::$debug_log)) {
+            return file_get_contents(self::$debug_log);
+        }
+        return '';
     }
 } 

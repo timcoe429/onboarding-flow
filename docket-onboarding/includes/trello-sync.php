@@ -594,6 +594,24 @@ class DocketTrelloSync {
             $desc .= "\n";
         }
         
+        // Uploaded Files
+        if (!empty($project_data['logo_files_urls']) || !empty($project_data['dumpster_images_urls'])) {
+            $desc .= "UPLOADED FILES\n";
+            if (!empty($project_data['logo_files_urls'])) {
+                $desc .= "Logo Files:\n";
+                foreach ($project_data['logo_files_urls'] as $url) {
+                    $desc .= "- {$url}\n";
+                }
+            }
+            if (!empty($project_data['dumpster_images_urls'])) {
+                $desc .= "Dumpster Images:\n";
+                foreach ($project_data['dumpster_images_urls'] as $url) {
+                    $desc .= "- {$url}\n";
+                }
+            }
+            $desc .= "\n";
+        }
+        
         // Additional Notes
         if (!empty($project_data['additional_notes']) || !empty($project_data['special_requests'])) {
             $desc .= "ADDITIONAL NOTES\n";

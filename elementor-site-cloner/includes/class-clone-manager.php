@@ -22,22 +22,44 @@ class ESC_Clone_Manager {
         $this->source_site_id = $source_site_id;
         $this->placeholders = $placeholders;
         
+        // Enhanced debugging for Template 4
+        $is_template4 = false;
+        $site = get_site($source_site_id);
+        if ($site && strpos($site->path, '/template4/') !== false) {
+            $is_template4 = true;
+            ESC_Debug_Utility::clear_log();
+            ESC_Debug_Utility::log("=== TEMPLATE 4 CLONE ATTEMPT START ===", [
+                'source_site_id' => $source_site_id,
+                'site_name' => $site_name,
+                'site_url' => $site_url
+            ]);
+            ESC_Debug_Utility::debug_template4_data($source_site_id);
+        }
+        
         try {
             // Step 1: Create new site
             $this->update_log_status('creating_site');
+            if ($is_template4) ESC_Debug_Utility::log_clone_step('create_new_site', $source_site_id, 'started');
+            
             $new_site_id = $this->create_new_site($site_name, $site_url);
             if (is_wp_error($new_site_id)) {
+                if ($is_template4) ESC_Debug_Utility::log_clone_step('create_new_site', $source_site_id, 'failed', ['error' => $new_site_id->get_error_message()]);
                 throw new Exception($new_site_id->get_error_message());
             }
             $this->destination_site_id = $new_site_id;
+            if ($is_template4) ESC_Debug_Utility::log_clone_step('create_new_site', $source_site_id, 'completed', ['new_site_id' => $new_site_id]);
             
             // Step 2: Clone database
             $this->update_log_status('cloning_database');
+            if ($is_template4) ESC_Debug_Utility::log_clone_step('clone_database', $source_site_id, 'started');
+            
             $db_cloner = new ESC_Database_Cloner($source_site_id, $new_site_id);
             $result = $db_cloner->clone_database();
             if (is_wp_error($result)) {
+                if ($is_template4) ESC_Debug_Utility::log_clone_step('clone_database', $source_site_id, 'failed', ['error' => $result->get_error_message()]);
                 throw new Exception($result->get_error_message());
             }
+            if ($is_template4) ESC_Debug_Utility::log_clone_step('clone_database', $source_site_id, 'completed');
             
             // Step 2.5: Update site name and basic settings after clone
             $this->update_site_basics($new_site_id, $site_name);
@@ -96,6 +118,14 @@ class ESC_Clone_Manager {
         } catch (Exception $e) {
             $this->errors[] = $e->getMessage();
             $this->fail_log($e->getMessage());
+            
+            // Enhanced logging for Template 4 failures
+            if ($is_template4) {
+                ESC_Debug_Utility::log("=== TEMPLATE 4 CLONE FAILED ===", [
+                    'error' => $e->getMessage(),
+                    'trace' => $e->getTraceAsString()
+                ], 'ERROR');
+            }
             
             // Clean up if site was created
             if (!empty($this->destination_site_id)) {

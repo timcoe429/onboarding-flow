@@ -48,6 +48,17 @@ function get_all_logs() {
         ];
     }
     
+    // Template 4 debug log
+    $template4_log = WP_CONTENT_DIR . '/esc-template4-debug.log';
+    if (file_exists($template4_log)) {
+        $logs['template4'] = [
+            'title' => 'Template 4 Debug Log (CRITICAL)',
+            'content' => file_get_contents($template4_log),
+            'size' => filesize($template4_log),
+            'modified' => date('Y-m-d H:i:s', filemtime($template4_log))
+        ];
+    }
+    
     // Trello debug log
     $trello_log = WP_CONTENT_DIR . '/trello-debug.log';
     if (file_exists($trello_log)) {
@@ -141,6 +152,7 @@ function format_submissions($submissions) {
 function clear_all_logs() {
     $logs_to_clear = [
         WP_CONTENT_DIR . '/docket-errors.log',
+        WP_CONTENT_DIR . '/esc-template4-debug.log',
         WP_CONTENT_DIR . '/trello-debug.log',
         WP_CONTENT_DIR . '/debug.log'
     ];

@@ -456,6 +456,49 @@ function docket_handle_any_form_submission($form_type = 'generic') {
         }
     }
     
+    // Process file uploads
+    $uploaded_files = array();
+    if (!empty($_FILES)) {
+        docket_log_info("Processing file uploads", [
+            'files_count' => count($_FILES),
+            'files' => array_keys($_FILES)
+        ]);
+        
+        foreach ($_FILES as $field_name => $file_data) {
+            if (is_array($file_data['name'])) {
+                // Multiple files
+                $file_urls = array();
+                for ($i = 0; $i < count($file_data['name']); $i++) {
+                    if ($file_data['error'][$i] === UPLOAD_ERR_OK) {
+                        $upload_result = docket_handle_file_upload($file_data, $i);
+                        if ($upload_result) {
+                            $file_urls[] = $upload_result;
+                        }
+                    }
+                }
+                if (!empty($file_urls)) {
+                    $uploaded_files[$field_name] = $file_urls;
+                    $form_data[$field_name . '_urls'] = $file_urls;
+                }
+            } else {
+                // Single file
+                if ($file_data['error'] === UPLOAD_ERR_OK) {
+                    $upload_result = docket_handle_file_upload($file_data);
+                    if ($upload_result) {
+                        $uploaded_files[$field_name] = $upload_result;
+                        $form_data[$field_name . '_url'] = $upload_result;
+                    }
+                }
+            }
+        }
+        
+        if (!empty($uploaded_files)) {
+            docket_log_info("Files uploaded successfully", [
+                'uploaded_files' => $uploaded_files
+            ]);
+        }
+    }
+    
     // Log form submission
     docket_log_info("Form submission started", [
         'form_type' => $form_type,
@@ -555,16 +598,32 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     $data = json_decode($body, true);
     
     if (empty($data) || !isset($data['success'])) {
-        error_log('Docket Onboarding: Invalid API response - ' . $body);
-        error_log('Docket Onboarding: Response code - ' . wp_remote_retrieve_response_code($response));
-        error_log('Docket Onboarding: Response headers - ' . print_r(wp_remote_retrieve_headers($response), true));
+        $response_code = wp_remote_retrieve_response_code($response);
+        
+        docket_log_error("Invalid API response received", [
+            'response_body' => $body,
+            'response_code' => $response_code,
+            'template' => $selected_template,
+            'api_url' => $api_url,
+            'is_html_response' => strpos($body, '<html') !== false,
+            'contains_critical_error' => strpos($body, 'critical error') !== false
+        ]);
         
         // Check if it's an HTML error page
         if (strpos($body, '<html') !== false || strpos($body, 'Access denied') !== false) {
-            error_log('Docket Onboarding: Received HTML response instead of JSON - possible security plugin blocking');
-            wp_send_json_error(array(
-                'message' => 'Site creation blocked by security settings. Please check server configuration.'
-            ));
+            if (strpos($body, 'critical error') !== false) {
+                docket_log_error("Template 4 causing critical error on remote server", [
+                    'template' => $selected_template,
+                    'business_name' => $form_data['business_name']
+                ]);
+                wp_send_json_error(array(
+                    'message' => 'Template 4 is currently experiencing issues. Please try Template 1, 2, or 3 instead.'
+                ));
+            } else {
+                wp_send_json_error(array(
+                    'message' => 'Site creation blocked by security settings. Please check server configuration.'
+                ));
+            }
             wp_die();
         }
         
@@ -664,4 +723,63 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     ));
     
     wp_die();
+}
+
+/**
+ * Handle individual file upload
+ */
+function docket_handle_file_upload($file_data, $index = null) {
+    // Handle array or single file
+    if ($index !== null) {
+        $file = array(
+            'name' => $file_data['name'][$index],
+            'type' => $file_data['type'][$index],
+            'tmp_name' => $file_data['tmp_name'][$index],
+            'error' => $file_data['error'][$index],
+            'size' => $file_data['size'][$index]
+        );
+    } else {
+        $file = $file_data;
+    }
+    
+    // Check file size (max 5MB)
+    if ($file['size'] > 5 * 1024 * 1024) {
+        docket_log_error("File too large", [
+            'filename' => $file['name'],
+            'size' => $file['size']
+        ]);
+        return false;
+    }
+    
+    // Check file type
+    $allowed_types = array('image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp');
+    if (!in_array($file['type'], $allowed_types)) {
+        docket_log_error("Invalid file type", [
+            'filename' => $file['name'],
+            'type' => $file['type']
+        ]);
+        return false;
+    }
+    
+    // Use WordPress upload functions
+    if (!function_exists('wp_handle_upload')) {
+        require_once(ABSPATH . 'wp-admin/includes/file.php');
+    }
+    
+    $upload_overrides = array('test_form' => false);
+    $movefile = wp_handle_upload($file, $upload_overrides);
+    
+    if ($movefile && !isset($movefile['error'])) {
+        docket_log_info("File uploaded successfully", [
+            'filename' => $file['name'],
+            'url' => $movefile['url']
+        ]);
+        return $movefile['url'];
+    } else {
+        docket_log_error("File upload failed", [
+            'filename' => $file['name'],
+            'error' => $movefile['error'] ?? 'Unknown error'
+        ]);
+        return false;
+    }
 }

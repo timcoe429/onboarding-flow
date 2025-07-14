@@ -52,6 +52,9 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/class-placeholder-replacer.
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-file-cloner.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-elementor-handler.php';
 require_once plugin_dir_path( __FILE__ ) . 'admin/class-admin-interface.php';
+
+// ALWAYS load debug utility - no fancy conditions
+require_once plugin_dir_path( __FILE__ ) . 'debug-utility.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-debug-utility.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-api-endpoint.php';
 

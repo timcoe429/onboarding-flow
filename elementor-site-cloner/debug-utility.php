@@ -215,4 +215,10 @@ class ESC_Debug_Utility {
 }
 
 // Initialize the debug utility
-new ESC_Debug_Utility(); 
+new ESC_Debug_Utility();
+
+// Force create debug log immediately to test
+ESC_Debug_Utility::log("DEBUG UTILITY LOADED - Plugin activated", [
+    'timestamp' => date('Y-m-d H:i:s'),
+    'server' => $_SERVER['HTTP_HOST'] ?? 'unknown'
+]); 

@@ -12,7 +12,7 @@ class ESC_Clone_Manager {
     private $placeholders = array();
     
     /**
-     * Start the cloning process
+     * Start the cloning process with background processing
      */
     public function clone_site($source_site_id, $site_name, $site_url, $placeholders = array()) {
         global $wpdb;
@@ -46,54 +46,98 @@ class ESC_Clone_Manager {
             ESC_Debug_Utility::debug_template4_data($source_site_id);
         }
         
+        // For Template 4 or large sites, use background processing
+        if ($is_template4 || $this->should_use_background_processing($source_site_id)) {
+            return $this->start_background_clone($source_site_id, $site_name, $site_url, $placeholders);
+        }
+        
+        // For smaller templates, use synchronous processing
+        return $this->clone_site_sync($source_site_id, $site_name, $site_url, $placeholders);
+    }
+    
+    /**
+     * Determine if background processing should be used
+     */
+    private function should_use_background_processing($source_site_id) {
+        global $wpdb;
+        
+        // Check database size
+        $prefix = $wpdb->get_blog_prefix($source_site_id);
+        $postmeta_count = $wpdb->get_var("SELECT COUNT(*) FROM {$prefix}postmeta");
+        $posts_count = $wpdb->get_var("SELECT COUNT(*) FROM {$prefix}posts");
+        
+        // Use background processing if large dataset
+        return ($postmeta_count > 500 || $posts_count > 100);
+    }
+    
+    /**
+     * Start background clone process
+     */
+    private function start_background_clone($source_site_id, $site_name, $site_url, $placeholders) {
+        // Create clone job record
+        $clone_job_id = $this->create_clone_job($source_site_id, $site_name, $site_url, $placeholders);
+        
+        // Start background process
+        wp_schedule_single_event(time(), 'esc_process_background_clone', array($clone_job_id));
+        
+        // Return immediately with job ID
+        return array(
+            'success' => true,
+            'background' => true,
+            'job_id' => $clone_job_id,
+            'message' => 'Clone process started in background'
+        );
+    }
+    
+    /**
+     * Create clone job record
+     */
+    private function create_clone_job($source_site_id, $site_name, $site_url, $placeholders) {
+        global $wpdb;
+        
+        $job_id = 'clone_' . time() . '_' . rand(1000, 9999);
+        
+        $wpdb->insert(
+            $wpdb->base_prefix . 'esc_clone_jobs',
+            array(
+                'job_id' => $job_id,
+                'source_site_id' => $source_site_id,
+                'site_name' => $site_name,
+                'site_url' => $site_url,
+                'placeholders' => serialize($placeholders),
+                'status' => 'pending',
+                'created_at' => current_time('mysql')
+            )
+        );
+        
+        return $job_id;
+    }
+    
+    /**
+     * Synchronous clone process (for smaller templates)
+     */
+    public function clone_site_sync($source_site_id, $site_name, $site_url, $placeholders) {
         try {
             // Step 1: Create new site
             $this->update_log_status('creating_site');
-            if ($is_template4) ESC_Debug_Utility::log_clone_step('create_new_site', $source_site_id, 'started');
             
             $new_site_id = $this->create_new_site($site_name, $site_url);
             if (is_wp_error($new_site_id)) {
-                if ($is_template4) ESC_Debug_Utility::log_clone_step('create_new_site', $source_site_id, 'failed', ['error' => $new_site_id->get_error_message()]);
                 throw new Exception($new_site_id->get_error_message());
             }
             $this->destination_site_id = $new_site_id;
-            if ($is_template4) ESC_Debug_Utility::log_clone_step('create_new_site', $source_site_id, 'completed', ['new_site_id' => $new_site_id]);
             
             // Step 2: Clone database
             $this->update_log_status('cloning_database');
-            if ($is_template4) ESC_Debug_Utility::log_clone_step('clone_database', $source_site_id, 'started');
             
             $db_cloner = new ESC_Database_Cloner($source_site_id, $new_site_id);
             $result = $db_cloner->clone_database();
             if (is_wp_error($result)) {
-                if ($is_template4) ESC_Debug_Utility::log_clone_step('clone_database', $source_site_id, 'failed', ['error' => $result->get_error_message()]);
-                throw new Exception($result->get_error_message());
-            }
-            if ($is_template4) ESC_Debug_Utility::log_clone_step('clone_database', $source_site_id, 'completed');
-            
-            // Step 2.5: Update site name and basic settings after clone
-            $this->update_site_basics($new_site_id, $site_name);
-            
-            // Step 3: Update URLs
-            $this->update_log_status('updating_urls');
-            $url_replacer = new ESC_URL_Replacer($source_site_id, $new_site_id);
-            $result = $url_replacer->replace_urls();
-            if (is_wp_error($result)) {
                 throw new Exception($result->get_error_message());
             }
             
-            // Step 3.5: Verify critical URLs were updated
-            $this->verify_url_update($new_site_id);
-            
-            // Step 3.6: Replace placeholders if provided
-            if (!empty($this->placeholders)) {
-                $this->update_log_status('replacing_placeholders');
-                $placeholder_replacer = new ESC_Placeholder_Replacer($new_site_id, $this->placeholders);
-                $result = $placeholder_replacer->replace_placeholders();
-                if (is_wp_error($result)) {
-                    throw new Exception($result->get_error_message());
-                }
-            }
+            // Step 3: Update URLs and placeholders
+            $this->process_url_replacements($new_site_id, $source_site_id, $placeholders);
             
             // Step 4: Clone files
             $this->update_log_status('cloning_files');
@@ -103,7 +147,7 @@ class ESC_Clone_Manager {
                 throw new Exception($result->get_error_message());
             }
             
-            // Step 5: Handle Elementor-specific tasks
+            // Step 5: Process Elementor
             $this->update_log_status('processing_elementor');
             $elementor_handler = new ESC_Elementor_Handler($new_site_id);
             $result = $elementor_handler->process_elementor_data();
@@ -112,10 +156,7 @@ class ESC_Clone_Manager {
             }
             
             // Step 6: Finalize
-            $this->update_log_status('finalizing');
             $this->finalize_clone($new_site_id);
-            
-            // Mark as complete
             $this->complete_log();
             
             return array(
@@ -129,14 +170,6 @@ class ESC_Clone_Manager {
             $this->errors[] = $e->getMessage();
             $this->fail_log($e->getMessage());
             
-            // Enhanced logging for Template 4 failures
-            if ($is_template4) {
-                ESC_Debug_Utility::log("=== TEMPLATE 4 CLONE FAILED ===", [
-                    'error' => $e->getMessage(),
-                    'trace' => $e->getTraceAsString()
-                ], 'ERROR');
-            }
-            
             // Clean up if site was created
             if (!empty($this->destination_site_id)) {
                 wpmu_delete_blog($this->destination_site_id, true);
@@ -144,6 +177,35 @@ class ESC_Clone_Manager {
             
             return new WP_Error('clone_failed', $e->getMessage());
         }
+    }
+    
+    /**
+     * Process URL replacements and placeholders
+     */
+    private function process_url_replacements($new_site_id, $source_site_id, $placeholders) {
+        // Step 3: Update URLs
+        $this->update_log_status('updating_urls');
+        $url_replacer = new ESC_URL_Replacer($source_site_id, $new_site_id);
+        $result = $url_replacer->replace_urls();
+        if (is_wp_error($result)) {
+            throw new Exception($result->get_error_message());
+        }
+        
+        // Step 3.5: Verify critical URLs were updated
+        $this->verify_url_update($new_site_id);
+        
+        // Step 3.6: Replace placeholders if provided
+        if (!empty($placeholders)) {
+            $this->update_log_status('replacing_placeholders');
+            $placeholder_replacer = new ESC_Placeholder_Replacer($new_site_id, $placeholders);
+            $result = $placeholder_replacer->replace_placeholders();
+            if (is_wp_error($result)) {
+                throw new Exception($result->get_error_message());
+            }
+        }
+        
+        // Update site basics
+        $this->update_site_basics($new_site_id, $site_name);
     }
     
     /**

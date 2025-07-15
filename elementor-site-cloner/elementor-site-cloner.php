@@ -238,6 +238,116 @@ function esc_site_path_exists($path) {
     return !empty($sites);
 }
 
+// Hook for background clone processing
+add_action('esc_process_background_clone', 'esc_handle_background_clone');
+
+function esc_handle_background_clone($job_id) {
+    global $wpdb;
+    
+    // Get job details
+    $job = $wpdb->get_row($wpdb->prepare(
+        "SELECT * FROM {$wpdb->base_prefix}esc_clone_jobs WHERE job_id = %s",
+        $job_id
+    ));
+    
+    if (!$job) {
+        error_log("ESC Background Clone: Job {$job_id} not found");
+        return;
+    }
+    
+    // Update status to processing
+    $wpdb->update(
+        $wpdb->base_prefix . 'esc_clone_jobs',
+        array('status' => 'processing', 'started_at' => current_time('mysql')),
+        array('job_id' => $job_id)
+    );
+    
+    // Load clone manager
+    require_once ESC_PLUGIN_DIR . 'includes/class-clone-manager.php';
+    $clone_manager = new ESC_Clone_Manager();
+    
+    // Perform synchronous clone (since we're already in background)
+    $placeholders = unserialize($job->placeholders);
+    $result = $clone_manager->clone_site_sync(
+        $job->source_site_id, 
+        $job->site_name, 
+        $job->site_url, 
+        $placeholders
+    );
+    
+    // Update job status
+    if (is_wp_error($result)) {
+        $wpdb->update(
+            $wpdb->base_prefix . 'esc_clone_jobs',
+            array(
+                'status' => 'failed',
+                'error_message' => $result->get_error_message(),
+                'completed_at' => current_time('mysql')
+            ),
+            array('job_id' => $job_id)
+        );
+        error_log("ESC Background Clone: Job {$job_id} failed - " . $result->get_error_message());
+    } else {
+        $wpdb->update(
+            $wpdb->base_prefix . 'esc_clone_jobs',
+            array(
+                'status' => 'completed',
+                'result_site_id' => $result['site_id'],
+                'result_site_url' => $result['site_url'],
+                'completed_at' => current_time('mysql')
+            ),
+            array('job_id' => $job_id)
+        );
+        error_log("ESC Background Clone: Job {$job_id} completed successfully");
+    }
+}
+
+// Add API endpoint to check clone job status
+add_action('wp_ajax_esc_check_clone_status', 'esc_ajax_check_clone_status');
+add_action('wp_ajax_nopriv_esc_check_clone_status', 'esc_ajax_check_clone_status');
+
+function esc_ajax_check_clone_status() {
+    // Check API key
+    $api_key = $_POST['api_key'] ?? '';
+    $stored_key = get_option('esc_api_key', 'esc_docket_2025_secure_key');
+    
+    if ($api_key !== $stored_key) {
+        wp_send_json_error(['message' => 'Invalid API key']);
+    }
+    
+    $job_id = sanitize_text_field($_POST['job_id'] ?? '');
+    if (empty($job_id)) {
+        wp_send_json_error(['message' => 'Job ID required']);
+    }
+    
+    global $wpdb;
+    $job = $wpdb->get_row($wpdb->prepare(
+        "SELECT * FROM {$wpdb->base_prefix}esc_clone_jobs WHERE job_id = %s",
+        $job_id
+    ));
+    
+    if (!$job) {
+        wp_send_json_error(['message' => 'Job not found']);
+    }
+    
+    $response = array(
+        'status' => $job->status,
+        'created_at' => $job->created_at,
+        'started_at' => $job->started_at,
+        'completed_at' => $job->completed_at
+    );
+    
+    if ($job->status === 'completed') {
+        $response['site_id'] = $job->result_site_id;
+        $response['site_url'] = $job->result_site_url;
+        $response['admin_url'] = get_admin_url($job->result_site_id);
+    } elseif ($job->status === 'failed') {
+        $response['error_message'] = $job->error_message;
+    }
+    
+    wp_send_json_success($response);
+}
+
 // Activation hook
 register_activation_hook(__FILE__, 'esc_activate');
 function esc_activate() {
@@ -264,6 +374,31 @@ function esc_activate() {
     
     require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
     dbDelta($sql);
+    
+    // Create database table for clone jobs
+    $jobs_table_name = $wpdb->base_prefix . 'esc_clone_jobs';
+    
+    $jobs_sql = "CREATE TABLE $jobs_table_name (
+        id bigint(20) NOT NULL AUTO_INCREMENT,
+        job_id varchar(50) NOT NULL,
+        source_site_id bigint(20) NOT NULL,
+        site_name varchar(255) NOT NULL,
+        site_url varchar(255) NOT NULL,
+        placeholders text DEFAULT NULL,
+        status varchar(20) NOT NULL DEFAULT 'pending',
+        created_at datetime DEFAULT CURRENT_TIMESTAMP,
+        started_at datetime DEFAULT NULL,
+        completed_at datetime DEFAULT NULL,
+        result_site_id bigint(20) DEFAULT NULL,
+        result_site_url varchar(255) DEFAULT NULL,
+        error_message text DEFAULT NULL,
+        PRIMARY KEY (id),
+        UNIQUE KEY job_id (job_id),
+        KEY source_site_id (source_site_id),
+        KEY status (status)
+    ) $charset_collate;";
+    
+    dbDelta($jobs_sql);
 }
 
 // Deactivation hook

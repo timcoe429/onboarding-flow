@@ -645,6 +645,90 @@ function docket_handle_any_form_submission($form_type = 'generic') {
         wp_die();
     }
     
+    // Check if background processing is being used
+    if (isset($data['data']['background']) && $data['data']['background']) {
+        // Background processing - poll for completion
+        $job_id = $data['data']['job_id'];
+        $max_attempts = 60; // 5 minutes max (5 second intervals)
+        $attempt = 0;
+        
+        docket_log_info("Background clone started", [
+            'job_id' => $job_id,
+            'template' => $selected_template,
+            'business_name' => $form_data['business_name']
+        ]);
+        
+        while ($attempt < $max_attempts) {
+            sleep(5); // Wait 5 seconds between checks
+            $attempt++;
+            
+            // Check clone status
+            $status_response = wp_remote_post($api_url . '/wp-admin/admin-ajax.php', array(
+                'timeout' => 10,
+                'body' => array(
+                    'action' => 'esc_check_clone_status',
+                    'job_id' => $job_id,
+                    'api_key' => $api_key
+                ),
+                'sslverify' => false
+            ));
+            
+            if (is_wp_error($status_response)) {
+                continue; // Try again
+            }
+            
+            $status_body = wp_remote_retrieve_body($status_response);
+            $status_data = json_decode($status_body, true);
+            
+            if ($status_data && $status_data['success']) {
+                $job_status = $status_data['data']['status'];
+                
+                if ($job_status === 'completed') {
+                    // Success! Use the completed job data
+                    $data['data']['site_id'] = $status_data['data']['site_id'];
+                    $data['data']['site_url'] = $status_data['data']['site_url'];
+                    $data['data']['admin_url'] = $status_data['data']['admin_url'];
+                    
+                    docket_log_info("Background clone completed", [
+                        'job_id' => $job_id,
+                        'site_id' => $data['data']['site_id'],
+                        'attempts' => $attempt
+                    ]);
+                    break;
+                    
+                } elseif ($job_status === 'failed') {
+                    $error_message = $status_data['data']['error_message'] ?? 'Background processing failed';
+                    
+                    docket_log_error("Background clone failed", [
+                        'job_id' => $job_id,
+                        'error' => $error_message,
+                        'attempts' => $attempt
+                    ]);
+                    
+                    wp_send_json_error(array(
+                        'message' => 'Site creation failed: ' . $error_message
+                    ));
+                    wp_die();
+                }
+                // If status is 'pending' or 'processing', continue polling
+            }
+        }
+        
+        // If we've exceeded max attempts, return timeout error
+        if ($attempt >= $max_attempts) {
+            docket_log_error("Background clone timeout", [
+                'job_id' => $job_id,
+                'template' => $selected_template,
+                'max_attempts' => $max_attempts
+            ]);
+            
+            wp_send_json_error(array(
+                'message' => 'Site creation is taking longer than expected. Please contact support with job ID: ' . $job_id
+            ));
+            wp_die();
+        }
+    }
+    
     // Success! Store the new site information with the form submission
     $form_data['new_site_id'] = $data['data']['site_id'];
     $form_data['new_site_url'] = $data['data']['site_url'];

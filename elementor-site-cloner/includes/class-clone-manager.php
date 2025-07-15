@@ -49,12 +49,7 @@ class ESC_Clone_Manager {
             ESC_Debug_Utility::debug_template4_data($source_site_id); // This will debug whatever template
         }
         
-        // For Template 4 or large sites, use background processing
-        if ($is_template4 || $this->should_use_background_processing($source_site_id)) {
-            return $this->start_background_clone($source_site_id, $site_name, $site_url, $placeholders);
-        }
-        
-        // For smaller templates, use synchronous processing
+        // Use synchronous processing for all templates (revert to original working method)
         return $this->clone_site_sync($source_site_id, $site_name, $site_url, $placeholders);
     }
     

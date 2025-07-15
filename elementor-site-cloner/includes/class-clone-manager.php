@@ -34,16 +34,19 @@ class ESC_Clone_Manager {
             'site_path' => $site ? $site->path : 'unknown'
         ]);
         
-        if ($site && strpos($site->path, '/template4/') !== false) {
-            $is_template4 = true;
+        // Debug ANY template being cloned
+        if ($site && preg_match('/\/template(\d+)\//', $site->path, $matches)) {
+            $template_number = $matches[1];
+            $is_template4 = ($template_number == '4'); // Keep Template 4 flag for background processing
             
             ESC_Debug_Utility::clear_log();
-            ESC_Debug_Utility::log("=== TEMPLATE 4 CLONE ATTEMPT START ===", [
+            ESC_Debug_Utility::log("=== TEMPLATE {$template_number} CLONE ATTEMPT START ===", [
                 'source_site_id' => $source_site_id,
                 'site_name' => $site_name,
-                'site_url' => $site_url
+                'site_url' => $site_url,
+                'template_number' => $template_number
             ]);
-            ESC_Debug_Utility::debug_template4_data($source_site_id);
+            ESC_Debug_Utility::debug_template4_data($source_site_id); // This will debug whatever template
         }
         
         // For Template 4 or large sites, use background processing
@@ -77,8 +80,8 @@ class ESC_Clone_Manager {
         // Create clone job record
         $clone_job_id = $this->create_clone_job($source_site_id, $site_name, $site_url, $placeholders);
         
-        // Start background process
-        wp_schedule_single_event(time(), 'esc_process_background_clone', array($clone_job_id));
+        // Start background process immediately using WordPress HTTP API
+        $this->trigger_background_clone($clone_job_id);
         
         // Return immediately with job ID
         return array(
@@ -87,6 +90,23 @@ class ESC_Clone_Manager {
             'job_id' => $clone_job_id,
             'message' => 'Clone process started in background'
         );
+    }
+    
+    /**
+     * Trigger background clone using HTTP request
+     */
+    private function trigger_background_clone($job_id) {
+        // Use HTTP request to trigger background processing
+        $url = admin_url('admin-ajax.php');
+        
+        wp_remote_post($url, array(
+            'timeout' => 1, // Very short timeout - we don't wait for response
+            'blocking' => false, // Non-blocking request
+            'body' => array(
+                'action' => 'esc_process_background_clone_http',
+                'job_id' => $job_id
+            )
+        ));
     }
     
     /**
@@ -137,7 +157,7 @@ class ESC_Clone_Manager {
             }
             
             // Step 3: Update URLs and placeholders
-            $this->process_url_replacements($new_site_id, $source_site_id, $placeholders);
+            $this->process_url_replacements($new_site_id, $source_site_id, $placeholders, $site_name);
             
             // Step 4: Clone files
             $this->update_log_status('cloning_files');
@@ -182,7 +202,7 @@ class ESC_Clone_Manager {
     /**
      * Process URL replacements and placeholders
      */
-    private function process_url_replacements($new_site_id, $source_site_id, $placeholders) {
+    private function process_url_replacements($new_site_id, $source_site_id, $placeholders, $site_name) {
         // Step 3: Update URLs
         $this->update_log_status('updating_urls');
         $url_replacer = new ESC_URL_Replacer($source_site_id, $new_site_id);

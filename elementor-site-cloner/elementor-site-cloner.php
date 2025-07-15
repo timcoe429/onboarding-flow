@@ -238,11 +238,34 @@ function esc_site_path_exists($path) {
     return !empty($sites);
 }
 
-// Hook for background clone processing
+// Hook for background clone processing (HTTP-based)
+add_action('wp_ajax_esc_process_background_clone_http', 'esc_handle_background_clone_http');
+add_action('wp_ajax_nopriv_esc_process_background_clone_http', 'esc_handle_background_clone_http');
+
+function esc_handle_background_clone_http() {
+    $job_id = sanitize_text_field($_POST['job_id'] ?? '');
+    if (empty($job_id)) {
+        wp_die('Invalid job ID');
+    }
+    
+    // Run the background clone
+    esc_handle_background_clone($job_id);
+    wp_die('Background clone completed');
+}
+
+// Hook for background clone processing (cron-based - backup)
 add_action('esc_process_background_clone', 'esc_handle_background_clone');
 
 function esc_handle_background_clone($job_id) {
     global $wpdb;
+    
+    error_log("ESC Background Clone: Starting job {$job_id}");
+    
+    // Ensure we have WordPress environment
+    if (!function_exists('switch_to_blog')) {
+        error_log("ESC Background Clone: WordPress multisite functions not available");
+        return;
+    }
     
     // Get job details
     $job = $wpdb->get_row($wpdb->prepare(
@@ -251,9 +274,11 @@ function esc_handle_background_clone($job_id) {
     ));
     
     if (!$job) {
-        error_log("ESC Background Clone: Job {$job_id} not found");
+        error_log("ESC Background Clone: Job {$job_id} not found in database");
         return;
     }
+    
+    error_log("ESC Background Clone: Job found - " . json_encode($job));
     
     // Update status to processing
     $wpdb->update(
@@ -267,13 +292,27 @@ function esc_handle_background_clone($job_id) {
     $clone_manager = new ESC_Clone_Manager();
     
     // Perform synchronous clone (since we're already in background)
-    $placeholders = unserialize($job->placeholders);
-    $result = $clone_manager->clone_site_sync(
-        $job->source_site_id, 
-        $job->site_name, 
-        $job->site_url, 
-        $placeholders
-    );
+    try {
+        $placeholders = unserialize($job->placeholders);
+        error_log("ESC Background Clone: About to start clone_site_sync for job {$job_id}");
+        error_log("ESC Background Clone: Parameters - source_site_id: {$job->source_site_id}, site_name: {$job->site_name}, site_url: {$job->site_url}");
+        
+        $result = $clone_manager->clone_site_sync(
+            $job->source_site_id, 
+            $job->site_name, 
+            $job->site_url, 
+            $placeholders
+        );
+        
+        error_log("ESC Background Clone: clone_site_sync completed for job {$job_id}");
+        
+    } catch (Exception $e) {
+        error_log("ESC Background Clone: Exception during clone_site_sync - " . $e->getMessage());
+        $result = new WP_Error('background_clone_exception', $e->getMessage());
+    } catch (Error $e) {
+        error_log("ESC Background Clone: Fatal error during clone_site_sync - " . $e->getMessage());
+        $result = new WP_Error('background_clone_fatal_error', $e->getMessage());
+    }
     
     // Update job status
     if (is_wp_error($result)) {

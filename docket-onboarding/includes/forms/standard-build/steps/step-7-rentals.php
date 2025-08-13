@@ -3,32 +3,59 @@
     <h2>Rentals Information</h2>
     <p class="step-subtitle">Tell us about your rental services</p>
     
-    <div class="form-grid-3col">
-        <div class="form-field">
-            <label>What color are your dumpsters? *</label>
-            <p class="field-note">We provide stock images for: Black, Grey, Green, Red, Orange, and Blue</p>
+    <div class="form-field">
+        <label>What color are your dumpsters? *</label>
+        <p class="field-note">We provide stock images for: Black, Grey, Green, Red, Orange, and Blue</p>
+        
+        <div class="color-selection-grid">
+            <label class="color-option">
+                <input type="radio" name="dumpster_color" value="Black" required>
+                <div class="color-box" style="background-color: #000000;"></div>
+                <span>Black</span>
+            </label>
+            <label class="color-option">
+                <input type="radio" name="dumpster_color" value="Blue" required>
+                <div class="color-box" style="background-color: #0066CC;"></div>
+                <span>Blue</span>
+            </label>
+            <label class="color-option">
+                <input type="radio" name="dumpster_color" value="Grey" required>
+                <div class="color-box" style="background-color: #666666;"></div>
+                <span>Grey</span>
+            </label>
+            <label class="color-option">
+                <input type="radio" name="dumpster_color" value="Orange" required>
+                <div class="color-box" style="background-color: #FF6600;"></div>
+                <span>Orange</span>
+            </label>
+            <label class="color-option">
+                <input type="radio" name="dumpster_color" value="Red" required>
+                <div class="color-box" style="background-color: #FF0000;"></div>
+                <span>Red</span>
+            </label>
+            <label class="color-option">
+                <input type="radio" name="dumpster_color" value="Green" required>
+                <div class="color-box" style="background-color: #00AA00;"></div>
+                <span>Green</span>
+            </label>
         </div>
         
-        <div class="form-field">
-            <div class="radio-group compact">
-                <label><input type="radio" name="dumpster_color" value="Black" required><span>Black</span></label>
-                <label><input type="radio" name="dumpster_color" value="Blue" required><span>Blue</span></label>
-                <label><input type="radio" name="dumpster_color" value="Grey" required><span>Grey</span></label>
-                <label><input type="radio" name="dumpster_color" value="Orange" required><span>Orange</span></label>
-                <label><input type="radio" name="dumpster_color" value="Red" required><span>Red</span></label>
-                <label><input type="radio" name="dumpster_color" value="Green" required><span>Green</span></label>
-                <label><input type="radio" name="dumpster_color" value="Custom" required><span>I'll provide images</span></label>
-            </div>
+        <div class="custom-option">
+            <label class="color-option custom">
+                <input type="radio" name="dumpster_color" value="Custom" required>
+                <div class="custom-box">📁</div>
+                <span>I'll provide images</span>
+            </label>
         </div>
-        
-        <div class="form-field" id="customDumpsterImages" style="display: none;">
-            <label>Upload Dumpster Images *</label>
-            <div class="file-upload small">
-                <input type="file" name="dumpster_images[]" accept="image/*" multiple>
-                <div class="file-upload-text">
-                    <span>Upload Images</span>
-                    <small>600px x 400px preferred</small>
-                </div>
+    </div>
+    
+    <div class="form-field" id="customDumpsterImages" style="display: none;">
+        <label>Upload Dumpster Images *</label>
+        <div class="file-upload small">
+            <input type="file" name="dumpster_images[]" accept="image/*" multiple>
+            <div class="file-upload-text">
+                <span>Upload Images</span>
+                <small>600px x 400px preferred</small>
             </div>
         </div>
     </div>

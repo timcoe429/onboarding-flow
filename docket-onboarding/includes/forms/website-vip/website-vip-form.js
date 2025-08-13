@@ -139,16 +139,17 @@ jQuery(document).ready(function($) {
         $(this).closest('.form-field').find('.field-error').remove();
     });
     
-    // Preset color button functionality
-    $(document).on('click', '.color-preset', function(e) {
+    // Color option click functionality (for branding colors)
+    $(document).on('click', '.color-option', function(e) {
         e.preventDefault();
         
         const color = $(this).data('color');
+        if (!color) return; // Skip if no color data (like for radio button color options)
         
-        // Remove selected class from all buttons in this group
-        $(this).closest('.preset-colors').find('.color-preset').removeClass('selected');
+        // Remove selected class from all color options in this group
+        $(this).closest('.color-selection-grid').find('.color-option').removeClass('selected');
         
-        // Add selected class to clicked button
+        // Add selected class to clicked option
         $(this).addClass('selected');
         
         // Update the input field

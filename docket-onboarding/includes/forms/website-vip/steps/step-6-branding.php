@@ -30,23 +30,84 @@
         <div class="file-list" id="logoFileList"></div>
     </div>
     
-    <div class="info-box mb-20">
-        <p><strong>Company Colors</strong></p>
-        <p>We need the exact HEX code of the colors you'd like us to use. You can use <a href="https://htmlcolorcodes.com/color-picker/" target="_blank" style="color: #185fb0; font-weight: bold;">this color picker tool</a> to find exact HEX codes.</p>
-    </div>
-    
-    <div class="form-grid-2col">
-        <div class="form-field">
-            <label>Company Color 1 HEX Code *</label>
+    <div class="form-field">
+        <label>Company Color 1 *</label>
+        <p class="field-note">Choose a preset color or use the custom picker below</p>
+        
+        <!-- Preset Colors -->
+        <div class="preset-colors">
+            <button type="button" class="color-preset" data-color="#FF0000" data-name="Red" style="background-color: #FF0000;">
+                <span>Red</span>
+            </button>
+            <button type="button" class="color-preset" data-color="#0066CC" data-name="Blue" style="background-color: #0066CC;">
+                <span>Blue</span>
+            </button>
+            <button type="button" class="color-preset" data-color="#00AA00" data-name="Green" style="background-color: #00AA00;">
+                <span>Green</span>
+            </button>
+            <button type="button" class="color-preset" data-color="#FF6600" data-name="Orange" style="background-color: #FF6600;">
+                <span>Orange</span>
+            </button>
+            <button type="button" class="color-preset" data-color="#800080" data-name="Purple" style="background-color: #800080;">
+                <span>Purple</span>
+            </button>
+            <button type="button" class="color-preset" data-color="#000000" data-name="Black" style="background-color: #000000;">
+                <span>Black</span>
+            </button>
+            <button type="button" class="color-preset" data-color="#666666" data-name="Gray" style="background-color: #666666;">
+                <span>Gray</span>
+            </button>
+            <button type="button" class="color-preset" data-color="#8B4513" data-name="Brown" style="background-color: #8B4513;">
+                <span>Brown</span>
+            </button>
+        </div>
+        
+        <!-- Custom Color Picker -->
+        <div class="custom-color-section">
+            <p class="custom-color-label">Or choose a custom color:</p>
             <div class="color-input-wrapper">
                 <input type="text" name="company_colors" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" placeholder="Example: #00008B" required class="hex-input">
                 <input type="color" class="color-picker" value="#00008B">
             </div>
             <small>Click the color box or enter HEX code</small>
         </div>
+    </div>
+    
+    <div class="form-field">
+        <label>Company Color 2 (Optional)</label>
+        <p class="field-note">Choose a second color if needed</p>
         
-        <div class="form-field">
-            <label>Company Color 2 HEX Code</label>
+        <!-- Preset Colors for Color 2 -->
+        <div class="preset-colors">
+            <button type="button" class="color-preset" data-color="#FF0000" data-name="Red" data-target="2" style="background-color: #FF0000;">
+                <span>Red</span>
+            </button>
+            <button type="button" class="color-preset" data-color="#0066CC" data-name="Blue" data-target="2" style="background-color: #0066CC;">
+                <span>Blue</span>
+            </button>
+            <button type="button" class="color-preset" data-color="#00AA00" data-name="Green" data-target="2" style="background-color: #00AA00;">
+                <span>Green</span>
+            </button>
+            <button type="button" class="color-preset" data-color="#FF6600" data-name="Orange" data-target="2" style="background-color: #FF6600;">
+                <span>Orange</span>
+            </button>
+            <button type="button" class="color-preset" data-color="#800080" data-name="Purple" data-target="2" style="background-color: #800080;">
+                <span>Purple</span>
+            </button>
+            <button type="button" class="color-preset" data-color="#000000" data-name="Black" data-target="2" style="background-color: #000000;">
+                <span>Black</span>
+            </button>
+            <button type="button" class="color-preset" data-color="#666666" data-name="Gray" data-target="2" style="background-color: #666666;">
+                <span>Gray</span>
+            </button>
+            <button type="button" class="color-preset" data-color="#8B4513" data-name="Brown" data-target="2" style="background-color: #8B4513;">
+                <span>Brown</span>
+            </button>
+        </div>
+        
+        <!-- Custom Color Picker for Color 2 -->
+        <div class="custom-color-section">
+            <p class="custom-color-label">Or choose a custom color:</p>
             <div class="color-input-wrapper">
                 <input type="text" name="company_colors2" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" placeholder="Example: #00008B" class="hex-input">
                 <input type="color" class="color-picker" value="#00008B">

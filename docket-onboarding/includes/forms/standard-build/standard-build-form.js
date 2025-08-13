@@ -139,6 +139,34 @@ jQuery(document).ready(function($) {
         $(this).closest('.form-field').find('.field-error').remove();
     });
     
+    // Preset color button functionality
+    $(document).on('click', '.color-preset', function(e) {
+        e.preventDefault();
+        
+        const color = $(this).data('color');
+        const target = $(this).data('target') || '1';
+        
+        // Remove selected class from all buttons in this group
+        $(this).closest('.preset-colors').find('.color-preset').removeClass('selected');
+        
+        // Add selected class to clicked button
+        $(this).addClass('selected');
+        
+        // Update the corresponding input field
+        if (target === '2') {
+            $('input[name="company_colors2"]').val(color);
+            $('input[name="company_colors2"]').siblings('.color-picker').val(color);
+        } else {
+            $('input[name="company_colors"]').val(color);
+            $('input[name="company_colors"]').siblings('.color-picker').val(color);
+        }
+        
+        // Clear any validation errors
+        const $field = target === '2' ? $('input[name="company_colors2"]') : $('input[name="company_colors"]');
+        $field.removeClass('error');
+        $field.closest('.form-field').find('.field-error').remove();
+    });
+    
     // Content visibility toggles
     $('input[name="provide_content_now"]').on('change', function() {
         if ($(this).val() === 'Yes') {

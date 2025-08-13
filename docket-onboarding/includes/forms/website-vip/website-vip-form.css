@@ -1247,3 +1247,52 @@
     font-weight: 500;
     transition: all 0.2s ease;
 }
+
+/* Small color dots for radio buttons */
+.color-dot {
+    width: 12px;
+    height: 12px;
+    border-radius: 2px;
+    border: 1px solid #ddd;
+    display: inline-block;
+    margin: 0 8px 0 6px;
+    vertical-align: middle;
+}
+
+/* Color preset list for branding */
+.color-preset-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 8px;
+    margin-bottom: 20px;
+}
+
+.color-preset-option {
+    display: flex;
+    align-items: center;
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.color-preset-option:hover {
+    border-color: #007cba;
+    background: #f8f9ff;
+}
+
+.color-preset-option.selected {
+    border-color: #007cba;
+    background: #f8f9ff;
+}
+
+.color-preset-option .color-dot {
+    margin: 0 8px 0 0;
+}
+
+.color-preset-option span {
+    font-size: 14px;
+    font-weight: 500;
+}

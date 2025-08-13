@@ -34,37 +34,37 @@
         <label>Company Color *</label>
         <p class="field-note">Choose a preset color or use the custom picker below</p>
         
-        <div class="color-selection-grid">
-            <div class="color-option" data-color="#FF0000">
-                <div class="color-box" style="background-color: #FF0000;"></div>
+        <div class="color-preset-list">
+            <div class="color-preset-option" data-color="#FF0000">
+                <div class="color-dot" style="background-color: #FF0000;"></div>
                 <span>Red</span>
             </div>
-            <div class="color-option" data-color="#0066CC">
-                <div class="color-box" style="background-color: #0066CC;"></div>
+            <div class="color-preset-option" data-color="#0066CC">
+                <div class="color-dot" style="background-color: #0066CC;"></div>
                 <span>Blue</span>
             </div>
-            <div class="color-option" data-color="#00AA00">
-                <div class="color-box" style="background-color: #00AA00;"></div>
+            <div class="color-preset-option" data-color="#00AA00">
+                <div class="color-dot" style="background-color: #00AA00;"></div>
                 <span>Green</span>
             </div>
-            <div class="color-option" data-color="#FF6600">
-                <div class="color-box" style="background-color: #FF6600;"></div>
+            <div class="color-preset-option" data-color="#FF6600">
+                <div class="color-dot" style="background-color: #FF6600;"></div>
                 <span>Orange</span>
             </div>
-            <div class="color-option" data-color="#800080">
-                <div class="color-box" style="background-color: #800080;"></div>
+            <div class="color-preset-option" data-color="#800080">
+                <div class="color-dot" style="background-color: #800080;"></div>
                 <span>Purple</span>
             </div>
-            <div class="color-option" data-color="#000000">
-                <div class="color-box" style="background-color: #000000;"></div>
+            <div class="color-preset-option" data-color="#000000">
+                <div class="color-dot" style="background-color: #000000;"></div>
                 <span>Black</span>
             </div>
-            <div class="color-option" data-color="#666666">
-                <div class="color-box" style="background-color: #666666;"></div>
+            <div class="color-preset-option" data-color="#666666">
+                <div class="color-dot" style="background-color: #666666;"></div>
                 <span>Gray</span>
             </div>
-            <div class="color-option" data-color="#8B4513">
-                <div class="color-box" style="background-color: #8B4513;"></div>
+            <div class="color-preset-option" data-color="#8B4513">
+                <div class="color-dot" style="background-color: #8B4513;"></div>
                 <span>Brown</span>
             </div>
         </div>

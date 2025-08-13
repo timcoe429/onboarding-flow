@@ -56,8 +56,10 @@ jQuery(document).ready(function($) {
     
     // Validate step
     function validateStep(step) {
+        console.log('Validating step:', step);
         const currentStepEl = $(`.form-step[data-step="${step}"]`);
         const required = currentStepEl.find('[required]:visible');
+        console.log('Found required fields:', required.length);
         let valid = true;
         let checkedRadios = {};
         let checkedCheckboxGroups = {};
@@ -121,6 +123,7 @@ jQuery(document).ready(function($) {
             }
         });
         
+        console.log('Validation result:', valid, 'Errors:', errorMessages);
         if (!valid) {
             const message = errorMessages.length > 0 ? errorMessages[0] : 'Please fill in all required fields correctly';
             alert(message);

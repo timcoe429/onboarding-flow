@@ -11,7 +11,7 @@
         
         <div class="form-field">
             <label>Contact Email Address *</label>
-            <input type="email" name="contact_email_address" autocomplete="email" placeholder="example@email.com" required>
+            <input type="email" name="contact_email_address" autocomplete="email" required>
         </div>
         
         <div class="form-field">
@@ -21,12 +21,12 @@
         
         <div class="form-field">
             <label>Business Phone Number *</label>
-            <input type="tel" name="business_phone_number" autocomplete="tel" placeholder="(555) 123-4567" required>
+            <input type="tel" name="business_phone_number" autocomplete="tel" required>
         </div>
         
         <div class="form-field">
             <label>Business Email *</label>
-            <input type="email" name="business_email" autocomplete="email" placeholder="info@yourbusiness.com" required>
+            <input type="email" name="business_email" autocomplete="email" required>
         </div>
         
         <div class="form-field full-width">

@@ -7,7 +7,7 @@
         <label>What color are your dumpsters? *</label>
         <p class="field-note">We provide stock images for: Black, Grey, Green, Red, Orange, and Blue</p>
         
-        <div class="radio-group compact">
+        <div class="radio-group compact two-columns">
             <label>
                 <input type="radio" name="dumpster_stock_image_color_selection" value="Black" required>
                 <div class="color-dot" style="background-color: #000000;"></div>

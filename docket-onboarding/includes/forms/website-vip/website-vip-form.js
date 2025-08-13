@@ -61,16 +61,17 @@ jQuery(document).ready(function($) {
         let valid = true;
         let checkedRadios = {};
         let checkedCheckboxGroups = {};
-        let errorMessages = [];
         
         // Clear previous errors
         currentStepEl.find('.error').removeClass('error');
+        currentStepEl.find('.field-error').remove();
         
         required.each(function() {
             const $field = $(this);
             const fieldType = $field.attr('type');
             const fieldName = $field.attr('name');
             const val = $field.val();
+            const $formField = $field.closest('.form-field');
             
             if ($field.is(':radio')) {
                 const name = $field.attr('name');
@@ -78,7 +79,8 @@ jQuery(document).ready(function($) {
                 if (!checkedRadios[name]) {
                     valid = false;
                     $field.closest('.radio-group, .radio-inline, .form-field').addClass('error');
-                    errorMessages.push('Please select an option for ' + $field.closest('.form-field').find('label').text().replace('*', ''));
+                    const label = $formField.find('label').text().replace('*', '').trim();
+                    $formField.append('<div class="field-error">Please select an option for ' + label + '</div>');
                 }
             } else if ($field.is(':checkbox')) {
                 const name = $field.attr('name');
@@ -88,46 +90,44 @@ jQuery(document).ready(function($) {
                     if (!group.find('input:checked').length) {
                         valid = false;
                         group.addClass('error');
-                        errorMessages.push('Please select at least one option');
+                        group.append('<div class="field-error">Please select at least one option</div>');
                     }
                 } else if (!$field.is(':checked')) {
                     valid = false;
                     $field.closest('.checkbox-card, .form-field').addClass('error');
-                    errorMessages.push('Please check this required field');
+                    $formField.append('<div class="field-error">Please check this required field</div>');
                 }
             } else {
                 // Text, email, tel fields
+                let errorMessage = '';
+                
                 if (!val || val.trim().length === 0) {
                     valid = false;
                     $field.addClass('error');
-                    const label = $field.closest('.form-field').find('label').text().replace('*', '').trim();
-                    errorMessages.push(label + ' is required');
+                    const label = $formField.find('label').text().replace('*', '').trim();
+                    errorMessage = label + ' is required';
                 } else {
                     // Format validation for specific field types
                     if (fieldType === 'email' || fieldName.includes('email')) {
                         if (!isValidEmail(val)) {
                             valid = false;
                             $field.addClass('error');
-                            errorMessages.push('Please enter a valid email address');
+                            errorMessage = 'Please enter a valid email address';
                         }
                     } else if (fieldType === 'tel' || fieldName.includes('phone')) {
                         if (!isValidPhone(val)) {
                             valid = false;
                             $field.addClass('error');
-                            errorMessages.push('Please enter a valid phone number (at least 10 digits)');
+                            errorMessage = 'Please enter a valid phone number (at least 10 digits)';
                         }
                     }
                 }
+                
+                if (errorMessage) {
+                    $formField.append('<div class="field-error">' + errorMessage + '</div>');
+                }
             }
         });
-        
-        if (!valid) {
-            const message = errorMessages.length > 0 ? errorMessages[0] : 'Please fill in all required fields correctly';
-            alert(message);
-            setTimeout(() => {
-                currentStepEl.find('.error:first').find('input:first').focus();
-            }, 100);
-        }
         
         return valid;
     }
@@ -136,6 +136,7 @@ jQuery(document).ready(function($) {
     $(document).on('change input', '.error', function() {
         $(this).removeClass('error');
         $(this).closest('.error').removeClass('error');
+        $(this).closest('.form-field').find('.field-error').remove();
     });
     
     // Content visibility toggles

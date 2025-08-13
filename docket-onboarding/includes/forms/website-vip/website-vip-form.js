@@ -41,6 +41,19 @@ jQuery(document).ready(function($) {
         $('html, body').animate({ scrollTop: $('.docket-vip-form').offset().top - 50 }, 300);
     }
     
+    // Email validation regex
+    function isValidEmail(email) {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        return emailRegex.test(email);
+    }
+    
+    // Phone validation - accepts various formats
+    function isValidPhone(phone) {
+        const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+        const cleanPhone = phone.replace(/[\s\-\(\)\.]/g, '');
+        return cleanPhone.length >= 10 && phoneRegex.test(cleanPhone);
+    }
+    
     // Validate step
     function validateStep(step) {
         const currentStepEl = $(`.form-step[data-step="${step}"]`);
@@ -48,42 +61,69 @@ jQuery(document).ready(function($) {
         let valid = true;
         let checkedRadios = {};
         let checkedCheckboxGroups = {};
+        let errorMessages = [];
         
         // Clear previous errors
         currentStepEl.find('.error').removeClass('error');
         
         required.each(function() {
-            if ($(this).is(':radio')) {
-                const name = $(this).attr('name');
+            const $field = $(this);
+            const fieldType = $field.attr('type');
+            const fieldName = $field.attr('name');
+            const val = $field.val();
+            
+            if ($field.is(':radio')) {
+                const name = $field.attr('name');
                 checkedRadios[name] = checkedRadios[name] || $(`input[name="${name}"]:checked`).length > 0;
                 if (!checkedRadios[name]) {
                     valid = false;
-                    $(this).closest('.radio-group, .radio-inline, .form-field').addClass('error');
+                    $field.closest('.radio-group, .radio-inline, .form-field').addClass('error');
+                    errorMessages.push('Please select an option for ' + $field.closest('.form-field').find('label').text().replace('*', ''));
                 }
-            } else if ($(this).is(':checkbox')) {
-                const name = $(this).attr('name');
-                const group = $(this).closest('.checkbox-group');
+            } else if ($field.is(':checkbox')) {
+                const name = $field.attr('name');
+                const group = $field.closest('.checkbox-group');
                 if (group.length && !checkedCheckboxGroups[name]) {
                     checkedCheckboxGroups[name] = true;
                     if (!group.find('input:checked').length) {
                         valid = false;
                         group.addClass('error');
+                        errorMessages.push('Please select at least one option');
                     }
-                } else if (!$(this).is(':checked')) {
+                } else if (!$field.is(':checked')) {
                     valid = false;
-                    $(this).closest('.checkbox-card, .form-field').addClass('error');
+                    $field.closest('.checkbox-card, .form-field').addClass('error');
+                    errorMessages.push('Please check this required field');
                 }
             } else {
-                const val = $(this).val();
+                // Text, email, tel fields
                 if (!val || val.trim().length === 0) {
                     valid = false;
-                    $(this).addClass('error');
+                    $field.addClass('error');
+                    const label = $field.closest('.form-field').find('label').text().replace('*', '').trim();
+                    errorMessages.push(label + ' is required');
+                } else {
+                    // Format validation for specific field types
+                    if (fieldType === 'email' || fieldName.includes('email')) {
+                        if (!isValidEmail(val)) {
+                            valid = false;
+                            $field.addClass('error');
+                            errorMessages.push('Please enter a valid email address');
+                        }
+                    } else if (fieldType === 'tel' || fieldName.includes('phone')) {
+                        if (!isValidPhone(val)) {
+                            valid = false;
+                            $field.addClass('error');
+                            errorMessages.push('Please enter a valid phone number (at least 10 digits)');
+                        }
+                    }
                 }
             }
         });
         
         if (!valid) {
-            alert('Please fill in all required fields');
+            const message = errorMessages.length > 0 ? errorMessages[0] : 'Please fill in all required fields correctly';
+            alert(message);
             setTimeout(() => {
                 currentStepEl.find('.error:first').find('input:first').focus();
             }, 100);

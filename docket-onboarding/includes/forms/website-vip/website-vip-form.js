@@ -139,19 +139,11 @@ jQuery(document).ready(function($) {
         $(this).closest('.form-field').find('.field-error').remove();
     });
     
-    // Color preset option click functionality (for branding colors)
-    $(document).on('click', '.color-preset-option', function(e) {
-        e.preventDefault();
+    // Company color preset radio button change
+    $(document).on('change', 'input[name="company_color_preset"]', function() {
+        const color = $(this).val();
         
-        const color = $(this).data('color');
-        
-        // Remove selected class from all color preset options in this group
-        $(this).closest('.color-preset-list').find('.color-preset-option').removeClass('selected');
-        
-        // Add selected class to clicked option
-        $(this).addClass('selected');
-        
-        // Update the input field
+        // Update the hidden company_colors field
         $('input[name="company_colors"]').val(color);
         $('input[name="company_colors"]').siblings('.color-picker').val(color);
         

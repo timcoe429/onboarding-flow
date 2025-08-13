@@ -1304,6 +1304,13 @@
     vertical-align: middle;
 }
 
+/* Two column layout for radio groups */
+.radio-group.two-columns {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}
+
 /* Color preset list for branding */
 .color-preset-list {
     display: grid;

@@ -44,12 +44,12 @@
             checkButtonStatus();
         });
 
-        // Check if all checkboxes are checked
+        // Check if required checkboxes are checked (first 3 only)
         function checkButtonStatus() {
-            const totalCheckboxes = $('.docket-checklist-item').length;
-            const checkedBoxes = $('.docket-checklist-item.checked').length;
+            const requiredCheckboxes = $('.docket-checklist-item').slice(0, 3); // First 3 checkboxes
+            const checkedRequiredBoxes = requiredCheckboxes.filter('.checked').length;
             
-            if (totalCheckboxes === checkedBoxes) {
+            if (checkedRequiredBoxes === 3) {
                 $('.docket-ready-btn').addClass('active');
                 
                 // Add pro styling if pro plan selected

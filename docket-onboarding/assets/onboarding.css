@@ -151,6 +151,8 @@
     cursor: pointer;
     position: relative;
     overflow: hidden;
+    display: flex;
+    flex-direction: column;
 }
 
 .docket-plan-card.grow { 
@@ -240,6 +242,7 @@
     list-style: none;
     margin-bottom: 15px;
     padding: 0;
+    flex-grow: 1;
 }
 
 .docket-plan-features li {

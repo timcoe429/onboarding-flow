@@ -15,6 +15,8 @@
                 <li>You'll need WordPress/Elementor knowledge to customize</li>
                 <li>Payment is due immediately to begin work</li>
                 <li>Changes after launch are charged at $175/hour</li>
+                <li>Rank Math SEO plugin included</li>
+                <li>Additional plugin installation not permitted</li>
             </ul>
             
             <div class="terms-link">

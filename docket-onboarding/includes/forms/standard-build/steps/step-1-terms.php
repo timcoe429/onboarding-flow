@@ -28,6 +28,14 @@
             </div>
             
             <div class="terms-section">
+                <h5>What's Included</h5>
+                <ul>
+                    <li>Rank Math SEO plugin included</li>
+                    <li>Additional plugin installation not permitted</li>
+                </ul>
+            </div>
+            
+            <div class="terms-section">
                 <h5>Post-Launch Services</h5>
                 <p>After launch, backend access is provided. Docket's management services are available at $175/hour.</p>
             </div>

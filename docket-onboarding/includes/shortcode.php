@@ -220,8 +220,8 @@ function docket_onboarding_render_shortcode($atts) {
                         <h2 class="docket-plan-title">Fast Build</h2>
                         <ul class="docket-plan-features">
                             <li>Ready for Launch in 3 Days</li>
-                            <li>Zero Revisions Before Launch (must be customized by you)</li>
-                            <li>Stock Content Only</li>
+                            <li>Zero Revisions Before Launch</li>
+                            <li>Stock Content + Your Logo + Your Dumpster Content</li>
                         </ul>
                         <button class="docket-plan-btn">Select Fast Build</button>
                     </div>
@@ -232,8 +232,8 @@ function docket_onboarding_render_shortcode($atts) {
                         <h2 class="docket-plan-title">Standard Build</h2>
                         <ul class="docket-plan-features">
                             <li>Ready for Launch in 21-30 Days</li>
-                            <li>1 Revision Round Before Launch (final corrections approved by you)</li>
-                            <li>Built with Your Content & Stock Content</li>
+                            <li>Website Review Included</li>
+                            <li>Built with Stock Content & Your Content + Your Logo + Your Dumpster Content</li>
                         </ul>
                         <button class="docket-plan-btn">Select Standard Build</button>
                     </div>

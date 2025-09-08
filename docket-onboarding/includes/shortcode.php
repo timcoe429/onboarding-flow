@@ -141,11 +141,11 @@ function docket_onboarding_render_shortcode($atts) {
                         </div>
                         <div class="docket-benefit-item">
                             <h4>10DLC Compliant</h4>
-                            <p>Our websites meet 10DLC standards — making it easy and compliant to text your customers.</p>
+                            <p>Our websites meet Plivo's 10 DLC standards so you can get verified to text your customers through Docket with ease.</p>
                         </div>
                         <div class="docket-benefit-item">
-                            <h4>Integrates with DocketShop</h4>
-                            <p>Leave the DocketShop integration to us. Our team will easily add DocketShop to your website.</p>
+                            <h4>DocketShop Ready</h4>
+                            <p>Once you set up Online Booking in Docket, we'll handle adding DocketShop to your website for you.</p>
                         </div>
                     </div>
                 </div>
@@ -192,24 +192,6 @@ function docket_onboarding_render_shortcode($atts) {
                             <li><strong>You'll be contacted to discuss the WebsiteVIP plan upgrade after you submit the form on the next page.</strong></li>
                         </ul>
                         <button class="docket-plan-btn">I WANT WEBSITEVIP</button>
-                    </div>
-                </div>
-
-                <div class="docket-benefits">
-                    <h3>Benefits of Your Docket Website</h3>
-                    <div class="docket-benefits-grid">
-                        <div class="docket-benefit-item">
-                            <h4>Easy to Edit</h4>
-                            <p>Drag and drop editing made easy! Our websites are created with WordPress and powered by the Elementor editor.</p>
-                        </div>
-                        <div class="docket-benefit-item">
-                            <h4>10DLC Compliant</h4>
-                            <p>Our websites meet 10DLC standards — making it easy and compliant to text your customers.</p>
-                        </div>
-                        <div class="docket-benefit-item">
-                            <h4>Integrates with DocketShop</h4>
-                            <p>Leave the DocketShop integration to us. Our team will easily add DocketShop to your website.</p>
-                        </div>
                     </div>
                 </div>
             </div>

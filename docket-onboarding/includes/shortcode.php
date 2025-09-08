@@ -129,7 +129,7 @@ function docket_onboarding_render_shortcode($atts) {
                     </div>
                 </div>
 
-                <p class="not-ready">Not quite there yet? Come back when you're ready.</p>
+                <p class="not-ready" style="text-align: center;">Not quite there yet? Come back when you're ready.</p>
                 <button class="docket-ready-btn">I'M READY</button>
 
                 <div class="docket-benefits">

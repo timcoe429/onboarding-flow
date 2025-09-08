@@ -47,32 +47,27 @@ function docket_onboarding_render_shortcode($atts) {
                 <div class="docket-plan-card grow">
                     <div class="docket-plan-icon">G</div>
                     <h2 class="docket-plan-title">Grow</h2>
-                    <p class="docket-plan-subtitle">Perfect for small businesses and startups ready to establish their online presence</p>
                     <ul class="docket-plan-features">
                         <li>Professional Website Design</li>
-                        <li>Mobile-Responsive Layout</li>
-                        <li>Basic SEO Optimization</li>
-                        <li>Contact Forms & Integration</li>
-                        <li>Social Media Links</li>
-                        <li>30 Days Support</li>
+                        <li>Responsive Layout</li>
+                        <li>Rank Math SEO Plugin</li>
+                        <li>No changes after launch unless WebsiteVIP upgrade is purchased</li>
+                        <li>Payment is due immediately to begin work</li>
                     </ul>
                     <button class="docket-plan-btn">Get Started</button>
                 </div>
 
                 <div class="docket-plan-card pro">
-                    <div class="docket-plan-badge">Most Popular</div>
+                    <div class="docket-plan-badge">Local SEO Included</div>
                     <div class="docket-plan-icon">P</div>
                     <h2 class="docket-plan-title">Pro</h2>
-                    <p class="docket-plan-subtitle">Advanced solution for growing businesses that need powerful features and ongoing support</p>
                     <ul class="docket-plan-features">
-                        <li>Everything in Grow</li>
-                        <li>Advanced SEO & Analytics</li>
-                        <li>E-commerce Integration</li>
-                        <li>Custom Features & Plugins</li>
-                        <li>Performance Optimization</li>
-                        <li>90 Days Priority Support</li>
+                        <li>Professional Website Design</li>
+                        <li>Responsive Layout</li>
+                        <li>Rank Math SEO Plugin</li>
+                        <li>Local SEO Blogs Included</li>
                     </ul>
-                    <button class="docket-plan-btn">Go Pro</button>
+                    <button class="docket-plan-btn">Get Started</button>
                 </div>
             </div>
         </div>

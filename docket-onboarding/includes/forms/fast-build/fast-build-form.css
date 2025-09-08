@@ -11,6 +11,32 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
+/* Validation Message */
+.validation-message {
+    background: #fef2f2;
+    border: 2px solid #fecaca;
+    border-radius: 8px;
+    padding: 16px;
+    margin: 20px 0;
+    color: #dc2626;
+}
+
+.validation-message p {
+    margin: 0 0 8px 0;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.validation-message ul {
+    margin: 0;
+    padding-left: 20px;
+}
+
+.validation-message li {
+    margin: 4px 0;
+    font-size: 14px;
+}
+
 /* Links styling */
 .docket-fast-form a {
     color: #185fb0;

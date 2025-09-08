@@ -51,7 +51,13 @@
         </label>
     </div>
     
+    <div class="validation-message" id="validationMessage" style="display: none;">
+        <p>Please complete all required fields to continue:</p>
+        <ul id="validationList"></ul>
+    </div>
+
     <div class="form-nav">
+        <button type="button" class="btn-back">Back</button>
         <button type="button" class="btn-next">Next</button>
     </div>
 </div>

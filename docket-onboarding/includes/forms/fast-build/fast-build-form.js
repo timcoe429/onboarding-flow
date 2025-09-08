@@ -61,10 +61,12 @@ jQuery(document).ready(function($) {
         let valid = true;
         let checkedRadios = {};
         let checkedCheckboxGroups = {};
+        let missingFields = [];
         
-        // Clear previous errors
+        // Clear previous errors and validation message
         currentStepEl.find('.error').removeClass('error');
         currentStepEl.find('.field-error').remove();
+        $('#validationMessage').hide();
         
         required.each(function() {
             const $field = $(this);
@@ -73,6 +75,11 @@ jQuery(document).ready(function($) {
             const val = $field.val();
             const $formField = $field.closest('.form-field');
             
+            // Skip company color validation if user chose to match logo color
+            if (fieldName === 'company_colors' && $('input[name="match_logo_color"]:checked').val() === 'Yes') {
+                return;
+            }
+            
             if ($field.is(':radio')) {
                 const name = $field.attr('name');
                 checkedRadios[name] = checkedRadios[name] || $(`input[name="${name}"]:checked`).length > 0;
@@ -80,6 +87,7 @@ jQuery(document).ready(function($) {
                     valid = false;
                     $field.closest('.radio-group, .radio-inline, .form-field').addClass('error');
                     const label = $formField.find('label').text().replace('*', '').trim();
+                    missingFields.push(label);
                     $formField.append('<div class="field-error">Please select an option for ' + label + '</div>');
                 }
             } else if ($field.is(':checkbox')) {
@@ -90,11 +98,14 @@ jQuery(document).ready(function($) {
                     if (!group.find('input:checked').length) {
                         valid = false;
                         group.addClass('error');
+                        missingFields.push('Please select at least one option');
                         group.append('<div class="field-error">Please select at least one option</div>');
                     }
                 } else if (!$field.is(':checked')) {
                     valid = false;
                     $field.closest('.checkbox-card, .form-field').addClass('error');
+                    const label = $formField.find('label').text().replace('*', '').trim();
+                    missingFields.push(label);
                     $formField.append('<div class="field-error">Please check this required field</div>');
                 }
             } else {
@@ -106,6 +117,7 @@ jQuery(document).ready(function($) {
                     $field.addClass('error');
                     const label = $formField.find('label').text().replace('*', '').trim();
                     errorMessage = label + ' is required';
+                    missingFields.push(label);
                 } else {
                     // Format validation for specific field types
                     if (fieldType === 'email' || fieldName.includes('email')) {
@@ -129,6 +141,16 @@ jQuery(document).ready(function($) {
             }
         });
         
+        // Show validation message if there are missing fields
+        if (!valid && missingFields.length > 0) {
+            const validationList = $('#validationList');
+            validationList.empty();
+            missingFields.forEach(function(field) {
+                validationList.append('<li>' + field + '</li>');
+            });
+            $('#validationMessage').show();
+        }
+        
         return valid;
     }
     
@@ -137,6 +159,21 @@ jQuery(document).ready(function($) {
         $(this).removeClass('error');
         $(this).closest('.error').removeClass('error');
         $(this).closest('.form-field').find('.field-error').remove();
+    });
+    
+    // Match logo color radio button change
+    $(document).on('change', 'input[name="match_logo_color"]', function() {
+        const matchLogo = $(this).val();
+        const companyColorField = $('#companyColorField');
+        
+        if (matchLogo === 'Yes') {
+            companyColorField.hide();
+            // Clear any validation errors for company color fields
+            companyColorField.find('input').removeClass('error');
+            companyColorField.find('.field-error').remove();
+        } else {
+            companyColorField.show();
+        }
     });
     
     // Company color preset radio button change
@@ -150,6 +187,20 @@ jQuery(document).ready(function($) {
         // Clear any validation errors
         $('input[name="company_colors"]').removeClass('error');
         $('input[name="company_colors"]').closest('.form-field').find('.field-error').remove();
+    });
+    
+    // Dumpster type checkbox change - show sizes field if any are selected
+    $(document).on('change', 'input[name="dumpster_types[]"]', function() {
+        const checkedTypes = $('input[name="dumpster_types[]"]:checked').length;
+        const sizesField = $('#dumpsterSizesField');
+        
+        if (checkedTypes > 0) {
+            sizesField.show();
+        } else {
+            sizesField.hide();
+            // Clear the textarea when hidden
+            sizesField.find('textarea').val('');
+        }
     });
     
     // WordPress experience notice

@@ -74,7 +74,13 @@
     </div>
 
     <div class="info-box">
-        <p><strong>Note:</strong> Fast Build uses stock pricing and sizes. You'll need to update these after launch.</p>
+        <p><strong>Note:</strong> We'll launch your website without showing pricing or tonnage allowed. You'll need to update these after launch.</p>
+    </div>
+    
+    <div class="form-field" id="dumpsterSizesField" style="display: none;">
+        <label>Dumpster Sizes & Details</label>
+        <p class="field-note">Please list the sizes, dimensions, and any other details for your selected dumpster types</p>
+        <textarea name="dumpster_sizes_details" rows="4" placeholder="e.g., Roll-Off: 10 yd (8'x20'), 20 yd (8'x22'), 30 yd (8'x20')&#10;Hook-Lift: 15 yd (6'x12'), 20 yd (6'x16')&#10;Dump Trailers: 12 yd (6'x10'), 16 yd (6'x12')"></textarea>
     </div>
 
     <div class="form-nav">

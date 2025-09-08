@@ -31,8 +31,22 @@
     </div>
     
     <div class="form-field">
-        <label>Company Color *</label>
-        <p class="field-note">Choose a preset color or use the custom picker below</p>
+        <label>Match Primary Logo Color *</label>
+        <div class="radio-inline">
+            <label>
+                <input type="radio" name="match_logo_color" value="Yes" required>
+                <span>Yes - Use my logo's primary color</span>
+            </label>
+            <label>
+                <input type="radio" name="match_logo_color" value="No" required>
+                <span>No - Choose a different color</span>
+            </label>
+        </div>
+    </div>
+    
+    <div class="form-field" id="companyColorField" style="display: none;">
+        <label>Primary Company Color *</label>
+        <p class="field-note">Used throughout your website. Choose primary logo color or use the custom picker below</p>
         
         <div class="radio-group compact two-columns">
             <label>
@@ -76,6 +90,7 @@
             </div>
             <small>Click the color box or enter HEX code</small>
         </div>
+    </div>
     </div>
     
     <div class="info-box mb-20">

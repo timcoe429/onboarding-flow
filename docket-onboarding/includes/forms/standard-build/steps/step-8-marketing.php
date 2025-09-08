@@ -10,14 +10,14 @@
                 <input type="radio" name="marketing_agency" value="Yes" required>
                 <div class="radio-card-content">
                     <strong>Yes</strong>
-                    <span>I'll make sure they know about the plugin and back-end access limitations</span>
+                    <span>I'll inform them of the website terms & conditions</span>
                 </div>
             </label>
             <label class="radio-card">
                 <input type="radio" name="marketing_agency" value="Soon" required>
                 <div class="radio-card-content">
                     <strong>I will be soon</strong>
-                    <span>I'm planning on working with an external agency in the future</span>
+                    <span>I'll work with one in the future & inform them about the website terms & conditions</span>
                 </div>
             </label>
             <label class="radio-card">
@@ -31,7 +31,7 @@
                 <input type="radio" name="marketing_agency" value="Interested" required>
                 <div class="radio-card-content">
                     <strong>No - but interested</strong>
-                    <span>I'd like information on Docket's digital marketing services</span>
+                    <span>I'd like to learn more about your marketing services like WebsiteVIP and Advanced SEO</span>
                 </div>
             </label>
         </div>

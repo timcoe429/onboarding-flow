@@ -35,7 +35,7 @@
         <h4>Fast Build Overview</h4>
         <div class="info-section">
             <h5>What This Includes</h5>
-            <p>A professionally designed WordPress website built specifically for dumpster rental businesses, delivered in just 3 business days.</p>
+            <p>A professionally designed WordPress website built specifically for dumpster rental & junk removal businesses, delivered in just 3 business days.</p>
         </div>
         
         <div class="info-section">
@@ -46,10 +46,9 @@
         <div class="info-section">
             <h5>What We Need</h5>
             <ul>
+                <li>Your WordPress experience level</li>
                 <li>Basic business information and branding</li>
                 <li>Service area details</li>
-                <li>Your WordPress experience level</li>
-                <li>Immediate payment to begin work</li>
             </ul>
         </div>
     </div>
@@ -89,7 +88,13 @@
         <p class="notice-text"></p>
     </div>
 
+    <div class="validation-message" id="validationMessage" style="display: none;">
+        <p>Please complete all required fields to continue:</p>
+        <ul id="validationList"></ul>
+    </div>
+
     <div class="form-nav">
+        <button type="button" class="btn-back">Back</button>
         <button type="button" class="btn-next">Next</button>
     </div>
 </div>

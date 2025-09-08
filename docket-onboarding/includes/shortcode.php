@@ -33,8 +33,8 @@ function docket_onboarding_render_shortcode($atts) {
             </div>
             
             <div class="docket-header">
-                <h1>Choose Your Website Plan</h1>
-                <p>Select the perfect plan to grow your online presence. Each plan is designed to meet your specific business needs.</p>
+                <h1>Which Docket Plan Do You Have?</h1>
+                <p><em>Hint: You can check your billing if you are unsure. GROW plans are $200/per technician, and PRO plans are $250/per technician.</em></p>
             </div>
 
             <div class="docket-progress-container">

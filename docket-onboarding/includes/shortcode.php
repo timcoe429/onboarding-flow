@@ -52,7 +52,6 @@ function docket_onboarding_render_shortcode($atts) {
                         <li>Responsive Layout</li>
                         <li>Rank Math SEO Plugin</li>
                         <li>No changes after launch unless WebsiteVIP upgrade is purchased</li>
-                        <li>Payment is due immediately to begin work</li>
                     </ul>
                     <button class="docket-plan-btn">Get Started</button>
                 </div>
@@ -66,6 +65,7 @@ function docket_onboarding_render_shortcode($atts) {
                         <li>Responsive Layout</li>
                         <li>Rank Math SEO Plugin</li>
                         <li>Local SEO Blogs Included</li>
+                        <li>No changes after launch unless WebsiteVIP upgraded is purchased</li>
                     </ul>
                     <button class="docket-plan-btn">Get Started</button>
                 </div>

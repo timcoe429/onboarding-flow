@@ -66,7 +66,7 @@ jQuery(document).ready(function($) {
         // Clear previous errors and validation message
         currentStepEl.find('.error').removeClass('error');
         currentStepEl.find('.field-error').remove();
-        $('#validationMessage').hide();
+        currentStepEl.find('#validationMessage').hide();
         
         required.each(function() {
             const $field = $(this);
@@ -143,12 +143,15 @@ jQuery(document).ready(function($) {
         
         // Show validation message if there are missing fields
         if (!valid && missingFields.length > 0) {
-            const validationList = $('#validationList');
-            validationList.empty();
-            missingFields.forEach(function(field) {
-                validationList.append('<li>' + field + '</li>');
-            });
-            $('#validationMessage').show();
+            const validationMessage = currentStepEl.find('#validationMessage');
+            if (validationMessage.length > 0) {
+                const validationList = validationMessage.find('#validationList');
+                validationList.empty();
+                missingFields.forEach(function(field) {
+                    validationList.append('<li>' + field + '</li>');
+                });
+                validationMessage.show();
+            }
         }
         
         return valid;

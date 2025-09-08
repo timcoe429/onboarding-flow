@@ -91,7 +91,6 @@
             <small>Click the color box or enter HEX code</small>
         </div>
     </div>
-    </div>
     
     <div class="info-box mb-20">
         <p><strong>Google Fonts</strong></p>
@@ -118,7 +117,6 @@
     </div>
 
     <div class="form-nav">
-        <button type="button" class="btn-prev">Back</button>
         <button type="button" class="btn-next">Next</button>
     </div>
 </div>

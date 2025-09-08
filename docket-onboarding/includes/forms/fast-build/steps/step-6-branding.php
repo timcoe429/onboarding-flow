@@ -91,7 +91,6 @@
             <small>Click the color box or enter HEX code</small>
         </div>
     </div>
-    </div>
     
     <div class="info-box mb-20">
         <p><strong>Note for Fast Build</strong></p>

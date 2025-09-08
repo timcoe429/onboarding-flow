@@ -87,7 +87,6 @@ function docket_onboarding_render_shortcode($atts) {
                 <div class="docket-header">
                     <h2>Start Your Website Build</h2>
                     <p>Before kicking off your website build, make sure you've got everything on the checklist ready to go.</p>
-                    <p class="not-ready">Not quite there yet? Come back when you're ready.</p>
                 </div>
 
                 <div class="docket-checklist">
@@ -130,6 +129,7 @@ function docket_onboarding_render_shortcode($atts) {
                     </div>
                 </div>
 
+                <p class="not-ready">Not quite there yet? Come back when you're ready.</p>
                 <button class="docket-ready-btn">I'M READY</button>
 
                 <div class="docket-benefits">

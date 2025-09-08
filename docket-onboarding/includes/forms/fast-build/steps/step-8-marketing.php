@@ -38,7 +38,6 @@
     </div>
 
     <div class="form-nav">
-        <button type="button" class="btn-prev">Back</button>
         <button type="submit" class="btn-submit">Complete Fast Build Order</button>
     </div>
 </div>

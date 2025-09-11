@@ -1298,10 +1298,11 @@
     accent-color: #185fb0;
 }
 
+.template-radio-card.selected,
 .template-radio-card:has(input:checked) {
-    border-color: #185fb0;
-    background: #f8fafc;
-    box-shadow: 0 2px 8px rgba(24, 95, 176, 0.15);
+    border-color: #185fb0 !important;
+    background: #f8fafc !important;
+    box-shadow: 0 2px 8px rgba(24, 95, 176, 0.15) !important;
 }
 
 .template-info {

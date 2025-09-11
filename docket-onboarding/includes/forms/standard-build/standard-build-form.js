@@ -203,10 +203,14 @@ jQuery(document).ready(function($) {
     });
     
     
-    // Template selection change - show/hide Template 4 specific fields
+    // Template selection change - show/hide Template 4 specific fields and update card styling
     $(document).on('change', 'input[name="website_template_selection"]', function() {
         const selectedTemplate = $(this).val();
         const template4Fields = $('.template4-only');
+        
+        // Update template card styling
+        $('.template-radio-card').removeClass('selected');
+        $(this).closest('.template-radio-card').addClass('selected');
         
         if (selectedTemplate === 'template4') {
             template4Fields.show();

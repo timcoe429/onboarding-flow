@@ -1259,27 +1259,28 @@
 
 /* Clean Template Selection */
 .template-selection-clean {
-    display: flex;
-    flex-direction: column;
-    gap: 16px;
-    max-width: 600px;
-    margin: 0 auto;
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    max-width: 600px !important;
+    margin: 0 auto !important;
 }
 
 .template-choice {
-    width: 100%;
+    width: 100% !important;
 }
 
 .template-radio-card {
-    display: block;
-    width: 100%;
-    padding: 20px 24px;
-    border: 2px solid #e5e7eb;
-    border-radius: 12px;
-    background: #fff;
-    cursor: pointer;
-    transition: all 0.2s ease;
-    position: relative;
+    display: block !important;
+    width: 100% !important;
+    padding: 20px 24px !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    position: relative !important;
+    box-sizing: border-box !important;
 }
 
 .template-radio-card:hover {

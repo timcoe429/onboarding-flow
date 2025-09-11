@@ -94,7 +94,7 @@
         <ul>
             <li><strong>Rental Sizes:</strong> e.g., 10 yd, 20 yd, 30 yd</li>
             <li><strong>Rental Periods:</strong> e.g., 1, 3, and 7 Day Rentals</li>
-            <li><strong>Tons Allowed:</strong> We'll show lowest tonnage with '+' (e.g., 2+ Tons)</li>
+            <li><strong>Tons Allowed:</strong> How many tons are allowed for each rental size. e.g., 10 yd - 1 ton, 20 yd - 2 tons</li>
             <li><strong>Pricing:</strong> We'll show starting price with '+' (e.g., $399+)</li>
         </ul>
     </div>

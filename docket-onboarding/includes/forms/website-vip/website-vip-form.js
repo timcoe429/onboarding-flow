@@ -161,6 +161,22 @@ jQuery(document).ready(function($) {
     });
     
     
+    // Template selection change - show/hide Template 4 specific fields
+    $(document).on('change', 'input[name="website_template_selection"]', function() {
+        const selectedTemplate = $(this).val();
+        const template4Fields = $('.template4-only');
+        
+        if (selectedTemplate === 'template4') {
+            template4Fields.show();
+        } else {
+            template4Fields.hide();
+            // Clear Template 4 specific fields when hidden
+            template4Fields.find('input[type="radio"]').prop('checked', false);
+            template4Fields.find('textarea').val('');
+            template4Fields.find('.form-field').hide();
+        }
+    });
+
     // Content visibility toggles
     $('input[name="do_you_want_to_give_our_team_website_content_at_this_time"]').on('change', function() {
         if ($(this).val() === 'Yes') {

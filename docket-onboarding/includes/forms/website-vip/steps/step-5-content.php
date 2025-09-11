@@ -70,24 +70,26 @@
             </div>
         </div>
 
-        <!-- Benefits -->
-        <div class="form-field">
-            <label>9.3 Do you want to provide 5 Benefits/What We Do Q+A's? *</label>
-            <div class="radio-inline">
-                <label>
-                    <input type="radio" name="benefits_QA" value="Yes">
-                    <span>Yes</span>
-                </label>
-                <label>
-                    <input type="radio" name="benefits_QA" value="No — Use stock content for my website draft">
-                    <span>No — Use stock content for my website draft</span>
-                </label>
+        <!-- Benefits (Template 4 only) -->
+        <div class="template4-only" style="display: none;">
+            <div class="form-field">
+                <label>9.3 Do you want to provide 5 Benefits/What We Do Q+A's? *</label>
+                <div class="radio-inline">
+                    <label>
+                        <input type="radio" name="benefits_QA" value="Yes">
+                        <span>Yes</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="benefits_QA" value="No — Use stock content for my website draft">
+                        <span>No — Use stock content for my website draft</span>
+                    </label>
+                </div>
             </div>
-        </div>
-        
-        <div class="form-field" id="benefitsField" style="display: none;">
-            <label>Benefits/What We Do (5) *</label>
-            <textarea name="benefits_what_we_do" rows="6" placeholder="Please only provide 5 Benefits/What We Do's. Please include both the question AND the answer."></textarea>
+            
+            <div class="form-field" id="benefitsField" style="display: none;">
+                <label>Benefits/What We Do (5) *</label>
+                <textarea name="benefits_what_we_do" rows="6" placeholder="Please only provide 5 Benefits/What We Do's. Please include both the question AND the answer."></textarea>
+            </div>
         </div>
 
         <!-- Footer -->

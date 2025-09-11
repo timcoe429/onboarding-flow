@@ -51,7 +51,7 @@
         <!-- Custom Color Picker -->
         <div class="custom-color-section">
             <div class="color-input-wrapper">
-                <input type="text" name="company_colors" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" placeholder="Example: #00008B" required class="hex-input">
+                <input type="text" name="company_colors" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" placeholder="Example: #00008B" class="hex-input">
                 <input type="color" class="color-picker" value="#00008B">
             </div>
             <small>Click the color box or enter HEX code</small>

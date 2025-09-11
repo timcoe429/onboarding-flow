@@ -14,7 +14,7 @@
             
             <div class="terms-section">
                 <h5>Timeline</h5>
-                <p>Your website will be completed within 21-30 business days after we receive all required content and approvals.</p>
+                <p>Your website will be completed within 21-30 business days. This timeframe covers creating your initial draft, reviewing and revising the site, finalizing content, and setting up domain access.</p>
             </div>
             
             <div class="terms-section">
@@ -96,7 +96,7 @@
             <p>The project includes up to two rounds of revisions. Additional revisions will be billed at $175/hour.</p>
             
             <h3>Timeline</h3>
-            <p>Standard build projects are typically completed within 21-30 business days from receipt of all required content and materials.</p>
+            <p>Standard build projects are typically completed within 21-30 business days. This timeframe covers creating your initial draft, reviewing and revising the site, finalizing content, and setting up domain access.</p>
             
             <h3>Client Responsibilities</h3>
             <p>The Client agrees to provide all necessary content, images, and feedback in a timely manner to ensure project completion within the stated timeline.</p>

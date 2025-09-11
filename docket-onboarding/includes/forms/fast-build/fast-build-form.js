@@ -148,6 +148,22 @@ jQuery(document).ready(function($) {
             }
         });
         
+        // Custom validation for company colors field
+        if (step === 6) {
+            const matchLogoColor = $('input[name="match_logo_color"]:checked').val();
+            const companyColorsField = $('input[name="company_colors"]');
+            
+            if (matchLogoColor === 'No') {
+                const colorValue = companyColorsField.val().trim();
+                if (!colorValue || !colorValue.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) {
+                    valid = false;
+                    companyColorsField.addClass('error');
+                    companyColorsField.closest('.form-field').addClass('error');
+                    companyColorsField.closest('.form-field').append('<div class="field-error">Please enter a valid HEX color code (e.g., #00008B)</div>');
+                }
+            }
+        }
+        
         // Show validation message if there are missing fields
         if (!valid && missingFields.length > 0) {
             const validationMessage = currentStepEl.find('#validationMessage');

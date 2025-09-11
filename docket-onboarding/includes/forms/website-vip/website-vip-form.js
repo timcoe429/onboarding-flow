@@ -136,6 +136,20 @@ jQuery(document).ready(function($) {
             }
         });
         
+        // Custom validation for company colors field
+        if (step === 6) {
+            const companyColorsField = $('input[name="company_colors"]');
+            const colorValue = companyColorsField.val().trim();
+            
+            // Website VIP doesn't have the match logo color option, so always validate
+            if (!colorValue || !colorValue.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) {
+                valid = false;
+                companyColorsField.addClass('error');
+                companyColorsField.closest('.form-field').addClass('error');
+                companyColorsField.closest('.form-field').append('<div class="field-error">Please enter a valid HEX color code (e.g., #00008B)</div>');
+            }
+        }
+        
         return valid;
     }
     
@@ -146,18 +160,6 @@ jQuery(document).ready(function($) {
         $(this).closest('.form-field').find('.field-error').remove();
     });
     
-    // Company color preset radio button change
-    $(document).on('change', 'input[name="company_color_preset"]', function() {
-        const color = $(this).val();
-        
-        // Update the hidden company_colors field
-        $('input[name="company_colors"]').val(color);
-        $('input[name="company_colors"]').siblings('.color-picker').val(color);
-        
-        // Clear any validation errors
-        $('input[name="company_colors"]').removeClass('error');
-        $('input[name="company_colors"]').closest('.form-field').find('.field-error').remove();
-    });
     
     // Content visibility toggles
     $('input[name="do_you_want_to_give_our_team_website_content_at_this_time"]').on('change', function() {

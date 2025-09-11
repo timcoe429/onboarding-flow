@@ -186,18 +186,6 @@ jQuery(document).ready(function($) {
         }
     });
     
-    // Company color preset radio button change
-    $(document).on('change', 'input[name="company_color_preset"]', function() {
-        const color = $(this).val();
-        
-        // Update the hidden company_colors field
-        $('input[name="company_colors"]').val(color);
-        $('input[name="company_colors"]').siblings('.color-picker').val(color);
-        
-        // Clear any validation errors
-        $('input[name="company_colors"]').removeClass('error');
-        $('input[name="company_colors"]').closest('.form-field').find('.field-error').remove();
-    });
     
     // Dumpster type checkbox change - show sizes field if any are selected
     $(document).on('change', 'input[name="dumpster_types[]"]', function() {

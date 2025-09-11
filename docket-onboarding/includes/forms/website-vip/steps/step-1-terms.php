@@ -9,7 +9,7 @@
             
             <div class="terms-section">
                 <h5>What You're Getting with WebsiteVIP</h5>
-                <p>A professionally designed WordPress website built specifically for dumpster rental businesses, with ongoing management by the Docket team for $299/month.</p>
+                <p>A professionally designed WordPress website built specifically for dumpster rental and junk removal businesses, with ongoing management by the Docket team for $299/month.</p>
             </div>
             
             <div class="terms-section">

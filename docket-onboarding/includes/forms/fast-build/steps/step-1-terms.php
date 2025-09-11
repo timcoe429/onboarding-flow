@@ -35,7 +35,7 @@
         <h4>Fast Build Overview</h4>
         <div class="info-section">
             <h5>What This Includes</h5>
-            <p>A professionally designed WordPress website built specifically for dumpster rental & junk removal businesses, delivered in just 3 business days.</p>
+            <p>A professionally designed WordPress website built specifically for dumpster rental and junk removal businesses, delivered in just 3 business days.</p>
         </div>
         
         <div class="info-section">

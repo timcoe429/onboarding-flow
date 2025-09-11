@@ -9,7 +9,7 @@
             
             <div class="terms-section">
                 <h5>What You're Getting</h5>
-                <p>A professionally designed WordPress website built specifically for dumpster rental businesses, including SEO optimization and mobile responsiveness.</p>
+                <p>A professionally designed WordPress website built specifically for dumpster rental and junk removal businesses, including SEO optimization and mobile responsiveness.</p>
             </div>
             
             <div class="terms-section">

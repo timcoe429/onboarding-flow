@@ -32,44 +32,10 @@
     
     <div class="form-field">
         <label>Company Color *</label>
-        <p class="field-note">Choose a preset color or use the custom picker below</p>
-        
-        <div class="radio-group compact two-columns">
-            <label>
-                <input type="radio" name="company_color_preset" value="#FF0000">
-                <div class="color-dot" style="background-color: #FF0000;"></div>
-                <span>Red</span>
-            </label>
-            <label>
-                <input type="radio" name="company_color_preset" value="#0066CC">
-                <div class="color-dot" style="background-color: #0066CC;"></div>
-                <span>Blue</span>
-            </label>
-            <label>
-                <input type="radio" name="company_color_preset" value="#00AA00">
-                <div class="color-dot" style="background-color: #00AA00;"></div>
-                <span>Green</span>
-            </label>
-            <label>
-                <input type="radio" name="company_color_preset" value="#FF6600">
-                <div class="color-dot" style="background-color: #FF6600;"></div>
-                <span>Orange</span>
-            </label>
-            <label>
-                <input type="radio" name="company_color_preset" value="#800080">
-                <div class="color-dot" style="background-color: #800080;"></div>
-                <span>Purple</span>
-            </label>
-            <label>
-                <input type="radio" name="company_color_preset" value="#000000">
-                <div class="color-dot" style="background-color: #000000;"></div>
-                <span>Black</span>
-            </label>
-        </div>
+        <p class="field-note">Used throughout your website. Provide a custom HEX color code</p>
         
         <!-- Custom Color Picker -->
         <div class="custom-color-section">
-            <p class="custom-color-label">Or choose a custom color:</p>
             <div class="color-input-wrapper">
                 <input type="text" name="company_colors" pattern="^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$" placeholder="Example: #00008B" required class="hex-input">
                 <input type="color" class="color-picker" value="#00008B">

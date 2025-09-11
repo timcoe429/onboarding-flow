@@ -413,7 +413,7 @@
         <!-- Contact Info -->
         <div class="contact-section">
             <h3>Need Help?</h3>
-            <p>If you have any questions about your project, please reply to your project notification email<br>or contact our support team for assistance.</p>
+            <p>If you have any questions about your project, please reply to your project notification email<br>or contact our support team at <a href="mailto:support@yourdocket.com" style="color: #185fb0; text-decoration: none;">support@yourdocket.com</a> for assistance.</p>
         </div>
     </div>
 

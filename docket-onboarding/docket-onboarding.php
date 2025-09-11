@@ -60,10 +60,6 @@ class DocketOnboarding {
         require_once plugin_dir_path(__FILE__) . 'includes/client-portal/portal-display.php';
         require_once plugin_dir_path(__FILE__) . 'includes/trello-sync.php';
         
-        // Include NS Cloner integration if available
-        if (file_exists(plugin_dir_path(__FILE__) . 'includes/ns-cloner-integration.php')) {
-            require_once plugin_dir_path(__FILE__) . 'includes/ns-cloner-integration.php';
-        }
         
         // Include Cloner Settings for API configuration
         if (file_exists(plugin_dir_path(__FILE__) . 'includes/cloner-settings.php')) {

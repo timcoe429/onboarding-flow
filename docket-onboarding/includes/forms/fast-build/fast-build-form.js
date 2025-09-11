@@ -37,6 +37,13 @@ jQuery(document).ready(function($) {
             }
         });
         
+        // Show/hide back button based on step
+        if (step === 1) {
+            $('.btn-prev').hide();
+        } else {
+            $('.btn-prev').show();
+        }
+        
         // Scroll to top
         $('html, body').animate({ scrollTop: $('.docket-fast-form').offset().top - 50 }, 300);
     }

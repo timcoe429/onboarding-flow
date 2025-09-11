@@ -197,7 +197,7 @@ class DocketClientPortal {
             $wpdb->prefix . 'docket_client_projects',
             array(
                 'client_uuid' => $client_uuid,
-                'business_name' => sanitize_text_field($form_data['business_name']),
+                'business_name' => wp_unslash(sanitize_text_field($form_data['business_name'])),
                 'business_email' => sanitize_email($form_data['business_email']),
                 'form_type' => $form_type,
                 'current_step' => 'submitted',

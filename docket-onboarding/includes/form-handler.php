@@ -449,9 +449,9 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     foreach ($_POST as $key => $value) {
         if (!in_array($key, array('nonce', '_wpnonce', 'docket_nonce', 'action'))) {
             if (is_array($value)) {
-                $form_data[$key] = array_map('sanitize_text_field', $value);
+                $form_data[$key] = array_map(function($v) { return wp_unslash(sanitize_text_field($v)); }, $value);
             } else {
-                $form_data[$key] = sanitize_text_field($value);
+                $form_data[$key] = wp_unslash(sanitize_text_field($value));
             }
         }
     }

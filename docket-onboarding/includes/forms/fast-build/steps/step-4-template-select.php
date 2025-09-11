@@ -50,6 +50,7 @@
     </div>
 
     <div class="form-nav">
+        <button type="button" class="btn-prev">Back</button>
         <button type="button" class="btn-next">Next</button>
     </div>
 </div>

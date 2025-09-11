@@ -5,9 +5,24 @@ jQuery(document).ready(function($) {
     const progressDots = $('.docket-progress-dots span');
     let currentStep = 1;
     
+    // DEVELOPMENT MODE - Remove before going live
+    const DEVELOPMENT_MODE = true;
+    
+    // Click step numbers to jump directly (development only)
+    if (DEVELOPMENT_MODE) {
+        $('.docket-progress-dots span').on('click', function() {
+            const targetStep = parseInt($(this).data('step'));
+            if (targetStep && targetStep <= 8) {
+                currentStep = targetStep;
+                showStep(currentStep);
+            }
+        });
+        $('.docket-progress-dots span').css('cursor', 'pointer');
+    }
+
     // Navigation
     $('.btn-next').on('click', function() {
-        if (validateStep(currentStep)) {
+        if (DEVELOPMENT_MODE || validateStep(currentStep)) {
             currentStep++;
             showStep(currentStep);
         }

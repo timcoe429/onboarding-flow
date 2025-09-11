@@ -48,24 +48,26 @@
             <input type="text" name="company_tagline" maxlength="65">
         </div>
 
-        <!-- FAQs -->
-        <div class="form-field">
-            <label>9.2 Do you want to provide 5 company FAQ's? *</label>
-            <div class="radio-inline">
-                <label>
-                    <input type="radio" name="do_you_want_to_provide_5_company_faqs" value="Yes">
-                    <span>Yes</span>
-                </label>
-                <label>
-                    <input type="radio" name="do_you_want_to_provide_5_company_faqs" value="No — use the stock FAQ's for my website draft">
-                    <span>No — use the stock FAQ's for my website draft</span>
-                </label>
+        <!-- FAQs (Template 4 only) -->
+        <div class="template4-only" style="display: none;">
+            <div class="form-field">
+                <label>9.2 Do you want to provide 5 company FAQ's? *</label>
+                <div class="radio-inline">
+                    <label>
+                        <input type="radio" name="do_you_want_to_provide_5_company_faqs" value="Yes">
+                        <span>Yes</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="do_you_want_to_provide_5_company_faqs" value="No — use the stock FAQ's for my website draft">
+                        <span>No — use the stock FAQ's for my website draft</span>
+                    </label>
+                </div>
             </div>
-        </div>
-        
-        <div class="form-field" id="faqField" style="display: none;">
-            <label>Company FAQ's (5) *</label>
-            <textarea name="company_faqs" rows="6" placeholder="Please only provide 5 FAQ's. Please include both the question AND the answer."></textarea>
+            
+            <div class="form-field" id="faqField" style="display: none;">
+                <label>Company FAQ's (5) *</label>
+                <textarea name="company_faqs" rows="6" placeholder="Please only provide 5 FAQ's. Please include both the question AND the answer."></textarea>
+            </div>
         </div>
 
         <!-- Benefits -->

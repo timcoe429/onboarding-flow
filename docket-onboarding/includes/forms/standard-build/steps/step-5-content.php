@@ -50,24 +50,26 @@
             <input type="text" name="company_tagline" maxlength="65">
         </div>
 
-        <!-- FAQs -->
-        <div class="form-field">
-            <label>Do you want to provide 5 company FAQ's? *</label>
-            <div class="radio-inline">
-                <label>
-                    <input type="radio" name="provide_faqs" value="Yes">
-                    <span>Yes</span>
-                </label>
-                <label>
-                    <input type="radio" name="provide_faqs" value="No">
-                    <span>No - use stock FAQ's</span>
-                </label>
+        <!-- FAQs (Template 4 only) -->
+        <div class="template4-only" style="display: none;">
+            <div class="form-field">
+                <label>Do you want to provide 5 company FAQ's? *</label>
+                <div class="radio-inline">
+                    <label>
+                        <input type="radio" name="provide_faqs" value="Yes">
+                        <span>Yes</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="provide_faqs" value="No">
+                        <span>No - use stock FAQ's</span>
+                    </label>
+                </div>
             </div>
-        </div>
-        
-        <div class="form-field" id="faqField" style="display: none;">
-            <label>Company FAQ's (5) *</label>
-            <textarea name="company_faqs" rows="6" placeholder="Please provide 5 FAQ's. Include both the question AND the answer."></textarea>
+            
+            <div class="form-field" id="faqField" style="display: none;">
+                <label>Company FAQ's (5) *</label>
+                <textarea name="company_faqs" rows="6" placeholder="Please provide 5 FAQ's. Include both the question AND the answer."></textarea>
+            </div>
         </div>
 
         <!-- Benefits -->

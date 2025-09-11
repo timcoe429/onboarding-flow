@@ -290,10 +290,10 @@ jQuery(document).ready(function($) {
         
         if (junkRemovalChecked) {
             $('#junkRemovalSection').slideDown();
-            $('#junkRemovalSection input[type="checkbox"]').attr('required', true);
         } else {
             $('#junkRemovalSection').slideUp();
-            $('#junkRemovalSection input').attr('required', false);
+            // Clear any selected checkboxes when hiding the section
+            $('#junkRemovalSection input[type="checkbox"]').prop('checked', false);
         }
     });
     

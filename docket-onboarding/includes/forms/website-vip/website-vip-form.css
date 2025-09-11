@@ -419,10 +419,13 @@
     margin-bottom: 20px;
 }
 
-.info-box h4 {
+.info-box h4,
+.info-box p strong {
     color: #111827;
-    font-size: 15px;
+    font-size: 16px;
+    font-weight: 600;
     margin-bottom: 10px;
+    display: block;
 }
 
 .info-section {
@@ -511,19 +514,24 @@
 }
 
 /* Color Picker Wrapper */
-.color-picker-wrapper {
+.color-input-wrapper {
     display: flex;
-    gap: 10px;
+    gap: 12px;
     align-items: center;
 }
 
-.color-picker-wrapper input[type="color"] {
-    width: 60px;
+.color-input-wrapper input[type="color"] {
+    width: 50px;
+    height: 40px;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    cursor: pointer;
     flex-shrink: 0;
 }
 
-.color-picker-wrapper input[type="text"] {
+.color-input-wrapper input[type="text"] {
     flex: 1;
+    max-width: 200px;
 }
 
 /* File Upload */
@@ -850,13 +858,14 @@
         margin: 20px auto;
     }
 
-    .color-picker-wrapper {
-        flex-direction: column;
-        align-items: stretch;
+    .color-input-wrapper {
+        flex-direction: row;
+        align-items: center;
     }
 
-    .color-picker-wrapper input[type="color"] {
-        width: 100%;
+    .color-input-wrapper input[type="color"] {
+        width: 50px;
+        height: 40px;
     }
 
     /* Mobile processing screen styles */

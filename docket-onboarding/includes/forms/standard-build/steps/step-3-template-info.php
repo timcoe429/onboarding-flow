@@ -8,7 +8,7 @@
         
         <div class="info-section">
             <h5>Customized Website Information</h5>
-            <p>This is not a full custom website. It's a pre-built theme that we customize with your content and images. We do not do additional design work or custom requests not already built into the theme.</p>
+            <p>You will have the ability to customize your website beyond the template design once the website is launched and self-managed.</p>
         </div>
 
         <div class="info-section">

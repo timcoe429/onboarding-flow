@@ -21,9 +21,9 @@
                 <h5>What We Need From You</h5>
                 <ul>
                     <li>Business information and branding materials</li>
-                    <li>Service area details and pricing</li>
+                    <li>Service area details</li>
                     <li>Photos and content for your website</li>
-                    <li>Timely feedback during the review process</li>
+                    <li>Dumpster rental/junk removal services information</li>
                 </ul>
             </div>
             
@@ -37,7 +37,7 @@
             
             <div class="terms-section">
                 <h5>Post-Launch Services</h5>
-                <p>After launch, backend access is provided. Docket's management services are available at $175/hour.</p>
+                <p>After launch, website access for editing and Rank Math SEO plugin configuration is shared. If you'd like to have the Docket Team work on your website, you'll need to upgrade to the WebsiteVIP plan.</p>
             </div>
         </div>
         

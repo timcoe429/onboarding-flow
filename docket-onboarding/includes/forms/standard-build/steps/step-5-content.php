@@ -4,7 +4,7 @@
     <p class="step-subtitle">Customize your template with content specific to your business</p>
     
     <div class="info-box mb-30">
-        <p><strong>We want to give you the option to customize your template with content geared specifically to your business.</strong></p>
+        <p>We want to give you the option to customize your template with content geared specifically to your business.</p>
         <p>If you'd rather suggest edits to the stock content during review, or customize post-launch, no worries!</p>
     </div>
 

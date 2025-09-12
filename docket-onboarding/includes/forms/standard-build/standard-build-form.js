@@ -344,10 +344,11 @@ jQuery(document).ready(function($) {
 
     // Create dumpster entry HTML
     function createDumpsterEntry(type, id) {
+        const sizes = [7, 10, 12, 15, 20, 30, 40];
         const sizeOptions = [];
-        for (let i = 7; i <= 40; i++) {
-            sizeOptions.push(`<option value="${i}">${i} yd</option>`);
-        }
+        sizes.forEach(size => {
+            sizeOptions.push(`<option value="${size}">${size} yd</option>`);
+        });
 
         const tonOptions = [];
         for (let i = 1; i <= 10; i++) {

@@ -59,9 +59,8 @@
     <div class="form-nav">
         <button type="button" class="btn-next">Next</button>
     </div>
-</div>
 
-<!-- Terms Modal -->
+    <!-- Terms Modal -->
 <div id="termsModal" class="docket-modal" style="display: none;">
     <div class="docket-modal-content">
         <div class="docket-modal-header">
@@ -142,3 +141,4 @@ document.addEventListener('click', function(e) {
     }
 });
 </script>
+</div> <!-- Close step-1 container -->

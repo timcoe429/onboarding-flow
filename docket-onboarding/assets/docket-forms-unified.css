@@ -23,12 +23,18 @@
     color: #374151;
 }
 
-/* Step Headings (H2) */
-.form-step h2 {
-    font-size: 26px;
-    font-weight: 600;
-    color: #111827;
-    margin: 0 0 8px 0;
+/* Step Headings (H2) - Override theme CSS aggressively */
+.docket-fast-form .form-step h2,
+.docket-standard-form .form-step h2,
+.docket-vip-form .form-step h2,
+.docket-fast-form h2,
+.docket-standard-form h2,
+.docket-vip-form h2 {
+    font-size: 26px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    margin: 0 0 8px 0 !important;
+    line-height: 1.2 !important;
 }
 
 /* Step Subtitles */
@@ -38,31 +44,49 @@
     margin-bottom: 24px;
 }
 
-/* Form Field Labels */
-.form-field label {
-    display: block;
-    font-size: 15px;
-    font-weight: 500;
-    color: #374151;
-    margin-bottom: 6px;
+/* Form Field Labels - Override theme CSS */
+.docket-fast-form .form-field label,
+.docket-standard-form .form-field label,
+.docket-vip-form .form-field label,
+.docket-fast-form label,
+.docket-standard-form label,
+.docket-vip-form label {
+    display: block !important;
+    font-size: 15px !important;
+    font-weight: 500 !important;
+    color: #374151 !important;
+    margin-bottom: 6px !important;
+    line-height: 1.4 !important;
 }
 
-/* Body Text */
-p, .info-box p {
-    font-size: 14px;
-    font-weight: normal;
-    color: #374151;
-    line-height: 1.5;
-    margin-bottom: 12px;
+/* Body Text - Override theme CSS */
+.docket-fast-form p,
+.docket-standard-form p,
+.docket-vip-form p,
+.docket-fast-form .info-box p,
+.docket-standard-form .info-box p,
+.docket-vip-form .info-box p {
+    font-size: 14px !important;
+    font-weight: normal !important;
+    color: #374151 !important;
+    line-height: 1.5 !important;
+    margin-bottom: 12px !important;
 }
 
-/* Info Box Headings */
-.info-box h4,
-.info-box h5 {
-    font-size: 18px;
-    font-weight: 600;
-    color: #111827;
-    margin: 0 0 10px 0;
+/* Info Box Headings - Override theme CSS */
+.docket-fast-form .info-box h4,
+.docket-standard-form .info-box h4,
+.docket-vip-form .info-box h4,
+.docket-fast-form .info-box h5,
+.docket-standard-form .info-box h5,
+.docket-vip-form .info-box h5,
+.docket-fast-form h3,
+.docket-standard-form h3,
+.docket-vip-form h3 {
+    font-size: 18px !important;
+    font-weight: 600 !important;
+    color: #111827 !important;
+    margin: 0 0 10px 0 !important;
 }
 
 /* Field Notes */
@@ -110,9 +134,11 @@ p, .info-box p {
 }
 
 .docket-progress-dots {
-    display: flex;
-    justify-content: center;
-    gap: 12px;
+    display: flex !important;
+    justify-content: center !important;
+    gap: 16px !important;
+    margin: 0 !important;
+    padding: 0 !important;
 }
 
 .docket-progress-dots span {

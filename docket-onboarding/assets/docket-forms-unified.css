@@ -913,6 +913,19 @@ p {
     margin: 0 8px 0 6px;
 }
 
+/* Color selection spacing */
+.radio-group.compact {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* "I'll provide images" option spacing */
+.radio-inline label:last-child {
+    margin-top: 16px;
+    padding-top: 16px;
+}
+
 /* Utility Classes */
 .mb-20 { margin-bottom: 20px !important; }
 .mb-30 { margin-bottom: 30px !important; }

@@ -1,0 +1,820 @@
+/**
+ * Docket Forms Unified CSS
+ * Clean, consistent typography and styling for all onboarding forms
+ * 
+ * TYPOGRAPHY SYSTEM:
+ * - Body text: 14px, normal weight
+ * - Labels: 15px, 500 weight  
+ * - Headings: 18px, 600 weight
+ * - H2 (step names): 26px
+ */
+
+/* =================================================================
+   TYPOGRAPHY SYSTEM - CONSISTENT ACROSS ALL FORMS
+   ================================================================= */
+
+/* Base Typography */
+.docket-fast-form,
+.docket-standard-form,
+.docket-vip-form {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #374151;
+}
+
+/* Step Headings (H2) */
+.form-step h2 {
+    font-size: 26px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 8px 0;
+}
+
+/* Step Subtitles */
+.step-subtitle {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 24px;
+}
+
+/* Form Field Labels */
+.form-field label {
+    display: block;
+    font-size: 15px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+/* Body Text */
+p, .info-box p {
+    font-size: 14px;
+    font-weight: normal;
+    color: #374151;
+    line-height: 1.5;
+    margin-bottom: 12px;
+}
+
+/* Info Box Headings */
+.info-box h4,
+.info-box h5 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 10px 0;
+}
+
+/* Field Notes */
+.field-note {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+/* =================================================================
+   FORM STRUCTURE
+   ================================================================= */
+
+/* Form Container */
+.docket-fast-form,
+.docket-standard-form,
+.docket-vip-form {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    border-radius: 12px;
+    padding: 40px;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Progress Bar */
+.docket-form-progress {
+    margin-bottom: 40px;
+}
+
+.docket-progress-track {
+    width: 100%;
+    height: 8px;
+    background: #e5e7eb;
+    border-radius: 4px;
+    overflow: hidden;
+    margin-bottom: 20px;
+}
+
+.docket-progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #185fb0, #1455a0);
+    border-radius: 4px;
+    transition: width 0.6s ease;
+}
+
+.docket-progress-dots {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+.docket-progress-dots span {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #e5e7eb;
+    color: #9ca3af;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+}
+
+.docket-progress-dots span.active {
+    background: #185fb0;
+    color: white;
+}
+
+.docket-progress-dots span.completed {
+    background: #10b981;
+    color: white;
+}
+
+/* =================================================================
+   FORM STEPS
+   ================================================================= */
+
+.form-step {
+    display: none;
+    animation: fadeIn 0.4s ease;
+}
+
+.form-step.active {
+    display: block;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+/* =================================================================
+   FORM FIELDS
+   ================================================================= */
+
+.form-field {
+    margin-bottom: 24px;
+}
+
+.form-field input[type="text"],
+.form-field input[type="email"],
+.form-field input[type="tel"],
+.form-field textarea,
+.form-field select {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    background: white;
+}
+
+.form-field input:focus,
+.form-field textarea:focus,
+.form-field select:focus {
+    outline: none;
+    border-color: #185fb0;
+    box-shadow: 0 0 0 3px rgba(24, 95, 176, 0.1);
+}
+
+/* =================================================================
+   RADIO CARDS
+   ================================================================= */
+
+.radio-group {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.radio-card {
+    display: block;
+    cursor: pointer;
+}
+
+.radio-card input {
+    position: absolute;
+    opacity: 0;
+}
+
+.radio-card-content {
+    display: block;
+    padding: 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    background: white;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.radio-card:hover .radio-card-content {
+    border-color: #d1d5db;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.radio-card input:checked + .radio-card-content {
+    border-color: #185fb0;
+    background: #eff6ff;
+}
+
+/* =================================================================
+   CHECKBOX CARDS
+   ================================================================= */
+
+.checkbox-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.checkbox-card {
+    display: flex;
+    align-items: center;
+    padding: 12px 16px;
+    border: 2px solid #e5e7eb;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.checkbox-card:hover {
+    border-color: #d1d5db;
+    background: #f9fafb;
+}
+
+.checkbox-card input {
+    margin-right: 10px;
+}
+
+.checkbox-card input:checked + span {
+    font-weight: 500;
+    color: #111827;
+}
+
+/* =================================================================
+   INFO BOXES
+   ================================================================= */
+
+.info-box {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 24px;
+}
+
+.info-box h4,
+.info-box h5 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin: 0 0 12px 0;
+}
+
+.info-box p {
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 8px;
+}
+
+.info-box ul {
+    margin: 0 0 0 20px;
+    padding: 0;
+}
+
+.info-box li {
+    font-size: 14px;
+    color: #374151;
+    margin-bottom: 4px;
+}
+
+/* =================================================================
+   TEMPLATE SELECTION
+   ================================================================= */
+
+.template-selection-clean {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 16px !important;
+    max-width: 600px !important;
+    margin: 0 auto !important;
+}
+
+.template-choice {
+    width: 100% !important;
+}
+
+.template-radio-card {
+    display: block !important;
+    width: 100% !important;
+    padding: 20px 24px !important;
+    border: 2px solid #e5e7eb !important;
+    border-radius: 12px !important;
+    background: #fff !important;
+    cursor: pointer !important;
+    transition: all 0.2s ease !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+}
+
+.template-radio-card:hover {
+    border-color: #185fb0;
+    box-shadow: 0 2px 8px rgba(24, 95, 176, 0.1);
+}
+
+.template-radio-card input[type="radio"] {
+    position: absolute;
+    left: 20px;
+    top: 50%;
+    transform: translateY(-50%);
+    margin: 0;
+    width: 20px;
+    height: 20px;
+}
+
+.template-radio-card input[type="radio"]:checked + .template-info {
+    color: #185fb0;
+}
+
+.template-radio-card input[type="radio"]:checked {
+    accent-color: #185fb0;
+}
+
+.template-radio-card.selected,
+.template-radio-card:has(input:checked) {
+    border-color: #185fb0 !important;
+    background: #f8fafc !important;
+    box-shadow: 0 2px 8px rgba(24, 95, 176, 0.15) !important;
+}
+
+.template-info {
+    margin-left: 40px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.template-name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #374151;
+}
+
+.preview-link {
+    color: #185fb0;
+    text-decoration: none;
+    font-weight: 500;
+    font-size: 14px;
+    padding: 8px 16px;
+    border: 1px solid #185fb0;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+}
+
+.preview-link:hover {
+    background: #185fb0;
+    color: white !important;
+    transform: translateY(-1px);
+}
+
+/* =================================================================
+   UNIVERSAL DUMPSTER ENTRY SYSTEM
+   ================================================================= */
+
+.dumpster-entry {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.dumpster-entry-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 2fr 1fr;
+    gap: 16px;
+    align-items: end;
+}
+
+.dumpster-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.dumpster-field label {
+    font-size: 15px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.dumpster-field select,
+.dumpster-field input {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.delete-dumpster-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-dumpster-btn:hover {
+    background: #dc2626;
+}
+
+.add-dumpster-btn {
+    background: #f3f4f6;
+    color: #374151;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-weight: 500;
+    width: 100%;
+    margin-top: 12px;
+    transition: all 0.2s ease;
+    font-size: 14px;
+}
+
+.add-dumpster-btn:hover {
+    background: #e5e7eb;
+    border-color: #185fb0;
+    color: #185fb0;
+}
+
+/* =================================================================
+   COLOR PICKER
+   ================================================================= */
+
+.color-input-wrapper {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
+.color-input-wrapper input[type="color"] {
+    width: 50px;
+    height: 40px;
+    border: 2px solid #d1d5db;
+    border-radius: 6px;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.color-input-wrapper input[type="text"] {
+    flex: 1;
+    max-width: 200px;
+    font-size: 14px;
+}
+
+/* =================================================================
+   NAVIGATION BUTTONS
+   ================================================================= */
+
+.form-nav {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid #e5e7eb;
+}
+
+.btn-prev,
+.btn-next,
+.btn-submit {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-prev {
+    background: white;
+    color: #374151;
+    border: 2px solid #e5e7eb;
+}
+
+.btn-prev:hover {
+    background: #f3f4f6;
+    border-color: #d1d5db;
+}
+
+.btn-next,
+.btn-submit {
+    background: #185fb0;
+    color: white;
+}
+
+.btn-next:hover,
+.btn-submit:hover {
+    background: #1455a0;
+    transform: translateY(-1px);
+}
+
+.btn-submit {
+    background: #10b981;
+}
+
+.btn-submit:hover {
+    background: #059669;
+}
+
+/* =================================================================
+   INLINE RADIO BUTTONS
+   ================================================================= */
+
+.radio-inline {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.radio-inline label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.radio-inline input {
+    margin-right: 8px;
+}
+
+/* =================================================================
+   FILE UPLOAD
+   ================================================================= */
+
+.file-upload {
+    position: relative;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 30px 20px;
+    text-align: center;
+    background: #f9fafb;
+    transition: all 0.2s ease;
+}
+
+.file-upload:hover {
+    border-color: #185fb0;
+    background: #eff6ff;
+}
+
+.file-upload input {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    cursor: pointer;
+}
+
+.file-upload-text span {
+    display: block;
+    color: #374151;
+    font-weight: 500;
+    margin-bottom: 4px;
+    font-size: 14px;
+}
+
+.file-upload-text small {
+    color: #6b7280;
+    font-size: 14px;
+}
+
+/* =================================================================
+   GRIDS AND LAYOUTS
+   ================================================================= */
+
+.form-grid-2col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+}
+
+.service-areas-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+.service-area-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.service-area-field label {
+    font-size: 15px;
+    font-weight: 500;
+    color: #6b7280;
+    margin: 0;
+}
+
+/* =================================================================
+   RENTAL SECTIONS
+   ================================================================= */
+
+.rental-section {
+    background: #f9fafb;
+    border-radius: 8px;
+    padding: 20px;
+    margin-top: 20px;
+}
+
+.rental-section h4 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* =================================================================
+   CONDITIONAL SECTIONS
+   ================================================================= */
+
+.template4-only {
+    /* Template 4 specific content - hidden by default */
+}
+
+/* =================================================================
+   ERROR STATES
+   ================================================================= */
+
+.form-field.error input,
+.form-field.error textarea,
+.form-field.error select {
+    border-color: #ef4444;
+}
+
+.error .radio-group,
+.error .checkbox-group {
+    outline: 2px solid #ef4444;
+    outline-offset: 2px;
+    border-radius: 8px;
+}
+
+.field-error {
+    color: #ef4444;
+    font-size: 14px;
+    margin-top: 5px;
+    font-weight: normal;
+}
+
+/* =================================================================
+   SUCCESS SCREEN
+   ================================================================= */
+
+.form-success {
+    text-align: center;
+    padding: 60px 20px;
+}
+
+.success-icon {
+    width: 80px;
+    height: 80px;
+    background: #10b981;
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    font-weight: 600;
+    margin: 0 auto 24px;
+}
+
+.form-success h2 {
+    font-size: 26px;
+    font-weight: 600;
+    color: #111827;
+    margin-bottom: 12px;
+}
+
+.form-success p {
+    font-size: 14px;
+    color: #6b7280;
+    margin-bottom: 8px;
+}
+
+.success-note {
+    font-size: 14px;
+    color: #6b7280;
+    margin-top: 20px;
+}
+
+/* =================================================================
+   MOBILE RESPONSIVE
+   ================================================================= */
+
+@media (max-width: 768px) {
+    .docket-fast-form,
+    .docket-standard-form,
+    .docket-vip-form {
+        padding: 24px;
+    }
+    
+    .form-step h2 {
+        font-size: 22px;
+    }
+    
+    .form-grid-2col {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .service-areas-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .template-info {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        margin-left: 40px;
+    }
+    
+    .template-radio-card {
+        padding: 16px 20px;
+    }
+    
+    .dumpster-entry-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+    
+    .radio-inline {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .form-nav {
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+    
+    .btn-prev,
+    .btn-next,
+    .btn-submit {
+        flex: 1;
+        min-width: 120px;
+    }
+}
+
+/* =================================================================
+   UTILITY CLASSES
+   ================================================================= */
+
+.mb-20 { margin-bottom: 20px; }
+.mb-30 { margin-bottom: 30px; }
+.text-center { text-align: center; }
+.hidden { display: none; }
+
+/* =================================================================
+   FORM-SPECIFIC OVERRIDES (MINIMAL)
+   ================================================================= */
+
+/* Fast Build specific styles */
+.docket-fast-form .info-box {
+    /* Any fast-build specific overrides if needed */
+}
+
+/* Standard Build specific styles */
+.docket-standard-form .info-box {
+    /* Any standard-build specific overrides if needed */
+}
+
+/* Website VIP specific styles */
+.docket-vip-form .info-box {
+    /* Any vip specific overrides if needed */
+}

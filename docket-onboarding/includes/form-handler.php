@@ -129,8 +129,8 @@ function docket_ajax_load_standard_build_form() {
     // Start output buffering
     ob_start();
     
-    // Add CSS link
-    $css_url = DOCKET_ONBOARDING_PLUGIN_URL . 'includes/forms/standard-build/standard-build-form.css?ver=' . DOCKET_ONBOARDING_VERSION;
+    // Add unified CSS link
+    $css_url = DOCKET_ONBOARDING_PLUGIN_URL . 'assets/docket-forms-unified.css?ver=' . DOCKET_ONBOARDING_VERSION;
     echo '<link rel="stylesheet" href="' . esc_url($css_url) . '" type="text/css" media="all" />';
     
     // Add JavaScript link

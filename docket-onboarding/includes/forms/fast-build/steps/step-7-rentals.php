@@ -77,10 +77,29 @@
         <p><strong>Note:</strong> We'll launch your website without showing pricing or tonnage allowed. You'll need to update these after launch.</p>
     </div>
     
-    <div class="form-field" id="dumpsterSizesField" style="display: none;">
-        <label>Dumpster Sizes & Details</label>
-        <p class="field-note">Please list the sizes, dimensions, and any other details for your selected dumpster types</p>
-        <textarea name="dumpster_sizes_details" rows="4" placeholder="e.g., Roll-Off: 10 yd (8'x20'), 20 yd (8'x22'), 30 yd (8'x20')&#10;Hook-Lift: 15 yd (6'x12'), 20 yd (6'x16')&#10;Dump Trailers: 12 yd (6'x10'), 16 yd (6'x12')"></textarea>
+    <!-- Universal Dumpster Entry System -->
+    <div id="rollOffSection" class="rental-section" style="display: none;">
+        <h4>🗑️ Roll-Off Dumpster Information</h4>
+        <div class="dumpster-entries" id="rollOffEntries">
+            <!-- Dumpster entries will be added here dynamically -->
+        </div>
+        <button type="button" class="add-dumpster-btn" data-type="roll-off">+ Add Roll-Off Dumpster</button>
+    </div>
+
+    <div id="hookLiftSection" class="rental-section" style="display: none;">
+        <h4>🚛 Hook-Lift Dumpster Information</h4>
+        <div class="dumpster-entries" id="hookLiftEntries">
+            <!-- Dumpster entries will be added here dynamically -->
+        </div>
+        <button type="button" class="add-dumpster-btn" data-type="hook-lift">+ Add Hook-Lift Dumpster</button>
+    </div>
+
+    <div id="dumpTrailerSection" class="rental-section" style="display: none;">
+        <h4>🚚 Dump Trailer Information</h4>
+        <div class="dumpster-entries" id="dumpTrailerEntries">
+            <!-- Dumpster entries will be added here dynamically -->
+        </div>
+        <button type="button" class="add-dumpster-btn" data-type="dump-trailer">+ Add Dump Trailer</button>
     </div>
 
     <div class="form-nav">

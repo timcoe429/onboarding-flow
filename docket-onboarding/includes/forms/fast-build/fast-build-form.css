@@ -1328,6 +1328,90 @@
     }
 }
 
+/* Universal Dumpster Entry System */
+.dumpster-entry {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 16px;
+    position: relative;
+}
+
+.dumpster-entry-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 2fr 1fr;
+    gap: 16px;
+    align-items: end;
+}
+
+.dumpster-field {
+    display: flex;
+    flex-direction: column;
+}
+
+.dumpster-field label {
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    margin-bottom: 6px;
+}
+
+.dumpster-field select,
+.dumpster-field input {
+    padding: 8px 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 14px;
+}
+
+.delete-dumpster-btn {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    font-size: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.delete-dumpster-btn:hover {
+    background: #dc2626;
+}
+
+.add-dumpster-btn {
+    background: #f3f4f6;
+    color: #374151;
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-weight: 500;
+    width: 100%;
+    margin-top: 12px;
+    transition: all 0.2s ease;
+}
+
+.add-dumpster-btn:hover {
+    background: #e5e7eb;
+    border-color: #185fb0;
+    color: #185fb0;
+}
+
+@media (max-width: 768px) {
+    .dumpster-entry-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+}
+
 /* Small color dots for radio buttons */
 .color-dot {
     width: 12px;

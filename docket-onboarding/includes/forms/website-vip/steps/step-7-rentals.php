@@ -98,71 +98,29 @@
         </ul>
     </div>
 
-    <!-- Dynamic Rental Info Sections -->
+    <!-- Universal Dumpster Entry System -->
     <div id="rollOffSection" class="rental-section" style="display: none;">
         <h4>🗑️ Roll-Off Dumpster Information</h4>
-        <div class="form-grid-2col">
-            <div class="form-field">
-                <label>Rental Sizes</label>
-                <textarea name="roll_sizes" rows="2" placeholder="e.g., 10 yd, 20 yd, 30 yd"></textarea>
-            </div>
-            <div class="form-field">
-                <label>Rental Periods</label>
-                <textarea name="roll_rentalperiods" rows="2" placeholder="e.g., 1, 3, and 7 Day Rentals"></textarea>
-            </div>
-            <div class="form-field">
-                <label>Tons Allowed</label>
-                <textarea name="roll_tons" rows="2" placeholder="e.g., 2 tons, 3 tons"></textarea>
-            </div>
-            <div class="form-field">
-                <label>Starting Prices</label>
-                <textarea name="roll_startingprice" rows="2" placeholder="e.g., $299"></textarea>
-            </div>
+        <div class="dumpster-entries" id="rollOffEntries">
+            <!-- Dumpster entries will be added here dynamically -->
         </div>
+        <button type="button" class="add-dumpster-btn" data-type="roll-off">+ Add Roll-Off Dumpster</button>
     </div>
 
     <div id="hookLiftSection" class="rental-section" style="display: none;">
         <h4>🚛 Hook-Lift Dumpster Information</h4>
-        <div class="form-grid-2col">
-            <div class="form-field">
-                <label>Rental Sizes</label>
-                <textarea name="hook_rentalsizes" rows="2"></textarea>
-            </div>
-            <div class="form-field">
-                <label>Rental Periods</label>
-                <textarea name="hook_rentalperiods" rows="2"></textarea>
-            </div>
-            <div class="form-field">
-                <label>Tons Allowed</label>
-                <textarea name="hook_rentaltons" rows="2"></textarea>
-            </div>
-            <div class="form-field">
-                <label>Starting Prices</label>
-                <textarea name="hook_price" rows="2"></textarea>
-            </div>
+        <div class="dumpster-entries" id="hookLiftEntries">
+            <!-- Dumpster entries will be added here dynamically -->
         </div>
+        <button type="button" class="add-dumpster-btn" data-type="hook-lift">+ Add Hook-Lift Dumpster</button>
     </div>
 
     <div id="dumpTrailerSection" class="rental-section" style="display: none;">
         <h4>🚚 Dump Trailer Information</h4>
-        <div class="form-grid-2col">
-            <div class="form-field">
-                <label>Rental Sizes</label>
-                <textarea name="dump_trailersize" rows="2"></textarea>
-            </div>
-            <div class="form-field">
-                <label>Rental Periods</label>
-                <textarea name="dump_trailerrentals" rows="2"></textarea>
-            </div>
-            <div class="form-field">
-                <label>Tons Allowed</label>
-                <textarea name="dump_trailertons" rows="2"></textarea>
-            </div>
-            <div class="form-field">
-                <label>Starting Prices</label>
-                <textarea name="dump_trailerprice" rows="2"></textarea>
-            </div>
+        <div class="dumpster-entries" id="dumpTrailerEntries">
+            <!-- Dumpster entries will be added here dynamically -->
         </div>
+        <button type="button" class="add-dumpster-btn" data-type="dump-trailer">+ Add Dump Trailer</button>
     </div>
 
     <!-- Junk Removal Section -->

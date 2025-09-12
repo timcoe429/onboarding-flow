@@ -355,6 +355,68 @@ jQuery(document).ready(function($) {
             $(this).siblings('.color-picker').val(hexValue);
         }
     });
+
+    // Universal Dumpster Entry System
+    let dumpsterCounter = 0;
+
+    // Add dumpster entry
+    $(document).on('click', '.add-dumpster-btn', function() {
+        const type = $(this).data('type');
+        const container = $(this).siblings('.dumpster-entries');
+        dumpsterCounter++;
+        
+        const entryHtml = createDumpsterEntry(type, dumpsterCounter);
+        container.append(entryHtml);
+    });
+
+    // Delete dumpster entry
+    $(document).on('click', '.delete-dumpster-btn', function() {
+        $(this).closest('.dumpster-entry').remove();
+    });
+
+    // Create dumpster entry HTML
+    function createDumpsterEntry(type, id) {
+        const sizes = [7, 10, 12, 15, 20, 30, 40];
+        const sizeOptions = [];
+        sizes.forEach(size => {
+            sizeOptions.push(`<option value="${size}">${size} yd</option>`);
+        });
+
+        const tonOptions = [];
+        for (let i = 1; i <= 10; i++) {
+            tonOptions.push(`<option value="${i}">${i} ton${i > 1 ? 's' : ''}</option>`);
+        }
+
+        return `
+            <div class="dumpster-entry">
+                <button type="button" class="delete-dumpster-btn">×</button>
+                <div class="dumpster-entry-grid">
+                    <div class="dumpster-field">
+                        <label>Size</label>
+                        <select name="${type}_size_${id}" required>
+                            <option value="">Select Size</option>
+                            ${sizeOptions.join('')}
+                        </select>
+                    </div>
+                    <div class="dumpster-field">
+                        <label>Tons Allowed</label>
+                        <select name="${type}_tons_${id}" required>
+                            <option value="">Select Tons</option>
+                            ${tonOptions.join('')}
+                        </select>
+                    </div>
+                    <div class="dumpster-field">
+                        <label>Rental Period</label>
+                        <input type="text" name="${type}_period_${id}" placeholder="e.g., 1, 3, and 7 Day Rentals" required>
+                    </div>
+                    <div class="dumpster-field">
+                        <label>Starting Price</label>
+                        <input type="text" name="${type}_price_${id}" placeholder="e.g., $299" required>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
     
     // Show processing screen
     function showProcessingScreen() {

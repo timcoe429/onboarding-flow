@@ -1339,7 +1339,7 @@
 
 .preview-link:hover {
     background: #185fb0;
-    color: white;
+    color: white !important;
     transform: translateY(-1px);
 }
 

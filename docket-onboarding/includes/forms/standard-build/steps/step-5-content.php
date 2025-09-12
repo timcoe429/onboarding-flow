@@ -50,8 +50,9 @@
             <input type="text" name="company_tagline" maxlength="65">
         </div>
 
-        <!-- FAQs (Template 4 only) -->
+        <!-- Template 4 Only Content -->
         <div class="template4-only" style="display: none;">
+            <!-- FAQs -->
             <div class="form-field">
                 <label>Do you want to provide 5 company FAQ's? *</label>
                 <div class="radio-inline">
@@ -70,10 +71,8 @@
                 <label>Company FAQ's (5) *</label>
                 <textarea name="company_faqs" rows="6" placeholder="Please provide 5 FAQ's. Include both the question AND the answer."></textarea>
             </div>
-        </div>
 
-        <!-- Benefits (Template 4 only) -->
-        <div class="template4-only" style="display: none;">
+            <!-- Benefits -->
             <div class="form-field">
                 <label>Do you want to provide 5 Benefits/What We Do Q+A's? *</label>
                 <div class="radio-inline">

@@ -1,4 +1,5 @@
-jQuery(document).ready(function($) {
+(function($) {
+    // Execute when script loads (AJAX compatible)
     const form = $('#websiteVipForm');
     const steps = $('.form-step');
     const progressFill = $('.docket-progress-fill');
@@ -702,4 +703,4 @@ jQuery(document).ready(function($) {
             Docket - No Signature Needed, Valid only After Receipt of Payment</p>
         `;
     }
-});
+})(jQuery);

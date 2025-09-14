@@ -1,4 +1,5 @@
-jQuery(document).ready(function($) {
+(function($) {
+    // Execute when script loads (AJAX compatible)
     const form = $('#fastBuildForm');
     const steps = $('.form-step');
     const progressFill = $('.docket-progress-fill');
@@ -529,4 +530,4 @@ jQuery(document).ready(function($) {
         // You can implement a modal or expand the terms here
         alert('Full terms would be displayed here');
     };
-});
+})(jQuery);

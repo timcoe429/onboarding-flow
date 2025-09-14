@@ -278,8 +278,8 @@
         }
     });
     
-    // Dumpster types toggle
-    $('input[name="what_types_of_dumpsters_do_you_have[]"]').on('change', function() {
+    // Dumpster types toggle (using event delegation for AJAX-loaded content)
+    $(document).on('change', 'input[name="dumpster_types[]"]', function() {
         const value = $(this).val();
         const isChecked = $(this).is(':checked');
         

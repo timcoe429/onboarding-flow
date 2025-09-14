@@ -38,11 +38,12 @@
             </div>
         </div>
         
-        <div class="terms-link">
-            <a href="#" onclick="openTermsModal(); return false;" class="terms-modal-trigger">View Full Terms & Conditions</a>
+            <div class="terms-link">
+                <a href="#" onclick="openTermsModal(); return false;" class="terms-modal-trigger">View Full Terms & Conditions</a>
+            </div>
         </div>
         
-        <label class="checkbox-field" style="margin-top: 16px;">
+        <label class="checkbox-card">
             <input type="checkbox" name="accept_terms_&_conditions" required>
             <span>I Accept the Terms & Conditions</span>
         </label>

@@ -409,8 +409,8 @@
         }
     });
     
-    // Dumpster types toggle
-    $('.dumpster-type').on('change', function() {
+    // Dumpster types toggle (using event delegation for AJAX-loaded content)
+    $(document).on('change', '.dumpster-type', function() {
         const type = $(this).val();
         let sectionId = '';
         

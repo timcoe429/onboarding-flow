@@ -350,7 +350,7 @@
     });
 
     // Dumpster type toggles
-    $('input[name="dumpster_types"]').on('change', function() {
+    $(document).on('change', '.dumpster-type', function() {
         const value = $(this).val();
         const isChecked = $(this).is(':checked');
         

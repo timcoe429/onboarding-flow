@@ -21,6 +21,14 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 
+/* Force ALL form steps to respect container width */
+.form-step {
+    width: 100%;
+    max-width: 750px;
+    margin: 0 auto;
+    box-sizing: border-box;
+}
+
 /* Validation Message */
 .validation-message {
     background: #fef2f2;

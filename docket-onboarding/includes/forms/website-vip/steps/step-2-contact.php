@@ -3,8 +3,7 @@
     <h2>Contact & Business Information</h2>
     <p class="step-subtitle">Provide your contact information so we can reach out about your website</p>
     
-    <div class="form-grid-2col">
-        <div class="form-field full-width">
+    <div class="form-field">
             <label>Contact First & Last Name *</label>
             <input type="text" name="contact_name" autocomplete="name" required>
         </div>
@@ -29,7 +28,7 @@
             <input type="email" name="business_email" autocomplete="email" required>
         </div>
         
-        <div class="form-field full-width">
+    <div class="form-field">
             <label>Business Address *</label>
             <input type="text" name="business_address" autocomplete="street-address" required>
         </div>
@@ -48,5 +47,3 @@
     <div class="form-nav">
         <button type="button" class="btn-prev">Back</button>
         <button type="button" class="btn-next">Next</button>
-    </div>
-</div>

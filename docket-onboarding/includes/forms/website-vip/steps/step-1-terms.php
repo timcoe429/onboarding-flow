@@ -35,9 +35,7 @@
                     <li>AI Chat Bot, On-Page SEO, Location Pages, Analytics, and more</li>
                     <li>You'll be contacted to discuss the WebsiteVIP plan upgrade after you submit this form</li>
                 </ul>
-            </div>
-        </div>
-        
+            
             <div class="terms-link">
                 <a href="#" onclick="openTermsModal(); return false;" class="terms-modal-trigger">View Full Terms & Conditions</a>
             </div>

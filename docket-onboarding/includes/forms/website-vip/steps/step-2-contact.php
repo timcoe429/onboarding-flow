@@ -42,7 +42,6 @@
             <label>State *</label>
             <input type="text" name="business_state" autocomplete="address-level1" required>
         </div>
-    </div>
 
     <div class="form-nav">
         <button type="button" class="btn-prev">Back</button>

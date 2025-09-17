@@ -37,21 +37,21 @@
         <label>Social Media Links</label>
         <p class="field-note">Please provide the exact URLs for your social media profiles</p>
         <div class="social-media-grid">
-            <div class="form-field">
+            <div class="social-media-field">
                 <label>Facebook</label>
-                <input type="url" name="facebook" placeholder="You will need to provide the exact URL. Example: https://www.facebook.com/Docket/">
+                <input type="url" name="facebook" placeholder="https://www.facebook.com/YourPage">
             </div>
-            <div class="form-field">
+            <div class="social-media-field">
                 <label>Instagram</label>
-                <input type="url" name="instagram" placeholder="You will need to provide the exact URL. Example: https://www.instagram/DocketSoftware">
+                <input type="url" name="instagram" placeholder="https://www.instagram.com/YourProfile">
             </div>
-            <div class="form-field">
+            <div class="social-media-field">
                 <label>X (Twitter)</label>
-                <input type="url" name="twitter" placeholder="You will need to provide the exact URL. Example: https://www.x/DocketSoftware">
+                <input type="url" name="twitter" placeholder="https://www.x.com/YourProfile">
             </div>
-            <div class="form-field">
+            <div class="social-media-field">
                 <label>YouTube</label>
-                <input type="url" name="YouTube" placeholder="You will need to provide the exact URL. Example: https://www.youtube.com/@DocketSoftware">
+                <input type="url" name="YouTube" placeholder="https://www.youtube.com/@YourChannel">
             </div>
         </div>
     </div>

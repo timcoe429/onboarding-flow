@@ -29,7 +29,7 @@
             <input type="email" name="business_email" autocomplete="email" required>
         </div>
         
-        <div class="form-field">
+        <div class="form-field full-width">
             <label>Business Address *</label>
             <input type="text" name="business_address" autocomplete="street-address" required>
         </div>

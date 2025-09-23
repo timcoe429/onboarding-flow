@@ -91,26 +91,26 @@
                 <label>Benefits/What We Do (5) *</label>
                 <textarea name="benefits_what_we_do" rows="6" placeholder="Please provide 5 Benefits/What We Do's. Include both the question AND the answer."></textarea>
             </div>
-        </div>
 
-        <!-- Footer -->
-        <div class="form-field">
-            <label>Do you want to provide a company summary for website footer? *</label>
-            <div class="radio-inline">
-                <label>
-                    <input type="radio" name="provide_footer" value="Yes">
-                    <span>Yes</span>
-                </label>
-                <label>
-                    <input type="radio" name="provide_footer" value="No">
-                    <span>No - use stock content</span>
-                </label>
+            <!-- Footer -->
+            <div class="form-field">
+                <label>Do you want to provide a company summary for website footer? *</label>
+                <div class="radio-inline">
+                    <label>
+                        <input type="radio" name="provide_footer" value="Yes">
+                        <span>Yes</span>
+                    </label>
+                    <label>
+                        <input type="radio" name="provide_footer" value="No">
+                        <span>No - use stock content</span>
+                    </label>
+                </div>
             </div>
-        </div>
-        
-        <div class="form-field" id="footerField" style="display: none;">
-            <label>Company Summary - Website Footer</label>
-            <input type="text" name="website_footer" maxlength="65">
+            
+            <div class="form-field" id="footerField" style="display: none;">
+                <label>Company Summary - Website Footer</label>
+                <input type="text" name="website_footer" maxlength="65">
+            </div>
         </div>
     </div>
 

@@ -316,8 +316,8 @@
     });
     
     // Font toggle
-    $('input[name="do_you_want_to_provide_a_font_for_your_h1_+_h2_areas_on_your_website"]').on('change', function() {
-        if ($(this).val().includes('Yes')) {
+    $('input[name="provide_font"]').on('change', function() {
+        if ($(this).val() === 'Yes') {
             $('#fontField').slideDown();
             $('#fontField input').attr('required', true);
         } else {

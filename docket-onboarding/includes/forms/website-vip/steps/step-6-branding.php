@@ -46,11 +46,11 @@
     
     <div class="info-box mb-20">
         <p><strong>Google Fonts</strong></p>
-        <p>We can use a Google Font for your Headings (H1 and H2). View available fonts <a href="https://fonts.google.com" target="_blank" style="color: #185fb0; font-weight: bold;">here</a>.</p>
+        <p>We can use a Google Font for your Titles. View available fonts <a href="https://fonts.google.com" target="_blank" style="color: #185fb0; font-weight: bold;">here</a>.</p>
     </div>
     
     <div class="form-field">
-        <label>Do you want to provide a font for H1 + H2 areas? *</label>
+        <label>Do you want to provide a font for Titles? *</label>
         <div class="radio-inline">
             <label>
                 <input type="radio" name="provide_font" value="Yes" required>

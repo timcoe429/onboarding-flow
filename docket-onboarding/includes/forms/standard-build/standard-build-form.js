@@ -22,8 +22,11 @@
     }
 
     // Navigation
-    $('.btn-next').on('click', function() {
-        if (DEVELOPMENT_MODE || validateStep(currentStep)) {
+    $('.btn-next').on('click', function(event) {
+        // Always validate unless holding Shift key in dev mode
+        const skipValidation = DEVELOPMENT_MODE && event.shiftKey;
+        
+        if (skipValidation || validateStep(currentStep)) {
             currentStep++;
             showStep(currentStep);
         }
@@ -77,6 +80,35 @@
         return cleanPhone.length >= 10 && phoneRegex.test(cleanPhone);
     }
     
+    // Show validation error summary
+    function showValidationSummary(errors) {
+        // Remove any existing error summary
+        $('.validation-summary').remove();
+        
+        if (errors.length > 0) {
+            const summaryHtml = `
+                <div class="validation-summary">
+                    <div class="validation-summary-header">
+                        <span class="validation-icon">⚠️</span>
+                        <strong>Please complete the following required fields:</strong>
+                    </div>
+                    <ul class="validation-errors">
+                        ${errors.map(error => `<li>${error}</li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            
+            // Insert at the top of the current step
+            const currentStepEl = $(`.form-step[data-step="${currentStep}"]`);
+            currentStepEl.prepend(summaryHtml);
+            
+            // Scroll to the error summary
+            $('html, body').animate({ 
+                scrollTop: $('.validation-summary').offset().top - 100 
+            }, 300);
+        }
+    }
+    
     // Validate step
     function validateStep(step) {
         const currentStepEl = $(`.form-step[data-step="${step}"]`);
@@ -84,12 +116,12 @@
         let valid = true;
         let checkedRadios = {};
         let checkedCheckboxGroups = {};
-        let missingFields = [];
+        let errors = [];
         
-        // Clear previous errors and validation message
+        // Clear previous errors
         currentStepEl.find('.error').removeClass('error');
         currentStepEl.find('.field-error').remove();
-        currentStepEl.find('#validationMessage').hide();
+        $('.validation-summary').remove();
         
         required.each(function() {
             const $field = $(this);
@@ -105,13 +137,15 @@
             
             if ($field.is(':radio')) {
                 const name = $field.attr('name');
-                checkedRadios[name] = checkedRadios[name] || $(`input[name="${name}"]:checked`).length > 0;
                 if (!checkedRadios[name]) {
-                    valid = false;
-                    $field.closest('.radio-group, .radio-inline, .form-field').addClass('error');
-                    const label = $formField.find('label').text().replace('*', '').trim();
-                    missingFields.push(label);
-                    $formField.append('<div class="field-error">Please select an option for ' + label + '</div>');
+                    checkedRadios[name] = $(`input[name="${name}"]:checked`).length > 0;
+                    if (!checkedRadios[name]) {
+                        valid = false;
+                        $field.closest('.radio-group, .radio-inline, .form-field').addClass('error');
+                        const label = $formField.find('label').first().text().replace('*', '').trim();
+                        errors.push(label);
+                        $formField.append('<div class="field-error">Please select an option</div>');
+                    }
                 }
             } else if ($field.is(':checkbox')) {
                 const name = $field.attr('name');
@@ -121,26 +155,27 @@
                     if (!group.find('input:checked').length) {
                         valid = false;
                         group.addClass('error');
-                        missingFields.push('Please select at least one option');
+                        const label = $formField.find('label').first().text().replace('*', '').trim();
+                        errors.push(label);
                         group.append('<div class="field-error">Please select at least one option</div>');
                     }
-                } else if (!$field.is(':checked')) {
+                } else if (!group.length && !$field.is(':checked')) {
                     valid = false;
                     $field.closest('.checkbox-card, .form-field').addClass('error');
-                    const label = $formField.find('label').text().replace('*', '').trim();
-                    missingFields.push(label);
+                    const label = $formField.find('label').first().text().replace('*', '').trim();
+                    errors.push(label);
                     $formField.append('<div class="field-error">Please check this required field</div>');
                 }
             } else {
                 // Text, email, tel fields
                 let errorMessage = '';
+                let fieldLabel = $formField.find('label').first().text().replace('*', '').trim();
                 
                 if (!val || val.trim().length === 0) {
                     valid = false;
                     $field.addClass('error');
-                    const label = $formField.find('label').text().replace('*', '').trim();
-                    errorMessage = label + ' is required';
-                    missingFields.push(label);
+                    errorMessage = 'This field is required';
+                    errors.push(fieldLabel);
                 } else {
                     // Format validation for specific field types
                     if (fieldType === 'email' || fieldName.includes('email')) {
@@ -148,12 +183,14 @@
                             valid = false;
                             $field.addClass('error');
                             errorMessage = 'Please enter a valid email address';
+                            errors.push(`${fieldLabel} - Invalid email format`);
                         }
                     } else if (fieldType === 'tel' || fieldName.includes('phone')) {
                         if (!isValidPhone(val)) {
                             valid = false;
                             $field.addClass('error');
                             errorMessage = 'Please enter a valid phone number (at least 10 digits)';
+                            errors.push(`${fieldLabel} - Invalid phone format`);
                         }
                     }
                 }
@@ -176,21 +213,14 @@
                     companyColorsField.addClass('error');
                     companyColorsField.closest('.form-field').addClass('error');
                     companyColorsField.closest('.form-field').append('<div class="field-error">Please enter a valid HEX color code (e.g., #00008B)</div>');
+                    errors.push('Company Brand Color - Invalid HEX color code');
                 }
             }
         }
         
-        // Show validation message if there are missing fields
-        if (!valid && missingFields.length > 0) {
-            const validationMessage = currentStepEl.find('#validationMessage');
-            if (validationMessage.length > 0) {
-                const validationList = validationMessage.find('#validationList');
-                validationList.empty();
-                missingFields.forEach(function(field) {
-                    validationList.append('<li>' + field + '</li>');
-                });
-                validationMessage.show();
-            }
+        // Show validation summary if there are errors
+        if (!valid && errors.length > 0) {
+            showValidationSummary(errors);
         }
         
         return valid;
@@ -201,6 +231,14 @@
         $(this).removeClass('error');
         $(this).closest('.error').removeClass('error');
         $(this).closest('.form-field').find('.field-error').remove();
+        
+        // Check if all errors are resolved and remove validation summary
+        const currentStepEl = $(`.form-step[data-step="${currentStep}"]`);
+        if (currentStepEl.find('.error').length === 0) {
+            $('.validation-summary').fadeOut(300, function() {
+                $(this).remove();
+            });
+        }
     });
     
     // Match logo color radio button change
@@ -413,15 +451,27 @@
     $(document).on('change', '.dumpster-type', function() {
         const type = $(this).val();
         let sectionId = '';
+        let entriesId = '';
         
-        if (type === 'Roll-Off') sectionId = '#rollOffSection';
-        else if (type === 'Hook-Lift') sectionId = '#hookLiftSection';
-        else if (type === 'Dump Trailers') sectionId = '#dumpTrailerSection';
+        if (type === 'Roll-Off') {
+            sectionId = '#rollOffSection';
+            entriesId = '#rollOffEntries';
+        } else if (type === 'Hook-Lift') {
+            sectionId = '#hookLiftSection';
+            entriesId = '#hookLiftEntries';
+        } else if (type === 'Dump Trailers') {
+            sectionId = '#dumpTrailerSection';
+            entriesId = '#dumpTrailerEntries';
+        }
         
         if ($(this).is(':checked')) {
             $(sectionId).slideDown();
         } else {
             $(sectionId).slideUp();
+            // Remove required attributes from hidden fields
+            $(sectionId).find('[required]').removeAttr('required');
+            // Clear all entries when section is hidden
+            $(entriesId).empty();
         }
     });
     
@@ -435,6 +485,8 @@
             $('#junkRemovalSection').slideUp();
             // Clear any selected checkboxes when hiding the section
             $('#junkRemovalSection input[type="checkbox"]').prop('checked', false);
+            // Remove required attributes from hidden fields
+            $('#junkRemovalSection').find('[required]').removeAttr('required');
         }
     });
     

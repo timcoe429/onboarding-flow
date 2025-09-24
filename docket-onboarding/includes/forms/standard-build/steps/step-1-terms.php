@@ -39,9 +39,8 @@
             </div>
         </div>
         
-            <div class="terms-link">
-                <a href="#" onclick="openTermsModal(); return false;" class="terms-modal-trigger">View Full Terms & Conditions</a>
-            </div>
+        <div class="terms-link">
+            <a href="#" onclick="openTermsModal(); return false;" class="terms-modal-trigger">View Full Terms & Conditions</a>
         </div>
         
         <label class="checkbox-card">

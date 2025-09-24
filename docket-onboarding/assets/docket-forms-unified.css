@@ -799,6 +799,10 @@ p {
     z-index: 2;
 }
 
+.popular-badge {
+    background: #7eb10f;
+}
+
 .recommended-badge {
     background: #10b981;
 }
@@ -829,7 +833,6 @@ p {
 
 .template-card-label input[type="radio"]:checked ~ .template-card-content {
     border-color: #185fb0;
-    background: #f0f7ff;
     box-shadow: 0 4px 16px rgba(24, 95, 176, 0.15);
 }
 
@@ -844,7 +847,7 @@ p {
     background: #f9fafb;
     border-radius: 8px;
     padding: 8px;
-    margin-bottom: 20px;
+    margin-bottom: 16px;
     text-align: center;
     min-height: 200px;
     display: flex;
@@ -913,6 +916,7 @@ p {
     font-weight: 500;
     font-size: 14px;
     transition: all 0.2s ease;
+    margin-top: auto;
 }
 
 .preview-button:hover {
@@ -928,9 +932,14 @@ p {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
+/* Maintain green border on hover for popular card */
+.template-card.popular:hover .template-card-content {
+    border-color: #7eb10f;
+}
+
 /* Popular template highlight */
 .template-card.popular .template-card-content {
-    border-color: #f59e0b;
+    border-color: #7eb10f;
 }
 
 .template-card.popular .template-card-label input[type="radio"]:checked ~ .template-card-content {

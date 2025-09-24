@@ -6,7 +6,7 @@
     <div class="template-cards-grid">
         <!-- Template 4 - Most Popular -->
         <div class="template-card popular">
-            <div class="popular-badge">Most Popular</div>
+            <div class="popular-badge">Top Converter</div>
             <label class="template-card-label">
                 <input type="radio" name="website_template_selection" value="template4" required>
                 <div class="template-card-content">
@@ -15,14 +15,6 @@
                         <div class="preview-placeholder">
                             <img src="https://dockethosting4.com/wp-content/uploads/2025/02/Template-4-Screenshot.png" alt="Template 4 Preview" class="template-screenshot">
                         </div>
-                    </div>
-                    <div class="template-features">
-                        <p class="choose-if"><strong>Choose this if:</strong></p>
-                        <ul>
-                            <li>You have limited photos</li>
-                            <li>Mobile traffic is important</li>
-                            <li>You want maximum conversions</li>
-                        </ul>
                     </div>
                     <a href="https://dockethosting3.com/salesdemo4" target="_blank" class="preview-button">Preview Template →</a>
                 </div>
@@ -41,14 +33,6 @@
                             <img src="https://dockethosting4.com/wp-content/uploads/2025/02/Template-1-Screenshot.png" alt="Template 1 Preview" class="template-screenshot">
                         </div>
                     </div>
-                    <div class="template-features">
-                        <p class="choose-if"><strong>Choose this if:</strong></p>
-                        <ul>
-                            <li>You want a proven design</li>
-                            <li>Classic layout appeals to you</li>
-                            <li>High conversion is priority</li>
-                        </ul>
-                    </div>
                     <a href="https://dockethosting3.com/salesdemo1" target="_blank" class="preview-button">Preview Template →</a>
                 </div>
             </label>
@@ -65,14 +49,6 @@
                             <img src="https://dockethosting4.com/wp-content/uploads/2025/02/Template-2-Screenshot.png" alt="Template 2 Preview" class="template-screenshot">
                         </div>
                     </div>
-                    <div class="template-features">
-                        <p class="choose-if"><strong>Choose this if:</strong></p>
-                        <ul>
-                            <li>You have professional photos</li>
-                            <li>Visual appeal is key</li>
-                            <li>Brand image is priority</li>
-                        </ul>
-                    </div>
                     <a href="https://dockethosting3.com/salesdemo2/" target="_blank" class="preview-button">Preview Template →</a>
                 </div>
             </label>
@@ -88,14 +64,6 @@
                         <div class="preview-placeholder">
                             <img src="https://dockethosting4.com/wp-content/uploads/2025/02/Template-3-Screenshot.png" alt="Template 3 Preview" class="template-screenshot">
                         </div>
-                    </div>
-                    <div class="template-features">
-                        <p class="choose-if"><strong>Choose this if:</strong></p>
-                        <ul>
-                            <li>You have quality imagery</li>
-                            <li>Modern design appeals</li>
-                            <li>Standing out matters</li>
-                        </ul>
                     </div>
                     <a href="https://dockethosting3.com/salesdemo3" target="_blank" class="preview-button">Preview Template →</a>
                 </div>

@@ -24,15 +24,9 @@
 /* Force ALL form steps to respect container width */
 .form-step {
     width: 100%;
+    max-width: 710px;
     margin: 0 auto;
     box-sizing: border-box;
-}
-
-/* Ensure form steps inside containers respect padding */
-.docket-standard-form .form-step,
-.docket-fast-form .form-step,
-.docket-vip-form .form-step {
-    max-width: none; /* Let container padding handle the spacing */
 }
 
 /* Validation Message */

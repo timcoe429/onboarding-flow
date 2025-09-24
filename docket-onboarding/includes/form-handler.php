@@ -281,62 +281,12 @@ function docket_ajax_load_website_vip_form() {
     // Start output buffering
     ob_start();
     
-    // Add CSS and scripts OUTSIDE the form container wrapper
-    $css_url = DOCKET_ONBOARDING_PLUGIN_URL . 'assets/docket-forms-unified.css?ver=' . DOCKET_ONBOARDING_VERSION;
-    echo '<link rel="stylesheet" href="' . esc_url($css_url) . '" type="text/css" media="all" />';
-    
-    $js_url = DOCKET_ONBOARDING_PLUGIN_URL . 'includes/forms/website-vip/website-vip-form.js?ver=' . DOCKET_ONBOARDING_VERSION;
-    echo '<script src="' . esc_url($js_url) . '"></script>';
-    echo '<script>window.ajaxurl = "' . admin_url('admin-ajax.php') . '";</script>';
-    
-    // Wrap everything in a container div
-    echo '<div class="docket-form-wrapper">';
-    
-    // Render the Website VIP form
+    // Render the Website VIP form (NO SCRIPTS - just HTML)
     if (function_exists('docket_render_website_vip_form')) {
         docket_render_website_vip_form($form_data);
     } else {
         echo '<p>Error: Website VIP form not found.</p>';
     }
-    
-    echo '</div>'; // Close wrapper
-    
-    // Add initialization script AFTER the form
-    echo '<script>
-        // Wait for script to load then initialize
-        function waitForWebsiteVipScript() {
-            if (typeof jQuery !== "undefined" && jQuery("#websiteVipForm").length > 0) {
-                // Initialize the form directly since it\'s loaded via AJAX
-                jQuery(function($) {
-                    // Initialize modal functionality
-                    window.openTermsModal = function() {
-                        var modal = document.getElementById("termsModal");
-                        if (modal) {
-                            modal.style.display = "block";
-                        }
-                    }
-                    
-                    // Close modal when clicking X or outside
-                    $(document).on("click", ".docket-modal-close, .docket-modal", function(e) {
-                        if (e.target === this) {
-                            $("#termsModal").hide();
-                        }
-                    });
-                    
-                    // Prevent modal content clicks from closing
-                    $(document).on("click", ".docket-modal-content", function(e) {
-                        e.stopPropagation();
-                    });
-                    
-                    // The rest of the initialization is handled by the loaded website-vip-form.js file
-                });
-            } else {
-                setTimeout(waitForWebsiteVipScript, 100);
-            }
-        }
-        
-        waitForWebsiteVipScript();
-    </script>';
     
     // Get the output
     $form_html = ob_get_clean();
@@ -344,8 +294,15 @@ function docket_ajax_load_website_vip_form() {
     // Apply filter for additional modifications
     $form_html = apply_filters('docket_website_vip_form_response', $form_html);
     
+    // Prepare CSS and JS URLs
+    $css_url = DOCKET_ONBOARDING_PLUGIN_URL . 'assets/docket-forms-unified.css?ver=' . DOCKET_ONBOARDING_VERSION;
+    $js_url = DOCKET_ONBOARDING_PLUGIN_URL . 'includes/forms/website-vip/website-vip-form.js?ver=' . DOCKET_ONBOARDING_VERSION;
+    
     wp_send_json_success(array(
         'form_html' => $form_html,
+        'css_url' => $css_url,
+        'js_url' => $js_url,
+        'ajax_url' => admin_url('admin-ajax.php'),
         'message' => 'Form loaded successfully'
     ));
     

@@ -262,7 +262,36 @@
                         
                         // Fade transition
                         $('.docket-onboarding').fadeOut(300, function() {
-                            $(this).html(response.data.form_html).fadeIn(300, function() {
+                            // Insert HTML first
+                            $(this).html(response.data.form_html);
+                            
+                            // Load CSS if provided
+                            if (response.data.css_url && !$('link[href="' + response.data.css_url + '"]').length) {
+                                $('<link>').attr({
+                                    rel: 'stylesheet',
+                                    type: 'text/css',
+                                    href: response.data.css_url
+                                }).appendTo('head');
+                            }
+                            
+                            // Set AJAX URL if provided
+                            if (response.data.ajax_url) {
+                                window.ajaxurl = response.data.ajax_url;
+                            }
+                            
+                            // Load JavaScript if provided
+                            if (response.data.js_url) {
+                                $.getScript(response.data.js_url)
+                                    .done(function() {
+                                        console.log('WebsiteVIP form JS loaded successfully');
+                                    })
+                                    .fail(function() {
+                                        console.error('Failed to load WebsiteVIP form JavaScript');
+                                    });
+                            }
+                            
+                            // Fade in
+                            $(this).fadeIn(300, function() {
                                 // Remove overlay after fade in
                                 $('.docket-white-overlay').fadeOut(200, function() {
                                     $(this).remove();

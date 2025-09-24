@@ -664,7 +664,6 @@ p {
 .btn-next:hover,
 .btn-submit:hover {
     background: #1455a0;
-    transform: translateY(-1px);
 }
 
 .btn-submit {
@@ -759,7 +758,6 @@ p {
 .preview-link:hover {
     background: #185fb0;
     color: white !important;
-    transform: translateY(-1px);
 }
 
 /* NEW Template Cards Grid Layout */
@@ -800,7 +798,7 @@ p {
 }
 
 .popular-badge {
-    background: #7eb10f;
+    background: #b20211;
 }
 
 .recommended-badge {
@@ -844,7 +842,7 @@ p {
 }
 
 .template-preview {
-    background: #f9fafb;
+    background: transparent;
     border-radius: 8px;
     padding: 8px;
     margin-bottom: 16px;
@@ -921,25 +919,23 @@ p {
 
 .preview-button:hover {
     background: #1455a0;
-    transform: translateY(-1px);
     box-shadow: 0 4px 12px rgba(24, 95, 176, 0.25);
     color: white !important;
 }
 
 /* Hover effects for cards */
 .template-card:hover .template-card-content {
-    transform: translateY(-2px);
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
-/* Maintain green border on hover for popular card */
+/* Maintain red border on hover for popular card */
 .template-card.popular:hover .template-card-content {
-    border-color: #7eb10f;
+    border-color: #b20211;
 }
 
 /* Popular template highlight */
 .template-card.popular .template-card-content {
-    border-color: #7eb10f;
+    border-color: #b20211;
 }
 
 .template-card.popular .template-card-label input[type="radio"]:checked ~ .template-card-content {

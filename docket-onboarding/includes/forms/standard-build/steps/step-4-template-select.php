@@ -22,8 +22,7 @@
         </div>
         
         <!-- Template 1 - Classic -->
-        <div class="template-card recommended">
-            <div class="recommended-badge">Top Converter</div>
+        <div class="template-card">
             <label class="template-card-label">
                 <input type="radio" name="website_template_selection" value="template1" required>
                 <div class="template-card-content">

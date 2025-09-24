@@ -3,54 +3,48 @@
     <h2>Fast Build Website</h2>
     <p class="step-subtitle">Let's start by reviewing the terms and checking your WordPress experience</p>
     
-    <!-- Terms Section -->
-    <div class="terms-box mb-20">
+    <div class="terms-box">
         <div class="terms-content">
-            <h4>Fast Build Terms & Conditions</h4>
-            <p>By proceeding with the Fast Build option, you understand:</p>
-            <ul>
-                <li>Your website will be ready in 3 days</li>
-                <li>Zero revisions before launch - customization is your responsibility</li>
-                <li>Stock content and images will be used</li>
-                <li>You'll need WordPress/Elementor knowledge to customize</li>
-                <li>Payment is due immediately to begin work</li>
-                <li>Changes after launch are charged at $175/hour</li>
-                <li>Rank Math SEO plugin included</li>
-                <li>Additional plugin installation not permitted</li>
-            </ul>
-            
-            <div class="terms-link">
-                <a href="#" onclick="openTermsModal(); return false;" class="terms-modal-trigger">View Full Terms & Conditions</a>
+            <div class="terms-section">
+                <h5>What You're Getting</h5>
+                <p>A professionally designed WordPress website built specifically for dumpster rental and junk removal businesses, delivered in just 3 business days with zero revisions before launch.</p>
             </div>
+            
+            <div class="terms-section">
+                <h5>Timeline</h5>
+                <p>Your website will be ready in 3 days. Stock content and images will be used to meet this expedited timeline.</p>
+            </div>
+            
+            <div class="terms-section">
+                <h5>What We Need From You</h5>
+                <ul>
+                    <li>WordPress/Elementor experience level</li>
+                    <li>Basic business information and branding</li>
+                    <li>Service area details</li>
+                    <li>Immediate payment to begin work</li>
+                </ul>
+            </div>
+            
+            <div class="terms-section">
+                <h5>Important Notes</h5>
+                <ul>
+                    <li>Zero revisions before launch - customization is your responsibility</li>
+                    <li>You'll need WordPress/Elementor knowledge to customize</li>
+                    <li>Changes after launch are charged at $175/hour</li>
+                    <li>Rank Math SEO plugin included</li>
+                    <li>Additional plugin installation not permitted</li>
+                </ul>
+            </div>
+        </div>
+        
+        <div class="terms-link">
+            <a href="#" onclick="openTermsModal(); return false;" class="terms-modal-trigger">View Full Terms & Conditions</a>
         </div>
         
         <label class="checkbox-card">
             <input type="checkbox" name="accept_terms" value="accepted" required>
-            <span>I accept the terms & conditions</span>
+            <span>I Accept the Terms & Conditions</span>
         </label>
-    </div>
-    
-    <!-- Info Box for Content Consistency -->
-    <div class="info-box">
-        <h4>Fast Build Overview</h4>
-        <div class="info-section">
-            <h5>What This Includes</h5>
-            <p>A professionally designed WordPress website built specifically for dumpster rental and junk removal businesses, delivered in just 3 business days.</p>
-        </div>
-        
-        <div class="info-section">
-            <h5>Your Role</h5>
-            <p>Since this is a fast build with zero revisions, you'll handle all post-launch customization using WordPress/Elementor.</p>
-        </div>
-        
-        <div class="info-section">
-            <h5>What We Need</h5>
-            <ul>
-                <li>Your WordPress experience level</li>
-                <li>Basic business information and branding</li>
-                <li>Service area details</li>
-            </ul>
-        </div>
     </div>
 
     <!-- WordPress Experience -->

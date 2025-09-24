@@ -281,18 +281,27 @@ function docket_ajax_load_website_vip_form() {
     // Start output buffering
     ob_start();
     
-    // Add unified CSS link
+    // Add CSS and scripts OUTSIDE the form container wrapper
     $css_url = DOCKET_ONBOARDING_PLUGIN_URL . 'assets/docket-forms-unified.css?ver=' . DOCKET_ONBOARDING_VERSION;
     echo '<link rel="stylesheet" href="' . esc_url($css_url) . '" type="text/css" media="all" />';
     
-    // Add JavaScript link
     $js_url = DOCKET_ONBOARDING_PLUGIN_URL . 'includes/forms/website-vip/website-vip-form.js?ver=' . DOCKET_ONBOARDING_VERSION;
     echo '<script src="' . esc_url($js_url) . '"></script>';
-    
-    // Localize script with AJAX URL
     echo '<script>window.ajaxurl = "' . admin_url('admin-ajax.php') . '";</script>';
     
-    // Add script to initialize the form after loading
+    // Wrap everything in a container div
+    echo '<div class="docket-form-wrapper">';
+    
+    // Render the Website VIP form
+    if (function_exists('docket_render_website_vip_form')) {
+        docket_render_website_vip_form($form_data);
+    } else {
+        echo '<p>Error: Website VIP form not found.</p>';
+    }
+    
+    echo '</div>'; // Close wrapper
+    
+    // Add initialization script AFTER the form
     echo '<script>
         // Wait for script to load then initialize
         function waitForWebsiteVipScript() {
@@ -328,13 +337,6 @@ function docket_ajax_load_website_vip_form() {
         
         waitForWebsiteVipScript();
     </script>';
-    
-    // Render the Website VIP form
-    if (function_exists('docket_render_website_vip_form')) {
-        docket_render_website_vip_form($form_data);
-    } else {
-        echo '<p>Error: Website VIP form not found.</p>';
-    }
     
     // Get the output
     $form_html = ob_get_clean();

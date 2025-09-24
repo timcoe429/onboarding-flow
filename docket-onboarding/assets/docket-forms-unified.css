@@ -24,9 +24,15 @@
 /* Force ALL form steps to respect container width */
 .form-step {
     width: 100%;
-    max-width: 750px;
     margin: 0 auto;
     box-sizing: border-box;
+}
+
+/* Ensure form steps inside containers respect padding */
+.docket-standard-form .form-step,
+.docket-fast-form .form-step,
+.docket-vip-form .form-step {
+    max-width: none; /* Let container padding handle the spacing */
 }
 
 /* Validation Message */
@@ -225,33 +231,6 @@ p {
     box-shadow: 0 0 0 3px rgba(24, 95, 176, 0.1);
 }
 
-/* Placeholder Styling */
-.form-field input::placeholder,
-.form-field textarea::placeholder {
-    color: #9ca3af;
-    font-weight: 500;
-    opacity: 1; /* Firefox */
-}
-
-.form-field input::-webkit-input-placeholder,
-.form-field textarea::-webkit-input-placeholder {
-    color: #9ca3af;
-    font-weight: 500;
-}
-
-.form-field input::-moz-placeholder,
-.form-field textarea::-moz-placeholder {
-    color: #9ca3af;
-    font-weight: 500;
-    opacity: 1;
-}
-
-.form-field input:-ms-input-placeholder,
-.form-field textarea:-ms-input-placeholder {
-    color: #9ca3af;
-    font-weight: 500;
-}
-
 /* Form Grid */
 .form-grid-2col {
     display: grid;
@@ -317,52 +296,6 @@ p {
     outline: none;
     border-color: #185fb0;
     box-shadow: 0 0 0 3px rgba(24, 95, 176, 0.1);
-}
-
-/* Social Media Placeholder Styling */
-.social-media-field input::placeholder {
-    color: #9ca3af;
-    font-weight: 500;
-    opacity: 1;
-}
-
-.social-media-field input::-webkit-input-placeholder {
-    color: #9ca3af;
-    font-weight: 500;
-}
-
-.social-media-field input::-moz-placeholder {
-    color: #9ca3af;
-    font-weight: 500;
-    opacity: 1;
-}
-
-.social-media-field input:-ms-input-placeholder {
-    color: #9ca3af;
-    font-weight: 500;
-}
-
-/* Service Area Placeholder Styling */
-.service-area-field input::placeholder {
-    color: #9ca3af;
-    font-weight: 500;
-    opacity: 1;
-}
-
-.service-area-field input::-webkit-input-placeholder {
-    color: #9ca3af;
-    font-weight: 500;
-}
-
-.service-area-field input::-moz-placeholder {
-    color: #9ca3af;
-    font-weight: 500;
-    opacity: 1;
-}
-
-.service-area-field input:-ms-input-placeholder {
-    color: #9ca3af;
-    font-weight: 500;
 }
 
 /* Radio Cards */
@@ -547,29 +480,6 @@ p {
 .color-input-wrapper input[type="text"] {
     flex: 1;
     max-width: 200px;
-}
-
-/* Hex Input Placeholder Styling */
-.hex-input::placeholder {
-    color: #9ca3af;
-    font-weight: 500;
-    opacity: 1;
-}
-
-.hex-input::-webkit-input-placeholder {
-    color: #9ca3af;
-    font-weight: 500;
-}
-
-.hex-input::-moz-placeholder {
-    color: #9ca3af;
-    font-weight: 500;
-    opacity: 1;
-}
-
-.hex-input:-ms-input-placeholder {
-    color: #9ca3af;
-    font-weight: 500;
 }
 
 /* File Upload */

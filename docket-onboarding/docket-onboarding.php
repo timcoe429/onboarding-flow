@@ -3,7 +3,7 @@
  * Plugin Name: Docket Onboarding
  * Plugin URI: https://yourdocketonline.com
  * Description: Multi-step onboarding flow for Docket website plan selection
- * Version: 1.8.7
+ * Version: 1.8.8
  * Author: Frank Castle
  * License: GPL v2 or later
  * Text Domain: docket-onboarding
@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('DOCKET_ONBOARDING_VERSION', '1.0.0');
+define('DOCKET_ONBOARDING_VERSION', '1.0.3');
 define('DOCKET_ONBOARDING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('DOCKET_ONBOARDING_PLUGIN_URL', plugin_dir_url(__FILE__));
 

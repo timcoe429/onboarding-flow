@@ -13,7 +13,7 @@
                     <h3>Template 4</h3>
                     <div class="template-preview">
                         <div class="preview-placeholder">
-                            <span class="preview-icon">📱</span>
+                            <img src="https://dockethosting4.com/wp-content/uploads/2025/02/Template-4-Screenshot.png" alt="Template 4 Preview" class="template-screenshot">
                             <span class="preview-text">Mobile-First Design</span>
                         </div>
                     </div>
@@ -39,7 +39,7 @@
                     <h3>Template 1</h3>
                     <div class="template-preview">
                         <div class="preview-placeholder">
-                            <span class="preview-icon">🏆</span>
+                            <img src="https://dockethosting4.com/wp-content/uploads/2025/02/Template-1-Screenshot.png" alt="Template 1 Preview" class="template-screenshot">
                             <span class="preview-text">Classic Design</span>
                         </div>
                     </div>
@@ -64,7 +64,7 @@
                     <h3>Template 2</h3>
                     <div class="template-preview">
                         <div class="preview-placeholder">
-                            <span class="preview-icon">📸</span>
+                            <img src="https://dockethosting4.com/wp-content/uploads/2025/02/Template-2-Screenshot.png" alt="Template 2 Preview" class="template-screenshot">
                             <span class="preview-text">Visual Impact</span>
                         </div>
                     </div>
@@ -89,7 +89,7 @@
                     <h3>Template 3</h3>
                     <div class="template-preview">
                         <div class="preview-placeholder">
-                            <span class="preview-icon">🎨</span>
+                            <img src="https://dockethosting4.com/wp-content/uploads/2025/02/Template-3-Screenshot.png" alt="Template 3 Preview" class="template-screenshot">
                             <span class="preview-text">Modern Style</span>
                         </div>
                     </div>

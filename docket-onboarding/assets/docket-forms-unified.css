@@ -843,7 +843,7 @@ p {
 .template-preview {
     background: #f9fafb;
     border-radius: 8px;
-    padding: 30px;
+    padding: 16px;
     margin-bottom: 20px;
     text-align: center;
 }
@@ -855,15 +855,19 @@ p {
     gap: 10px;
 }
 
-.preview-icon {
-    font-size: 48px;
-    line-height: 1;
+.template-screenshot {
+    width: 100%;
+    height: auto;
+    border-radius: 6px;
+    border: 1px solid #e5e7eb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .preview-text {
     font-size: 14px;
     color: #6b7280;
     font-weight: 500;
+    margin-top: 8px;
 }
 
 .template-features {
@@ -896,7 +900,7 @@ p {
     text-align: center;
     padding: 10px 16px;
     background: #185fb0;
-    color: white;
+    color: white !important;
     text-decoration: none;
     border-radius: 8px;
     font-weight: 500;

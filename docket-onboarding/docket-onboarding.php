@@ -15,7 +15,7 @@ if (!defined('ABSPATH')) {
 }
 
 // Define plugin constants
-define('DOCKET_ONBOARDING_VERSION', '1.0.7');
+define('DOCKET_ONBOARDING_VERSION', '1.0.8');
 define('DOCKET_ONBOARDING_PLUGIN_DIR', plugin_dir_path(__FILE__));
 define('DOCKET_ONBOARDING_PLUGIN_URL', plugin_dir_url(__FILE__));
 

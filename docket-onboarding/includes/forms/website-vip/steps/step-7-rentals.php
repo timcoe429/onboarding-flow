@@ -5,7 +5,8 @@
     
     <div class="form-field">
         <label>What color are your dumpsters? *</label>
-        <p class="field-note">We provide stock images for: Black, Grey, Green, Red, Orange, and Blue</p>
+        <p class="field-note">We provide stock images for: Black, Grey, Green, Red, Orange, and Blue<br>
+        <small style="color: #6b7280;">Select any color to use stock images, or choose "I'll provide images" for custom photos</small></p>
         
         <div class="radio-group compact two-columns">
             <label>
@@ -48,7 +49,7 @@
     <div class="form-field" id="customDumpsterImages" style="display: none;">
             <label>Upload Dumpster Images *</label>
             <div class="file-upload small">
-                <input type="file" name="dumpster_images[]" accept="image/*" multiple>
+                <input type="file" name="dumpster_images[]" accept="image/*" multiple title="Please upload dumpster images">
                 <div class="file-upload-text">
                     <span>Upload Images</span>
                     <small>600px x 400px preferred</small>

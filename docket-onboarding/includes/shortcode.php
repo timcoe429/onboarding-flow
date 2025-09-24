@@ -57,7 +57,7 @@ function docket_onboarding_render_shortcode($atts) {
                 </div>
 
                 <div class="docket-plan-card pro">
-                    <div class="docket-plan-badge">Local SEO</div>
+                    <div class="docket-plan-badge">+ Local SEO</div>
                     <div class="docket-plan-icon">P</div>
                     <h2 class="docket-plan-title">Pro</h2>
                     <ul class="docket-plan-features">

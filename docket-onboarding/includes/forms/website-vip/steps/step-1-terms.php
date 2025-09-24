@@ -1,7 +1,7 @@
 <!-- Step 1: Terms & Conditions -->
 <div class="form-step active" data-step="1">
-    <h2>Website VIP Terms & Conditions</h2>
-    <p class="step-subtitle">Please review and accept our terms for WebsiteVIP service</p>
+    <h2>Website with WebsiteVIP Terms & Conditions</h2>
+    <p class="step-subtitle">Please review and accept our terms for your WordPress experience with WebsiteVIP.</p>
     
     <div class="terms-box">
         <div class="terms-content">

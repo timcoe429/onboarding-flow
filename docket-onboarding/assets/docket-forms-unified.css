@@ -771,7 +771,7 @@ p {
 .template-card {
     position: relative;
     border-radius: 12px;
-    overflow: hidden;
+    overflow: visible;
     transition: all 0.3s ease;
 }
 
@@ -931,16 +931,6 @@ p {
 /* Hover effects for cards */
 .template-card:hover .template-card-content {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
-}
-
-/* Maintain red border on hover for popular card */
-.template-card.popular:hover .template-card-content {
-    border-color: #b20211;
-}
-
-/* Maintain green border on hover for most popular card */
-.template-card.most-popular:hover .template-card-content {
-    border-color: #1cb202;
 }
 
 /* Popular template highlight */

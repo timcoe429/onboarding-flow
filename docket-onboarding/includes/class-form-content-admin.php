@@ -121,7 +121,7 @@ class Docket_Form_Content_Admin {
                 
                 <!-- Content Editor -->
                 <div class="content-editor">
-                    <?php $this->render_content_editor($current_form, $current_step); ?>
+                    <p>Please select both a form type and step to edit content.</p>
                 </div>
                 
                 <!-- Preview -->
@@ -136,106 +136,6 @@ class Docket_Form_Content_Admin {
         <?php
     }
     
-    /**
-     * Render the content editor for a specific form and step
-     */
-    private function render_content_editor($form_type, $step_number) {
-        $content = $this->content_manager->get_step_content($form_type, $step_number);
-        
-        if (empty($content)) {
-            echo '<p>No content found for this form and step.</p>';
-            return;
-        }
-        
-        echo '<div class="content-fields">';
-        
-        foreach ($content as $key => $value) {
-            $field_label = $this->get_field_label($key);
-            $field_type = $this->get_field_type($key);
-            
-            echo '<div class="content-field">';
-            echo '<label for="content-' . esc_attr($key) . '">' . esc_html($field_label) . '</label>';
-            
-            if ($field_type === 'textarea') {
-                echo '<textarea id="content-' . esc_attr($key) . '" name="' . esc_attr($key) . '" rows="4">' . esc_textarea($value) . '</textarea>';
-            } elseif ($field_type === 'editor') {
-                echo '<div class="wp-editor-container">';
-                wp_editor($value, 'content-' . esc_attr($key), array(
-                    'textarea_name' => esc_attr($key),
-                    'media_buttons' => false,
-                    'textarea_rows' => 6,
-                    'teeny' => true,
-                    'tinymce' => array(
-                        'toolbar1' => 'bold,italic,underline,link,unlink,undo,redo',
-                        'toolbar2' => ''
-                    )
-                ));
-                echo '</div>';
-            } else {
-                echo '<input type="text" id="content-' . esc_attr($key) . '" name="' . esc_attr($key) . '" value="' . esc_attr($value) . '" />';
-            }
-            
-            echo '</div>';
-        }
-        
-        echo '</div>';
-    }
-    
-    /**
-     * Get human-readable field label
-     */
-    private function get_field_label($key) {
-        $labels = array(
-            'form_title' => 'Form Title',
-            'form_subtitle' => 'Form Subtitle',
-            'what_youre_getting' => 'What You\'re Getting',
-            'timeline' => 'Timeline',
-            'what_we_need' => 'What We Need From You',
-            'important_notes' => 'Important Notes',
-            'whats_included' => 'What\'s Included',
-            'post_launch_services' => 'Post-Launch Services',
-            'vip_benefits' => 'WebsiteVIP Benefits',
-            'info_title' => 'Information Title',
-            'intro_text' => 'Introduction Text',
-            'stock_content' => 'Stock Content Info',
-            'no_revisions' => 'No Revisions Info',
-            'self_customization' => 'Self-Customization Info',
-            'turnaround' => 'Turnaround Info',
-            'customized_website' => 'Customized Website Info',
-            'sections_pages' => 'Sections & Pages Info',
-            'revisions' => 'Revisions Info',
-            'additional_customizations' => 'Additional Customizations Info',
-            'review_period' => 'Review Period Info',
-            'charges' => 'Charges Info',
-            'refund_policy' => 'Refund Policy Info',
-            'acceptance_text' => 'Acceptance Checkbox Text'
-        );
-        
-        return isset($labels[$key]) ? $labels[$key] : ucwords(str_replace('_', ' ', $key));
-    }
-    
-    /**
-     * Get field type based on content key
-     */
-    private function get_field_type($key) {
-        $editor_fields = array(
-            'what_youre_getting', 'timeline', 'what_we_need', 'important_notes',
-            'whats_included', 'post_launch_services', 'vip_benefits', 'intro_text',
-            'stock_content', 'no_revisions', 'self_customization', 'turnaround',
-            'customized_website', 'sections_pages', 'revisions', 'additional_customizations',
-            'review_period', 'charges', 'refund_policy'
-        );
-        
-        $textarea_fields = array('acceptance_text');
-        
-        if (in_array($key, $editor_fields)) {
-            return 'editor';
-        } elseif (in_array($key, $textarea_fields)) {
-            return 'textarea';
-        } else {
-            return 'text';
-        }
-    }
 }
 
 // Initialize the admin interface

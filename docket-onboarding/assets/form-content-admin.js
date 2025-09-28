@@ -6,8 +6,12 @@ jQuery(document).ready(function($) {
     let hasUnsavedChanges = false;
     
     // Initialize
-    loadContent();
     setupEventHandlers();
+    
+    // Only load content if both form and step are selected
+    if (formType && stepNumber) {
+        loadContent();
+    }
     
     function setupEventHandlers() {
         // Form/step change handlers
@@ -21,8 +25,16 @@ jQuery(document).ready(function($) {
             
             formType = $('#form-type').val();
             stepNumber = $('#step-number').val();
-            loadContent();
-            updatePreview();
+            
+            // Only load content if both form and step are selected
+            if (formType && stepNumber) {
+                loadContent();
+                updatePreview();
+            } else {
+                // Clear content if either is missing
+                $('.content-editor').html('<p>Please select both a form type and step to edit content.</p>');
+                updatePreview();
+            }
         });
         
         // Store previous values for confirmation
@@ -64,7 +76,7 @@ jQuery(document).ready(function($) {
             },
             success: function(response) {
                 if (response.success) {
-                    updateFormSelectors();
+                    updateContentFields(response.data);
                     updatePreview();
                 } else {
                     console.error('Failed to load content:', response.data);
@@ -76,6 +88,118 @@ jQuery(document).ready(function($) {
         });
     }
     
+    function updateContentFields(content) {
+        // Clear existing content fields
+        $('.content-field').remove();
+        
+        if (Object.keys(content).length === 0) {
+            $('.content-editor').html('<p>No content found for this form and step.</p>');
+            return;
+        }
+        
+        let fieldsHtml = '<div class="content-fields">';
+        
+        for (const [key, value] of Object.entries(content)) {
+            const fieldLabel = getFieldLabel(key);
+            const fieldType = getFieldType(key);
+            
+            fieldsHtml += '<div class="content-field">';
+            fieldsHtml += '<label for="content-' + key + '">' + fieldLabel + '</label>';
+            
+            if (fieldType === 'editor') {
+                fieldsHtml += '<div class="wp-editor-container">';
+                fieldsHtml += '<textarea id="content-' + key + '" name="' + key + '" rows="6">' + value + '</textarea>';
+                fieldsHtml += '</div>';
+            } else if (fieldType === 'textarea') {
+                fieldsHtml += '<textarea id="content-' + key + '" name="' + key + '" rows="4">' + value + '</textarea>';
+            } else {
+                fieldsHtml += '<input type="text" id="content-' + key + '" name="' + key + '" value="' + value + '" />';
+            }
+            
+            fieldsHtml += '</div>';
+        }
+        
+        fieldsHtml += '</div>';
+        
+        $('.content-editor').html(fieldsHtml);
+        
+        // Re-initialize TinyMCE for any editor fields
+        if (typeof tinymce !== 'undefined') {
+            tinymce.remove();
+            $('.wp-editor-container textarea').each(function() {
+                const fieldName = $(this).attr('name');
+                const fieldType = getFieldType(fieldName);
+                
+                if (fieldType === 'editor') {
+                    $(this).attr('id', 'content-' + fieldName);
+                    tinymce.init({
+                        selector: '#content-' + fieldName,
+                        height: 200,
+                        menubar: false,
+                        plugins: 'lists link',
+                        toolbar: 'bold italic underline | link unlink | bullist numlist',
+                        setup: function(editor) {
+                            editor.on('input change keyup', function() {
+                                hasUnsavedChanges = true;
+                                saveContent(fieldName, editor.getContent());
+                            });
+                        }
+                    });
+                }
+            });
+        }
+    }
+    
+    function getFieldLabel(key) {
+        const labels = {
+            'form_title': 'Form Title',
+            'form_subtitle': 'Form Subtitle',
+            'what_youre_getting': 'What You\'re Getting',
+            'timeline': 'Timeline',
+            'what_we_need': 'What We Need From You',
+            'important_notes': 'Important Notes',
+            'whats_included': 'What\'s Included',
+            'post_launch_services': 'Post-Launch Services',
+            'vip_benefits': 'WebsiteVIP Benefits',
+            'info_title': 'Information Title',
+            'intro_text': 'Introduction Text',
+            'stock_content': 'Stock Content Info',
+            'no_revisions': 'No Revisions Info',
+            'self_customization': 'Self-Customization Info',
+            'turnaround': 'Turnaround Info',
+            'customized_website': 'Customized Website Info',
+            'sections_pages': 'Sections & Pages Info',
+            'revisions': 'Revisions Info',
+            'additional_customizations': 'Additional Customizations Info',
+            'review_period': 'Review Period Info',
+            'charges': 'Charges Info',
+            'refund_policy': 'Refund Policy Info',
+            'acceptance_text': 'Acceptance Checkbox Text'
+        };
+        
+        return labels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+    }
+    
+    function getFieldType(key) {
+        const editorFields = [
+            'what_youre_getting', 'timeline', 'what_we_need', 'important_notes',
+            'whats_included', 'post_launch_services', 'vip_benefits', 'intro_text',
+            'stock_content', 'no_revisions', 'self_customization', 'turnaround',
+            'customized_website', 'sections_pages', 'revisions', 'additional_customizations',
+            'review_period', 'charges', 'refund_policy'
+        ];
+        
+        const textareaFields = ['acceptance_text'];
+        
+        if (editorFields.includes(key)) {
+            return 'editor';
+        } else if (textareaFields.includes(key)) {
+            return 'textarea';
+        } else {
+            return 'text';
+        }
+    }
+    
     function updateFormSelectors() {
         // Update URL without page reload
         const url = new URL(window.location);
@@ -83,8 +207,8 @@ jQuery(document).ready(function($) {
         url.searchParams.set('step', stepNumber);
         window.history.pushState({}, '', url);
         
-        // Reload the page to get new content
-        window.location.reload();
+        // Load new content without reloading the page
+        loadContent();
     }
     
     function saveContent(contentKey, contentValue) {

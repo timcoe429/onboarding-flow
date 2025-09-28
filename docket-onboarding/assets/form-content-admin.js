@@ -71,11 +71,12 @@ jQuery(document).ready(function($) {
             saveContent($(this).attr('name'), $(this).val());
         });
         
-        // TinyMCE change handler
+        // TinyMCE change handler - use different approach
         $(document).on('tinymce-editor-init', function(event, editor) {
-            editor.on('input change keyup', function() {
+            editor.on('NodeChange SetContent KeyUp', function() {
                 hasUnsavedChanges = true;
-                saveContent(editor.id.replace('content-', ''), editor.getContent());
+                const contentKey = editor.id.replace('content-', '');
+                saveContent(contentKey, editor.getContent());
             });
         });
         
@@ -84,6 +85,25 @@ jQuery(document).ready(function($) {
             if (hasUnsavedChanges) {
                 saveContent($(this).attr('name'), $(this).val());
             }
+        });
+        
+        // Manual save button
+        $('#manual-save-btn').on('click', function() {
+            // Save all visible content fields
+            $('.content-field').each(function() {
+                const input = $(this).find('input, textarea');
+                if (input.length) {
+                    const fieldName = input.attr('name');
+                    let value = input.val();
+                    
+                    // For TinyMCE fields, get content from editor
+                    if (tinymce.get('content-' + fieldName)) {
+                        value = tinymce.get('content-' + fieldName).getContent();
+                    }
+                    
+                    saveContent(fieldName, value);
+                }
+            });
         });
     }
     
@@ -146,6 +166,9 @@ jQuery(document).ready(function($) {
         
         $('.content-editor').html(fieldsHtml);
         
+        // Show manual save button
+        $('#manual-save-btn').show();
+        
         // Re-initialize TinyMCE for any editor fields
         if (typeof tinymce !== 'undefined') {
             tinymce.remove();
@@ -157,14 +180,18 @@ jQuery(document).ready(function($) {
                     $(this).attr('id', 'content-' + fieldName);
                     tinymce.init({
                         selector: '#content-' + fieldName,
-                        height: 200,
+                        height: 300,
                         menubar: false,
                         plugins: 'lists link',
-                        toolbar: 'bold italic underline | link unlink | bullist numlist',
+                        toolbar: 'bold italic underline | link unlink | bullist numlist | undo redo',
                         setup: function(editor) {
-                            editor.on('input change keyup', function() {
+                            editor.on('NodeChange SetContent KeyUp Input', function() {
                                 hasUnsavedChanges = true;
-                                saveContent(fieldName, editor.getContent());
+                                // Debounce the save to avoid too many requests
+                                clearTimeout(window.saveTimeout);
+                                window.saveTimeout = setTimeout(function() {
+                                    saveContent(fieldName, editor.getContent());
+                                }, 1000);
                             });
                         }
                     });

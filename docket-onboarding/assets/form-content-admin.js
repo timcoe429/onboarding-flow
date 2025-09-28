@@ -143,12 +143,16 @@ jQuery(document).ready(function($) {
             
             if (fieldType === 'editor') {
                 fieldsHtml += '<div class="wp-editor-container">';
-                fieldsHtml += '<textarea id="content-' + key + '" name="' + key + '" rows="6">' + value + '</textarea>';
+                // Remove escape slashes when displaying
+                const cleanValue = value.replace(/\\\\/g, '\\').replace(/\\'/g, "'");
+                fieldsHtml += '<textarea id="content-' + key + '" name="' + key + '" rows="6">' + cleanValue + '</textarea>';
                 fieldsHtml += '</div>';
             } else if (fieldType === 'textarea') {
-                fieldsHtml += '<textarea id="content-' + key + '" name="' + key + '" rows="4">' + value + '</textarea>';
+                const cleanValue = value.replace(/\\\\/g, '\\').replace(/\\'/g, "'");
+                fieldsHtml += '<textarea id="content-' + key + '" name="' + key + '" rows="4">' + cleanValue + '</textarea>';
             } else {
-                fieldsHtml += '<input type="text" id="content-' + key + '" name="' + key + '" value="' + value + '" />';
+                const cleanValue = value.replace(/\\\\/g, '\\').replace(/\\'/g, "'");
+                fieldsHtml += '<input type="text" id="content-' + key + '" name="' + key + '" value="' + cleanValue + '" />';
             }
             
             fieldsHtml += '</div>';

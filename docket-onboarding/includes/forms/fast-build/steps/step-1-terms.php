@@ -41,8 +41,8 @@
     </div>
 </div>');
     
-    // Output the entire content
-    echo $content;
+    // Output the entire content as HTML
+    echo wp_kses_post($content);
     ?>
         
         <div class="terms-link">

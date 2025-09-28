@@ -438,7 +438,7 @@ class Docket_Form_Content_Manager {
         $form_type = sanitize_text_field($_POST['form_type']);
         $step_number = intval($_POST['step_number']);
         $content_key = sanitize_text_field($_POST['content_key']);
-        $content_value = wp_kses_post($_POST['content_value']);
+        $content_value = stripslashes($_POST['content_value']);
         
         $result = $this->save_content($form_type, $step_number, $content_key, $content_value);
         

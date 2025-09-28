@@ -29,7 +29,12 @@ function docket_get_form_content($form_type, $step_number, $content_key, $defaul
         $form_type, $step_number, $content_key
     ));
     
-    return $result !== null ? $result : $default;
+    // Remove extra slashes
+    if ($result !== null) {
+        return stripslashes($result);
+    }
+    
+    return $default;
 }
 
 /**

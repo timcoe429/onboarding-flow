@@ -65,27 +65,19 @@ jQuery(document).ready(function($) {
             $(this).data('previous-value', $(this).val());
         });
         
-        // Content change handlers
+        // Content change handlers - just mark as changed
         $(document).on('input change', '.content-field input, .content-field textarea', function() {
             hasUnsavedChanges = true;
-            saveContent($(this).attr('name'), $(this).val());
         });
         
-        // TinyMCE change handler - use different approach
+        // TinyMCE change handler - just mark as changed, don't auto-save
         $(document).on('tinymce-editor-init', function(event, editor) {
-            editor.on('NodeChange SetContent KeyUp', function() {
+            editor.on('NodeChange SetContent KeyUp Input', function() {
                 hasUnsavedChanges = true;
-                const contentKey = editor.id.replace('content-', '');
-                saveContent(contentKey, editor.getContent());
             });
         });
         
-        // Auto-save on blur
-        $(document).on('blur', '.content-field input, .content-field textarea', function() {
-            if (hasUnsavedChanges) {
-                saveContent($(this).attr('name'), $(this).val());
-            }
-        });
+        // Remove auto-save on blur - only manual save
         
         // Manual save button
         $('#manual-save-btn').on('click', function() {
@@ -187,11 +179,6 @@ jQuery(document).ready(function($) {
                         setup: function(editor) {
                             editor.on('NodeChange SetContent KeyUp Input', function() {
                                 hasUnsavedChanges = true;
-                                // Debounce the save to avoid too many requests
-                                clearTimeout(window.saveTimeout);
-                                window.saveTimeout = setTimeout(function() {
-                                    saveContent(fieldName, editor.getContent());
-                                }, 1000);
                             });
                         }
                     });
@@ -266,13 +253,13 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 if (response.success) {
                     hasUnsavedChanges = false;
-                    showSaveIndicator(true);
+                    console.log('Content saved successfully');
                 } else {
-                    showSaveIndicator(false, response.data.message);
+                    alert('Error saving content: ' + (response.data.message || 'Unknown error'));
                 }
             },
             error: function(xhr, status, error) {
-                showSaveIndicator(false, docketFormContent.strings.error);
+                alert('Error saving content: ' + error);
             }
         });
     }
@@ -325,27 +312,6 @@ jQuery(document).ready(function($) {
         return html;
     }
     
-    function showSaveIndicator(success, message) {
-        // Remove existing indicators
-        $('.save-indicator').remove();
-        
-        const indicator = $('<div class="save-indicator"></div>');
-        
-        if (success) {
-            indicator.addClass('success').text(docketFormContent.strings.saved);
-        } else {
-            indicator.addClass('error').text(message || docketFormContent.strings.error);
-        }
-        
-        $('.content-editor').prepend(indicator);
-        
-        // Auto-remove after 3 seconds
-        setTimeout(function() {
-            indicator.fadeOut(function() {
-                $(this).remove();
-            });
-        }, 3000);
-    }
     
     // Warn before leaving page with unsaved changes
     $(window).on('beforeunload', function() {

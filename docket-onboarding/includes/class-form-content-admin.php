@@ -122,7 +122,7 @@ class Docket_Form_Content_Admin {
                 <!-- Content Editor -->
                 <div class="content-editor">
                     <p>Please select both a form type and step to edit content.</p>
-                    <button type="button" id="manual-save-btn" class="button button-primary" style="display:none;">Save Changes</button>
+                    <button type="button" id="manual-save-btn" class="button button-primary" style="display:none; font-size: 16px; padding: 10px 20px;">SAVE CHANGES</button>
                 </div>
                 
                 <!-- Preview -->

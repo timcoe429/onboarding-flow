@@ -1,38 +1,31 @@
 <!-- Step 1: Terms & WordPress Knowledge -->
 <div class="form-step active" data-step="1">
-    <h2>Fast Build Website</h2>
-    <p class="step-subtitle">Let's start by reviewing the terms and checking your WordPress experience</p>
+    <h2><?php docket_form_content('fast-build', 1, 'form_title', 'Fast Build Website'); ?></h2>
+    <p class="step-subtitle"><?php docket_form_content('fast-build', 1, 'form_subtitle', 'Let\'s start by reviewing the terms and checking your WordPress experience'); ?></p>
     
     <div class="terms-box">
         <div class="terms-content">
             <div class="terms-section">
                 <h5>What You're Getting</h5>
-                <p>A professionally designed WordPress website built specifically for dumpster rental and junk removal businesses, delivered in just 3 business days with zero revisions before launch.</p>
+                <p><?php docket_form_content('fast-build', 1, 'what_youre_getting', 'A professionally designed WordPress website built specifically for dumpster rental and junk removal businesses, delivered in just 3 business days with zero revisions before launch.'); ?></p>
             </div>
             
             <div class="terms-section">
                 <h5>Timeline</h5>
-                <p>Your website will be ready in 3 days. Stock content and images will be used to meet this expedited timeline.</p>
+                <p><?php docket_form_content('fast-build', 1, 'timeline', 'Your website will be ready in 3 days. Stock content and images will be used to meet this expedited timeline.'); ?></p>
             </div>
             
             <div class="terms-section">
                 <h5>What We Need From You</h5>
                 <ul>
-                    <li>WordPress/Elementor experience level</li>
-                    <li>Basic business information and branding</li>
-                    <li>Service area details</li>
-                    <li>Immediate payment to begin work</li>
+                    <?php docket_form_content_html('fast-build', 1, 'what_we_need', '<li>WordPress/Elementor experience level</li><li>Basic business information and branding</li><li>Service area details</li><li>Immediate payment to begin work</li>'); ?>
                 </ul>
             </div>
             
             <div class="terms-section">
                 <h5>Important Notes</h5>
                 <ul>
-                    <li>Zero revisions before launch - customization is your responsibility</li>
-                    <li>You'll need WordPress/Elementor knowledge to customize</li>
-                    <li>Changes after launch are charged at $175/hour</li>
-                    <li>Rank Math SEO plugin included</li>
-                    <li>Additional plugin installation not permitted</li>
+                    <?php docket_form_content_html('fast-build', 1, 'important_notes', '<li>Zero revisions before launch - customization is your responsibility</li><li>You\'ll need WordPress/Elementor knowledge to customize</li><li>Changes after launch are charged at $175/hour</li><li>Rank Math SEO plugin included</li><li>Additional plugin installation not permitted</li>'); ?>
                 </ul>
             </div>
         </div>

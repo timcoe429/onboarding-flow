@@ -52,6 +52,10 @@ class DocketOnboarding {
         // Include error logger first
         require_once plugin_dir_path(__FILE__) . 'includes/error-logger.php';
         
+        // Include form content management system
+        require_once plugin_dir_path(__FILE__) . 'includes/class-form-content-manager.php';
+        require_once plugin_dir_path(__FILE__) . 'includes/form-content-helpers.php';
+        
         // Include required files
         require_once plugin_dir_path(__FILE__) . 'includes/form-handler.php';
         require_once plugin_dir_path(__FILE__) . 'includes/shortcode.php';
@@ -67,8 +71,12 @@ class DocketOnboarding {
         }
         
         // Load admin interface only in admin
-        if (is_admin() && file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/client-portal/portal-admin.php')) {
-            require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/client-portal/portal-admin.php';
+        if (is_admin()) {
+            if (file_exists(DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/client-portal/portal-admin.php')) {
+                require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/client-portal/portal-admin.php';
+            }
+            // Include form content admin interface
+            require_once plugin_dir_path(__FILE__) . 'includes/class-form-content-admin.php';
         }
     }
     

@@ -1,37 +1,31 @@
 <!-- Step 1: Terms & Conditions -->
 <div class="form-step active" data-step="1">
-    <h2>Website with WebsiteVIP Terms & Conditions</h2>
-    <p class="step-subtitle">Please review and accept our terms for your WordPress experience with WebsiteVIP.</p>
+    <h2><?php docket_form_content('website-vip', 1, 'form_title', 'Website with WebsiteVIP Terms & Conditions'); ?></h2>
+    <p class="step-subtitle"><?php docket_form_content('website-vip', 1, 'form_subtitle', 'Please review and accept our terms for your WordPress experience with WebsiteVIP.'); ?></p>
     
     <div class="terms-box">
         <div class="terms-content">
             <div class="terms-section">
                 <h5>What You're Getting with WebsiteVIP</h5>
-                <p>A professionally designed WordPress website built specifically for dumpster rental and junk removal businesses, with ongoing management by the Docket team for $299/month. You will not receive edit access to your website once it launches.</p>
+                <p><?php docket_form_content('website-vip', 1, 'what_youre_getting', 'A professionally designed WordPress website built specifically for dumpster rental and junk removal businesses, with ongoing management by the Docket team for $299/month. You will not receive edit access to your website once it launches.'); ?></p>
             </div>
             
             <div class="terms-section">
                 <h5>Timeline</h5>
-                <p>Your website will be completed within 21-30 business days. This timeframe covers creating your initial draft, reviewing and revising the site, finalizing content, and setting up domain access.</p>
+                <p><?php docket_form_content('website-vip', 1, 'timeline', 'Your website will be completed within 21-30 business days. This timeframe covers creating your initial draft, reviewing and revising the site, finalizing content, and setting up domain access.'); ?></p>
             </div>
             
             <div class="terms-section">
                 <h5>What We Need From You</h5>
                 <ul>
-                    <li>Business information and branding materials</li>
-                    <li>Service area details and pricing</li>
-                    <li>Photos and content for your website</li>
-                    <li>Timely feedback during the review process</li>
+                    <?php docket_form_content_html('website-vip', 1, 'what_we_need', '<li>Business information and branding materials</li><li>Service area details and pricing</li><li>Photos and content for your website</li><li>Timely feedback during the review process</li>'); ?>
                 </ul>
             </div>
             
             <div class="terms-section">
                 <h5>WebsiteVIP Benefits</h5>
                 <ul>
-                    <li>Completely managed by the Docket Team</li>
-                    <li>Unlimited edits</li>
-                    <li>AI Chat Bot, On-Page SEO, Location Pages, Analytics, and more</li>
-                    <li>You'll be contacted to discuss the WebsiteVIP plan upgrade after you submit this form</li>
+                    <?php docket_form_content_html('website-vip', 1, 'vip_benefits', '<li>Completely managed by the Docket Team</li><li>Unlimited edits</li><li>AI Chat Bot, On-Page SEO, Location Pages, Analytics, and more</li><li>You\'ll be contacted to discuss the WebsiteVIP plan upgrade after you submit this form</li>'); ?>
                 </ul>
             </div>
         </div>

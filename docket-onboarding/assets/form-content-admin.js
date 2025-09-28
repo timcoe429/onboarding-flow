@@ -156,10 +156,10 @@ jQuery(document).ready(function($) {
         
         fieldsHtml += '</div>';
         
-        $('.content-editor').html(fieldsHtml);
+        // Add save button to the HTML
+        fieldsHtml += '<br><button type="button" id="manual-save-btn" class="button button-primary" style="font-size: 16px; padding: 10px 20px; margin-top: 20px;">SAVE CHANGES</button>';
         
-        // Show manual save button
-        $('#manual-save-btn').show();
+        $('.content-editor').html(fieldsHtml);
         
         // Re-initialize TinyMCE for any editor fields
         if (typeof tinymce !== 'undefined') {

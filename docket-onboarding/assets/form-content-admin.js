@@ -8,14 +8,38 @@ jQuery(document).ready(function($) {
     // Initialize
     setupEventHandlers();
     
+    // Load steps for the initial form type
+    if (formType) {
+        loadStepsForForm(formType);
+    }
+    
     // Only load content if both form and step are selected
     if (formType && stepNumber) {
         loadContent();
     }
     
     function setupEventHandlers() {
-        // Form/step change handlers
-        $('#form-type, #step-number').on('change', function() {
+        // Form type change handler
+        $('#form-type').on('change', function() {
+            if (hasUnsavedChanges) {
+                if (!confirm(docketFormContent.strings.confirm)) {
+                    $(this).val($(this).data('previous-value'));
+                    return;
+                }
+            }
+            
+            formType = $(this).val();
+            
+            // Load steps for the selected form type
+            loadStepsForForm(formType);
+            
+            // Clear content editor
+            $('.content-editor').html('<p>Please select a step to edit content.</p>');
+            updatePreview();
+        });
+        
+        // Step change handler
+        $('#step-number').on('change', function() {
             if (hasUnsavedChanges) {
                 if (!confirm(docketFormContent.strings.confirm)) {
                     $(this).val($(this).data('previous-value'));
@@ -24,15 +48,14 @@ jQuery(document).ready(function($) {
             }
             
             formType = $('#form-type').val();
-            stepNumber = $('#step-number').val();
+            stepNumber = $(this).val();
             
-            // Only load content if both form and step are selected
+            // Load content if both form and step are selected
             if (formType && stepNumber) {
                 loadContent();
                 updatePreview();
             } else {
-                // Clear content if either is missing
-                $('.content-editor').html('<p>Please select both a form type and step to edit content.</p>');
+                $('.content-editor').html('<p>Please select a step to edit content.</p>');
                 updatePreview();
             }
         });
@@ -200,15 +223,40 @@ jQuery(document).ready(function($) {
         }
     }
     
+    function loadStepsForForm(formType) {
+        // Get steps for the selected form type
+        const availableSteps = {
+            'fast-build': [1, 3],
+            'standard-build': [1, 3],
+            'website-vip': [1, 3]
+        };
+        
+        const steps = availableSteps[formType] || [];
+        const stepSelect = $('#step-number');
+        
+        // Clear existing options
+        stepSelect.empty();
+        
+        // Add new options
+        if (steps.length > 0) {
+            stepSelect.append('<option value="">Select a step...</option>');
+            steps.forEach(step => {
+                stepSelect.append(`<option value="${step}">Step ${step}</option>`);
+            });
+        } else {
+            stepSelect.append('<option value="">No steps available</option>');
+        }
+        
+        // Reset step selection
+        stepNumber = '';
+    }
+    
     function updateFormSelectors() {
         // Update URL without page reload
         const url = new URL(window.location);
         url.searchParams.set('form', formType);
         url.searchParams.set('step', stepNumber);
         window.history.pushState({}, '', url);
-        
-        // Load new content without reloading the page
-        loadContent();
     }
     
     function saveContent(contentKey, contentValue) {

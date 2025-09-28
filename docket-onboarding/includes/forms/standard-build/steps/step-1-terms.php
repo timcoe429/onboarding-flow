@@ -1,39 +1,51 @@
 <!-- Step 1: Terms & Conditions -->
 <div class="form-step active" data-step="1">
-    <h2><?php docket_form_content('standard-build', 1, 'form_title', 'Terms & Conditions'); ?></h2>
-    <p class="step-subtitle"><?php docket_form_content('standard-build', 1, 'form_subtitle', 'Please review and accept our terms'); ?></p>
-    
-    <div class="terms-box">
-        <div class="terms-content">
-            <div class="terms-section">
-                <h5>What You're Getting</h5>
-                <p><?php docket_form_content('standard-build', 1, 'what_youre_getting', 'A professionally designed WordPress website built specifically for dumpster rental and junk removal businesses, including SEO optimization and mobile responsiveness.'); ?></p>
-            </div>
-            
-            <div class="terms-section">
-                <h5>Timeline</h5>
-                <p><?php docket_form_content('standard-build', 1, 'timeline', 'Your website will be completed within 21-30 business days. This timeframe covers creating your initial draft, reviewing and revising the site, finalizing content, and setting up domain access.'); ?></p>
-            </div>
-            
-            <div class="terms-section">
-                <h5>What We Need From You</h5>
-                <ul>
-                    <?php docket_form_content_html('standard-build', 1, 'what_we_need', '<li>Business information and branding materials</li><li>Service area details</li><li>Photos and content for your website</li><li>Dumpster rental/junk removal services information</li>'); ?>
-                </ul>
-            </div>
-            
-            <div class="terms-section">
-                <h5>What's Included</h5>
-                <ul>
-                    <?php docket_form_content_html('standard-build', 1, 'whats_included', '<li>Rank Math SEO plugin included</li><li>Additional plugin installation not permitted</li>'); ?>
-                </ul>
-            </div>
-            
-            <div class="terms-section">
-                <h5>Post-Launch Services</h5>
-                <p><?php docket_form_content('standard-build', 1, 'post_launch_services', 'After launch, website access for editing and Rank Math SEO plugin configuration is shared. If you\'d like to have the Docket Team work on your website, you\'ll need to upgrade to the WebsiteVIP plan.'); ?></p>
-            </div>
+    <?php 
+    // Get the entire content for this step
+    $content = docket_get_form_content('standard-build', 1, 'content', '
+<h2>Terms & Conditions</h2>
+<p>Please review and accept our terms</p>
+
+<div class="terms-box">
+    <div class="terms-content">
+        <div class="terms-section">
+            <h5>What You\'re Getting</h5>
+            <p>A professionally designed WordPress website built specifically for dumpster rental and junk removal businesses, including SEO optimization and mobile responsiveness.</p>
         </div>
+        
+        <div class="terms-section">
+            <h5>Timeline</h5>
+            <p>Your website will be completed within 21-30 business days. This timeframe covers creating your initial draft, reviewing and revising the site, finalizing content, and setting up domain access.</p>
+        </div>
+        
+        <div class="terms-section">
+            <h5>What We Need From You</h5>
+            <ul>
+                <li>Business information and branding materials</li>
+                <li>Service area details</li>
+                <li>Photos and content for your website</li>
+                <li>Dumpster rental/junk removal services information</li>
+            </ul>
+        </div>
+        
+        <div class="terms-section">
+            <h5>What\'s Included</h5>
+            <ul>
+                <li>Rank Math SEO plugin included</li>
+                <li>Additional plugin installation not permitted</li>
+            </ul>
+        </div>
+        
+        <div class="terms-section">
+            <h5>Post-Launch Services</h5>
+            <p>After launch, website access for editing and Rank Math SEO plugin configuration is shared. If you\'d like to have the Docket Team work on your website, you\'ll need to upgrade to the WebsiteVIP plan.</p>
+        </div>
+    </div>
+</div>');
+    
+    // Output the entire content as HTML
+    echo wp_kses_post($content);
+    ?>
         
         <div class="terms-link">
             <a href="#" onclick="openTermsModal(); return false;" class="terms-modal-trigger">View Full Terms & Conditions</a>

@@ -1,7 +1,7 @@
 <!-- Step 1: Terms & WordPress Knowledge -->
 <div class="form-step active" data-step="1">
     <?php 
-    // Get the entire content for this step
+    // Get the entire content for this step - THIS PULLS FROM DATABASE
     $content = docket_get_form_content('fast-build', 1, 'content', '
 <h2>Fast Build Website</h2>
 <p>Let\'s start by reviewing the terms and checking your WordPress experience</p>

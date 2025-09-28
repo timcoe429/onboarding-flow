@@ -138,6 +138,13 @@
     border: 1px solid #f5c2c7;
 }
 
+/* Save button success state */
+.button-success {
+    background: #28a745 !important;
+    border-color: #28a745 !important;
+    color: white !important;
+}
+
 /* Responsive design */
 @media (max-width: 768px) {
     .form-selector {

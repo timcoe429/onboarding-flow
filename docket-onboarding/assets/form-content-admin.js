@@ -183,6 +183,9 @@ jQuery(document).ready(function($) {
                         setup: function(editor) {
                             editor.on('NodeChange SetContent KeyUp Input', function() {
                                 hasUnsavedChanges = true;
+                                // Update preview as they type
+                                clearTimeout(window.previewTimeout);
+                                window.previewTimeout = setTimeout(updatePreview, 500);
                             });
                         }
                     });
@@ -257,7 +260,13 @@ jQuery(document).ready(function($) {
             success: function(response) {
                 if (response.success) {
                     hasUnsavedChanges = false;
-                    console.log('Content saved successfully');
+                    // Update the button to show it saved
+                    $('#manual-save-btn').text('SAVED!').removeClass('button-primary').addClass('button-success');
+                    setTimeout(function() {
+                        $('#manual-save-btn').text('SAVE CHANGES').addClass('button-primary').removeClass('button-success');
+                    }, 2000);
+                    // Update the preview
+                    updatePreview();
                 } else {
                     alert('Error saving content: ' + (response.data.message || 'Unknown error'));
                 }
@@ -269,15 +278,21 @@ jQuery(document).ready(function($) {
     }
     
     function updatePreview() {
-        // This would generate a preview of how the content looks
-        // For now, we'll just show a placeholder
         const previewFrame = $('#preview-frame');
-        const previewContent = generatePreviewHTML();
         
+        // Get the actual content from the editor
+        let content = '';
+        if (tinymce.get('content-content')) {
+            content = tinymce.get('content-content').getContent();
+        } else {
+            content = $('#content-content').val() || '';
+        }
+        
+        const previewContent = generatePreviewHTML(content);
         previewFrame.attr('srcdoc', previewContent);
     }
     
-    function generatePreviewHTML() {
+    function generatePreviewHTML(content) {
         let html = '<html><head><style>';
         html += 'body { font-family: Arial, sans-serif; margin: 20px; }';
         html += 'h2 { color: #333; margin-bottom: 10px; }';
@@ -285,32 +300,15 @@ jQuery(document).ready(function($) {
         html += 'p { margin: 10px 0; line-height: 1.5; }';
         html += 'ul { margin: 10px 0; padding-left: 20px; }';
         html += 'li { margin: 5px 0; }';
-        html += '.terms-section { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }';
+        html += '.terms-box { background: #f8f8f8; padding: 20px; }';
+        html += '.terms-content { background: white; padding: 20px; }';
+        html += '.terms-section { margin: 20px 0; }';
+        html += '.info-box { background: #f8f8f8; padding: 20px; }';
+        html += '.info-section { margin: 20px 0; }';
         html += '</style></head><body>';
         
-        // Get current form content and generate preview
-        $('.content-field').each(function() {
-            const label = $(this).find('label').text();
-            const value = $(this).find('input, textarea').val() || '';
-            
-            if (value.trim()) {
-                if (label.includes('Title')) {
-                    html += '<h2>' + value + '</h2>';
-                } else if (label.includes('Subtitle')) {
-                    html += '<p style="color: #666; font-style: italic;">' + value + '</p>';
-                } else if (label.includes('What You\'re Getting') || label.includes('Timeline') || label.includes('What We Need')) {
-                    html += '<div class="terms-section">';
-                    html += '<h5>' + label + '</h5>';
-                    html += '<div>' + value + '</div>';
-                    html += '</div>';
-                } else {
-                    html += '<div class="terms-section">';
-                    html += '<h5>' + label + '</h5>';
-                    html += '<div>' + value + '</div>';
-                    html += '</div>';
-                }
-            }
-        });
+        // Just output the content as-is
+        html += content;
         
         html += '</body></html>';
         return html;

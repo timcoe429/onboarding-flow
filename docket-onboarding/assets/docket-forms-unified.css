@@ -784,7 +784,8 @@ p {
 }
 
 .popular-badge,
-.recommended-badge {
+.recommended-badge,
+.most-popular-badge {
     position: absolute;
     top: 0;
     right: 0;
@@ -799,6 +800,10 @@ p {
 
 .popular-badge {
     background: #b20211;
+}
+
+.most-popular-badge {
+    background: #1cb202;
 }
 
 .recommended-badge {
@@ -933,12 +938,26 @@ p {
     border-color: #b20211;
 }
 
+/* Maintain green border on hover for most popular card */
+.template-card.most-popular:hover .template-card-content {
+    border-color: #1cb202;
+}
+
 /* Popular template highlight */
 .template-card.popular .template-card-content {
     border-color: #b20211;
 }
 
 .template-card.popular .template-card-label input[type="radio"]:checked ~ .template-card-content {
+    border-color: #185fb0;
+}
+
+/* Most Popular template highlight */
+.template-card.most-popular .template-card-content {
+    border-color: #1cb202;
+}
+
+.template-card.most-popular .template-card-label input[type="radio"]:checked ~ .template-card-content {
     border-color: #185fb0;
 }
 

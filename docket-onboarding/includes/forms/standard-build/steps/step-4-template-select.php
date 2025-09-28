@@ -6,7 +6,7 @@
     <div class="template-cards-grid">
         <!-- Template 4 - Most Popular -->
         <div class="template-card popular">
-            <div class="popular-badge">Top Converter</div>
+            <div class="popular-badge">Best Conversion Rate</div>
             <label class="template-card-label">
                 <input type="radio" name="website_template_selection" value="template4" required>
                 <div class="template-card-content">
@@ -22,7 +22,8 @@
         </div>
         
         <!-- Template 1 - Classic -->
-        <div class="template-card">
+        <div class="template-card most-popular">
+            <div class="most-popular-badge">Most Popular</div>
             <label class="template-card-label">
                 <input type="radio" name="website_template_selection" value="template1" required>
                 <div class="template-card-content">

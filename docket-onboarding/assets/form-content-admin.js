@@ -174,28 +174,18 @@ jQuery(document).ready(function($) {
     }
     
     function getFieldLabel(key) {
-        const labels = {
-            'form_title': 'Form Title',
-            'form_subtitle': 'Form Subtitle',
-            'terms_content': 'Terms & Conditions Content',
-            'info_content': 'Information Content',
-            'acceptance_text': 'Acceptance Checkbox Text'
-        };
-        
-        return labels[key] || key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        if (key === 'content') {
+            return 'Step Content (Edit like a blog post)';
+        }
+        return key.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     }
     
     function getFieldType(key) {
-        const editorFields = ['terms_content', 'info_content'];
-        const textareaFields = ['acceptance_text'];
-        
-        if (editorFields.includes(key)) {
+        // Always use editor for content field
+        if (key === 'content') {
             return 'editor';
-        } else if (textareaFields.includes(key)) {
-            return 'textarea';
-        } else {
-            return 'text';
         }
+        return 'text';
     }
     
     function loadStepsForForm(formType) {

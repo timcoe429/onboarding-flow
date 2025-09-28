@@ -177,26 +177,8 @@ jQuery(document).ready(function($) {
         const labels = {
             'form_title': 'Form Title',
             'form_subtitle': 'Form Subtitle',
-            'what_youre_getting': 'What You\'re Getting',
-            'timeline': 'Timeline',
-            'what_we_need': 'What We Need From You',
-            'important_notes': 'Important Notes',
-            'whats_included': 'What\'s Included',
-            'post_launch_services': 'Post-Launch Services',
-            'vip_benefits': 'WebsiteVIP Benefits',
-            'info_title': 'Information Title',
-            'intro_text': 'Introduction Text',
-            'stock_content': 'Stock Content Info',
-            'no_revisions': 'No Revisions Info',
-            'self_customization': 'Self-Customization Info',
-            'turnaround': 'Turnaround Info',
-            'customized_website': 'Customized Website Info',
-            'sections_pages': 'Sections & Pages Info',
-            'revisions': 'Revisions Info',
-            'additional_customizations': 'Additional Customizations Info',
-            'review_period': 'Review Period Info',
-            'charges': 'Charges Info',
-            'refund_policy': 'Refund Policy Info',
+            'terms_content': 'Terms & Conditions Content',
+            'info_content': 'Information Content',
             'acceptance_text': 'Acceptance Checkbox Text'
         };
         
@@ -204,14 +186,7 @@ jQuery(document).ready(function($) {
     }
     
     function getFieldType(key) {
-        const editorFields = [
-            'what_youre_getting', 'timeline', 'what_we_need', 'important_notes',
-            'whats_included', 'post_launch_services', 'vip_benefits', 'intro_text',
-            'stock_content', 'no_revisions', 'self_customization', 'turnaround',
-            'customized_website', 'sections_pages', 'revisions', 'additional_customizations',
-            'review_period', 'charges', 'refund_policy'
-        ];
-        
+        const editorFields = ['terms_content', 'info_content'];
         const textareaFields = ['acceptance_text'];
         
         if (editorFields.includes(key)) {

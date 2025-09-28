@@ -246,6 +246,14 @@ jQuery(document).ready(function($) {
     }
     
     function saveContent(contentKey, contentValue) {
+        console.log('SAVING:', {
+            action: 'save_form_content',
+            form_type: formType,
+            step_number: stepNumber,
+            content_key: contentKey,
+            content_length: contentValue.length
+        });
+        
         $.ajax({
             url: docketFormContent.ajaxUrl,
             type: 'POST',
@@ -258,6 +266,8 @@ jQuery(document).ready(function($) {
                 content_value: contentValue
             },
             success: function(response) {
+                console.log('SAVE RESPONSE:', response);
+                
                 if (response.success) {
                     hasUnsavedChanges = false;
                     // Update the button to show it saved
@@ -272,6 +282,7 @@ jQuery(document).ready(function($) {
                 }
             },
             error: function(xhr, status, error) {
+                console.error('AJAX ERROR:', xhr, status, error);
                 alert('Error saving content: ' + error);
             }
         });

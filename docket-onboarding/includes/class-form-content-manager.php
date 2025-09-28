@@ -425,14 +425,22 @@ class Docket_Form_Content_Manager {
      * AJAX handler for saving content
      */
     public function ajax_save_content() {
+        // Log that we got here
+        error_log('DOCKET DEBUG: ajax_save_content called');
+        error_log('DOCKET DEBUG: POST data: ' . print_r($_POST, true));
+        
         // Verify nonce for security
         if (!wp_verify_nonce($_POST['nonce'], 'docket_form_content_nonce')) {
-            wp_die('Security check failed');
+            error_log('DOCKET DEBUG: Nonce verification failed');
+            wp_send_json_error(array('message' => 'Security check failed'));
+            wp_die();
         }
         
         // Check user capabilities
         if (!current_user_can('manage_options')) {
-            wp_die('Insufficient permissions');
+            error_log('DOCKET DEBUG: User capability check failed');
+            wp_send_json_error(array('message' => 'Insufficient permissions'));
+            wp_die();
         }
         
         $form_type = sanitize_text_field($_POST['form_type']);
@@ -440,11 +448,23 @@ class Docket_Form_Content_Manager {
         $content_key = sanitize_text_field($_POST['content_key']);
         $content_value = stripslashes($_POST['content_value']);
         
+        error_log("DOCKET DEBUG: Saving - Form: $form_type, Step: $step_number, Key: $content_key");
+        error_log("DOCKET DEBUG: Content length: " . strlen($content_value));
+        
         $result = $this->save_content($form_type, $step_number, $content_key, $content_value);
+        
+        error_log("DOCKET DEBUG: Save result: " . ($result !== false ? 'SUCCESS' : 'FAILED'));
         
         wp_send_json_success(array(
             'saved' => $result !== false,
-            'message' => $result !== false ? 'Content saved successfully' : 'Failed to save content'
+            'message' => $result !== false ? 'Content saved successfully' : 'Failed to save content',
+            'debug' => array(
+                'form_type' => $form_type,
+                'step_number' => $step_number,
+                'content_key' => $content_key,
+                'content_length' => strlen($content_value),
+                'result' => $result
+            )
         ));
     }
     

@@ -39,60 +39,64 @@
             </ul>
         </div>
     </div>
-</div>
-
-<div class="terms-link">
-    <a href="#" onclick="openTermsModal(); return false;" class="terms-modal-trigger">View Full Terms & Conditions</a>
-</div>
-
-<label class="checkbox-card">
-    <input type="checkbox" name="accept_terms" value="accepted" required>
-    <span>I Accept the Terms & Conditions</span>
-</label>
-
-<!-- WordPress Experience -->
-<div class="form-field">
-    <label>WordPress/Elementor Experience *</label>
-    <p class="field-note">How would you rate your experience?</p>
-    <div class="radio-group">
-        <label class="radio-card">
-            <input type="radio" name="wordpress_exp" value="Beginner" required>
-            <div class="radio-card-content">
-                <strong>Beginner</strong>
-                <span>I've never used WordPress/Elementor or only a few times</span>
-            </div>
-        </label>
-        
-        <label class="radio-card">
-            <input type="radio" name="wordpress_exp" value="Intermediate" required>
-            <div class="radio-card-content">
-                <strong>Intermediate</strong>
-                <span>I've used it enough to feel comfortable making edits</span>
-            </div>
-        </label>
-        
-        <label class="radio-card">
-            <input type="radio" name="wordpress_exp" value="Expert" required>
-            <div class="radio-card-content">
-                <strong>Expert</strong>
-                <span>I use it regularly and am very confident</span>
-            </div>
-        </label>
-    </div>
-</div>
-
-<div class="notice-box" id="wpNotice" style="display: none;">
-    <p class="notice-text"></p>
-</div>
-
-<div class="validation-message" id="validationMessage" style="display: none;">
-    <p>Please complete all required fields to continue:</p>
-    <ul id="validationList"></ul>
 </div>');
     
     // Output the entire content as HTML
     echo wp_kses_post($content);
     ?>
+    
+    <div class="terms-link">
+        <a href="#" onclick="openTermsModal(); return false;" class="terms-modal-trigger">View Full Terms & Conditions</a>
+    </div>
+    
+    <label class="checkbox-card">
+        <input type="checkbox" name="accept_terms" value="accepted" required>
+        <span>I Accept the Terms & Conditions</span>
+    </label>
+
+    <!-- WordPress Experience -->
+    <div class="form-field">
+        <label>WordPress/Elementor Experience *</label>
+        <p class="field-note">How would you rate your experience?</p>
+        <div class="radio-group">
+            <label class="radio-card">
+                <input type="radio" name="wordpress_exp" value="Beginner" required>
+                <div class="radio-card-content">
+                    <strong>Beginner</strong>
+                    <span>I've never used WordPress/Elementor or only a few times</span>
+                </div>
+            </label>
+            
+            <label class="radio-card">
+                <input type="radio" name="wordpress_exp" value="Intermediate" required>
+                <div class="radio-card-content">
+                    <strong>Intermediate</strong>
+                    <span>I've used it enough to feel comfortable making edits</span>
+                </div>
+            </label>
+            
+            <label class="radio-card">
+                <input type="radio" name="wordpress_exp" value="Expert" required>
+                <div class="radio-card-content">
+                    <strong>Expert</strong>
+                    <span>I use it regularly and am very confident</span>
+                </div>
+            </label>
+        </div>
+    </div>
+
+    <div class="notice-box" id="wpNotice" style="display: none;">
+        <p class="notice-text"></p>
+    </div>
+
+    <div class="validation-message" id="validationMessage" style="display: none;">
+        <p>Please complete all required fields to continue:</p>
+        <ul id="validationList"></ul>
+    </div>
+
+    <div class="form-nav">
+        <button type="button" class="btn-next">Next</button>
+    </div>
 </div>
 
 <!-- Terms Modal -->

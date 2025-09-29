@@ -38,21 +38,22 @@
             </ul>
         </div>
     </div>
-</div>');
+</div>
+
+<div class="terms-link">
+    <a href="#" onclick="openTermsModal(); return false;" class="terms-modal-trigger">View Full Terms & Conditions</a>
+</div>
+
+<label class="checkbox-card">
+    <input type="checkbox" name="accept_terms" required>
+    <span>I Accept the Terms & Conditions</span>
+</label>
+
+');
     
     // Output the entire content as HTML
     echo wp_kses_post($content);
     ?>
-        
-        <div class="terms-link">
-            <a href="#" onclick="openTermsModal(); return false;" class="terms-modal-trigger">View Full Terms & Conditions</a>
-        </div>
-        
-        <label class="checkbox-card">
-            <input type="checkbox" name="accept_terms" required>
-            <span>I Accept the Terms & Conditions</span>
-        </label>
-    </div>
     
     <div class="form-nav">
         <button type="button" class="btn-next">Next</button>

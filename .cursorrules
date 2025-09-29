@@ -23,6 +23,11 @@ REQUIRED PROCESS:
 4. Verify all tags balance after the change
 5. Only then make the edit
 
+CRITICAL: THIS IS NOT A LOCAL PROJECT - DO NOT RUN TERMINAL COMMANDS
+- User has told me 500+ times this is NOT local
+- Never suggest running PHP scripts or terminal commands
+- All changes must be made directly to files
+
 PROJECT DOCUMENTATION (READ THESE FIRST):
 - PROJECT-STRUCTURE.md: Core plugins, file locations, integration points
 - QUICK-REFERENCE.md: Common tasks, file finder, API reference, debug commands

@@ -28,17 +28,19 @@
         <h5>3-Day Turnaround</h5>
         <p>Your website will be ready to launch within 3 business days of payment and domain setup.</p>
     </div>
-</div>');
+</div>
+
+<label class="checkbox-card">
+    <input type="checkbox" name="understand_fast_build" value="understood" required>
+    <span>I understand the Fast Build limitations and am ready to proceed</span>
+</label>
+
+');
     
     // Output the entire content as HTML
     echo wp_kses_post($content);
     ?>
     
-    <label class="checkbox-card">
-        <input type="checkbox" name="understand_fast_build" value="understood" required>
-        <span>I understand the Fast Build limitations and am ready to proceed</span>
-    </label>
-
     <div class="form-nav">
         <button type="button" class="btn-prev">Back</button>
         <button type="button" class="btn-next">Next</button>

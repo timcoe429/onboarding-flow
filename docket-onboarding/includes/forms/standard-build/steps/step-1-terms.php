@@ -41,32 +41,34 @@
             <p>After launch, website access for editing and Rank Math SEO plugin configuration is shared. If you\'d like to have the Docket Team work on your website, you\'ll need to upgrade to the WebsiteVIP plan.</p>
         </div>
     </div>
-</div>');
+</div>
+
+<div class="terms-link">
+    <a href="#" onclick="openTermsModal(); return false;" class="terms-modal-trigger">View Full Terms & Conditions</a>
+</div>
+
+<label class="checkbox-card">
+    <input type="checkbox" name="accept_terms" required>
+    <span>I Accept the Terms & Conditions</span>
+</label>
+
+<div class="validation-message" id="validationMessage" style="display: none;">
+    <p>Please complete all required fields to continue:</p>
+    <ul id="validationList"></ul>
+</div>
+
+');
     
     // Output the entire content as HTML
     echo wp_kses_post($content);
     ?>
-        
-        <div class="terms-link">
-            <a href="#" onclick="openTermsModal(); return false;" class="terms-modal-trigger">View Full Terms & Conditions</a>
-        </div>
-        
-        <label class="checkbox-card">
-            <input type="checkbox" name="accept_terms" required>
-            <span>I Accept the Terms & Conditions</span>
-        </label>
-    </div>
     
-    <div class="validation-message" id="validationMessage" style="display: none;">
-        <p>Please complete all required fields to continue:</p>
-        <ul id="validationList"></ul>
-    </div>
-
     <div class="form-nav">
         <button type="button" class="btn-next">Next</button>
     </div>
+</div>
 
-    <!-- Terms Modal -->
+<!-- Terms Modal -->
 <div id="termsModal" class="docket-modal" style="display: none;">
     <div class="docket-modal-content">
         <div class="docket-modal-header">

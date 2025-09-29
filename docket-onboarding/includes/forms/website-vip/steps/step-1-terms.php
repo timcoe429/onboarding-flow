@@ -47,9 +47,7 @@
 <label class="checkbox-card">
     <input type="checkbox" name="accept_terms" required>
     <span>I Accept the Terms & Conditions</span>
-</label>
-
-');
+</label>');
     
     // Output the entire content as HTML
     echo wp_kses_post($content);

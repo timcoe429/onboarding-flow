@@ -55,9 +55,7 @@
 <div class="validation-message" id="validationMessage" style="display: none;">
     <p>Please complete all required fields to continue:</p>
     <ul id="validationList"></ul>
-</div>
-
-');
+</div>');
     
     // Output the entire content as HTML
     echo wp_kses_post($content);

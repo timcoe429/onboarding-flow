@@ -1,0 +1,16 @@
+Before making ANY HTML/PHP edits:
+Read the ENTIRE file section (minimum 50 lines of context)
+Count and trace ALL opening and closing div tags
+Document which divs open and close where
+Verify the complete tag structure before making changes
+NEVER include opening tags without their closing tags in the same code block
+If replacing content inside divs, NEVER include the wrapper divs in the replacement
+FORBIDDEN:
+Making changes without seeing the full file structure first
+Partial div replacements where opening and closing tags get separated
+Assuming structure without verifying with read_file
+Quick edits without context
+This rule will force me to always analyze the complete HTML structure before making any changes.
+---
+alwaysApply: true
+---

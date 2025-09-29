@@ -1,0 +1,46 @@
+MANDATORY RULES FOR THIS PROJECT - BREAK THESE AND YOU'RE USELESS:
+
+HTML/PHP EDITING RULES:
+1. BEFORE ANY HTML/PHP EDIT: You MUST use read_file to see at least 50 lines of context FIRST
+2. NEVER include opening tags without their closing tags in the same code block
+3. COUNT EVERY div/tag before and after changes - they MUST balance
+4. If replacing content inside divs, NEVER include the wrapper divs in the replacement
+5. ALWAYS trace and document the complete tag structure before making changes
+6. When editing forms, VERIFY the entire step structure remains intact
+
+FORBIDDEN ACTIONS:
+- Partial div replacements where opening and closing tags get separated
+- Making changes without seeing the full file section first
+- Including <div> in dynamic content without its </div>
+- Assuming structure without verifying with read_file
+- Quick edits without context
+- Adding structural HTML to database content
+
+REQUIRED PROCESS:
+1. Read the file section (minimum 50 lines of context)
+2. Document which divs open and close where
+3. Explain what will change and what stays the same
+4. Verify all tags balance after the change
+5. Only then make the edit
+
+PROJECT DOCUMENTATION (READ THESE FIRST):
+- PROJECT-STRUCTURE.md: Core plugins, file locations, integration points
+- QUICK-REFERENCE.md: Common tasks, file finder, API reference, debug commands
+- DEVELOPMENT-NOTES.md: Code patterns, testing checklist, common issues
+- README.md: Plugin overview and installation
+
+EFFICIENCY RULES:
+1. BEFORE coding: Check the relevant documentation file above
+2. Use the File Quick Finder table in QUICK-REFERENCE.md to locate files
+3. Follow code patterns from DEVELOPMENT-NOTES.md
+4. Use the provided SQL queries for debugging
+5. Reference the API endpoints and functions from QUICK-REFERENCE.md
+
+SPECIFIC TO THIS PROJECT:
+- Form steps must maintain their complete structure
+- Dynamic content from database should NEVER include structural wrapper divs
+- All form navigation and form fields must remain within their proper containers
+- The WordPress Experience section belongs ONLY in Fast Build Step 1
+- API Key stored in includes/cloner-settings.php
+- Templates: template1-4 in allowed_templates array
+- Database tables: wp_docket_form_submissions, wp_docket_client_sites

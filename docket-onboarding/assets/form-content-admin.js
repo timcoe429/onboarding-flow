@@ -79,8 +79,10 @@ jQuery(document).ready(function($) {
         
         // Remove auto-save on blur - only manual save
         
-        // Manual save button
-        $('#manual-save-btn').on('click', function() {
+        // Manual save button - use document.on for dynamic elements
+        $(document).on('click', '#manual-save-btn', function() {
+            console.log('SAVE BUTTON CLICKED!');
+            
             // Save all visible content fields
             $('.content-field').each(function() {
                 const input = $(this).find('input, textarea');
@@ -88,9 +90,12 @@ jQuery(document).ready(function($) {
                     const fieldName = input.attr('name');
                     let value = input.val();
                     
+                    console.log('Found field:', fieldName);
+                    
                     // For TinyMCE fields, get content from editor
                     if (tinymce.get('content-' + fieldName)) {
                         value = tinymce.get('content-' + fieldName).getContent();
+                        console.log('Got TinyMCE content, length:', value.length);
                     }
                     
                     saveContent(fieldName, value);

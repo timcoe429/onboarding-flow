@@ -1,25 +1,40 @@
 (function($) {
-    // Execute when script loads (AJAX compatible)
-    const form = $('#standardBuildForm');
-    const steps = $('.form-step');
-    const progressFill = $('.docket-progress-fill');
-    const progressDots = $('.docket-progress-dots span');
-    let currentStep = 1;
-    
-    // DEVELOPMENT MODE - Remove before going live
-    const DEVELOPMENT_MODE = true;
-    
-    // Click step numbers to jump directly (development only)
-    if (DEVELOPMENT_MODE) {
-        $('.docket-progress-dots span').on('click', function() {
-            const targetStep = parseInt($(this).data('step'));
-            if (targetStep && targetStep <= 8) {
-                currentStep = targetStep;
-                showStep(currentStep);
-            }
-        });
-        $('.docket-progress-dots span').css('cursor', 'pointer');
-    }
+    // Wait for DOM to be ready before initializing
+    function initStandardBuildForm() {
+        console.log('=== INITIALIZING STANDARD BUILD FORM ===');
+        
+        const form = $('#standardBuildForm');
+        const steps = $('.form-step');
+        const progressFill = $('.docket-progress-fill');
+        const progressDots = $('.docket-progress-dots span');
+        
+        console.log('Form found:', form.length);
+        console.log('Steps found:', steps.length);
+        console.log('Progress fill found:', progressFill.length);
+        console.log('Progress dots found:', progressDots.length);
+        
+        if (form.length === 0 || steps.length === 0) {
+            console.error('Form elements not found! Retrying in 100ms...');
+            setTimeout(initStandardBuildForm, 100);
+            return;
+        }
+        
+        let currentStep = 1;
+        
+        // DEVELOPMENT MODE - Remove before going live
+        const DEVELOPMENT_MODE = true;
+        
+        // Click step numbers to jump directly (development only)
+        if (DEVELOPMENT_MODE) {
+            $('.docket-progress-dots span').on('click', function() {
+                const targetStep = parseInt($(this).data('step'));
+                if (targetStep && targetStep <= 8) {
+                    currentStep = targetStep;
+                    showStep(currentStep);
+                }
+            });
+            $('.docket-progress-dots span').css('cursor', 'pointer');
+        }
 
     // Navigation
     $('.btn-next').on('click', function(event) {
@@ -811,4 +826,15 @@
             Docket - No Signature Needed, Valid only After Receipt of Payment</p>
         `;
     }
+    
+    } // End of initStandardBuildForm
+    
+    // Initialize when DOM is ready or retry if elements aren't loaded yet
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initStandardBuildForm);
+    } else {
+        // DOM already loaded (AJAX case)
+        initStandardBuildForm();
+    }
+    
 })(jQuery);

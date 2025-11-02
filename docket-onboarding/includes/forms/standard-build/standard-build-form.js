@@ -75,9 +75,11 @@
     
     // Phone validation - accepts various formats
     function isValidPhone(phone) {
-        const phoneRegex = /^[\+]?[1-9][\d]{0,15}$/;
+        // Remove all non-digit characters except + at the start
         const cleanPhone = phone.replace(/[\s\-\(\)\.]/g, '');
-        return cleanPhone.length >= 10 && phoneRegex.test(cleanPhone);
+        // Check if we have at least 10 digits (excluding the + sign)
+        const digitsOnly = cleanPhone.replace(/\+/g, '');
+        return digitsOnly.length >= 10 && /^\+?[\d]{10,}$/.test(cleanPhone);
     }
     
     // Show validation error summary
@@ -117,6 +119,8 @@
         let checkedRadios = {};
         let checkedCheckboxGroups = {};
         let errors = [];
+        
+        console.log('Validating step:', step, 'Found required fields:', required.length);
         
         // Clear previous errors
         currentStepEl.find('.error').removeClass('error');
@@ -180,6 +184,7 @@
                     // Format validation for specific field types
                     if (fieldType === 'email' || fieldName.includes('email')) {
                         if (!isValidEmail(val)) {
+                            console.log('Email validation failed for:', fieldName, 'value:', val);
                             valid = false;
                             $field.addClass('error');
                             errorMessage = 'Please enter a valid email address';
@@ -187,6 +192,7 @@
                         }
                     } else if (fieldType === 'tel' || fieldName.includes('phone')) {
                         if (!isValidPhone(val)) {
+                            console.log('Phone validation failed for:', fieldName, 'value:', val);
                             valid = false;
                             $field.addClass('error');
                             errorMessage = 'Please enter a valid phone number (at least 10 digits)';
@@ -220,7 +226,10 @@
         
         // Show validation summary if there are errors
         if (!valid && errors.length > 0) {
+            console.log('Validation failed with errors:', errors);
             showValidationSummary(errors);
+        } else {
+            console.log('Validation passed for step', step);
         }
         
         return valid;

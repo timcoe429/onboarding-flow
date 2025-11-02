@@ -274,9 +274,12 @@
                                 }).appendTo('head');
                             }
                             
-                            // Set AJAX URL if provided
+                            // Set AJAX URL if provided - Create docket_ajax object for form submission
                             if (response.data.ajax_url) {
-                                window.ajaxurl = response.data.ajax_url;
+                                window.docket_ajax = {
+                                    ajax_url: response.data.ajax_url,
+                                    nonce: docket_ajax.nonce
+                                };
                             }
                             
                             // Load JavaScript if provided

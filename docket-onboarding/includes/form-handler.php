@@ -45,8 +45,13 @@ function docket_ajax_load_fast_build_form() {
     $js_url = DOCKET_ONBOARDING_PLUGIN_URL . 'includes/forms/fast-build/fast-build-form.js?ver=' . DOCKET_ONBOARDING_VERSION;
     echo '<script src="' . esc_url($js_url) . '"></script>';
     
-    // Localize script with AJAX URL
-    echo '<script>window.ajaxurl = "' . admin_url('admin-ajax.php') . '";</script>';
+    // Localize script with AJAX URL - Create docket_ajax object for form submission
+    echo '<script>
+        window.docket_ajax = {
+            ajax_url: "' . admin_url('admin-ajax.php') . '",
+            nonce: "' . wp_create_nonce('docket_onboarding_nonce') . '"
+        };
+    </script>';
     
     // Add script to initialize the form after loading
     echo '<script>
@@ -137,8 +142,13 @@ function docket_ajax_load_standard_build_form() {
     $js_url = DOCKET_ONBOARDING_PLUGIN_URL . 'includes/forms/standard-build/standard-build-form.js?ver=' . DOCKET_ONBOARDING_VERSION;
     echo '<script src="' . esc_url($js_url) . '"></script>';
     
-    // Localize script with AJAX URL
-    echo '<script>window.ajaxurl = "' . admin_url('admin-ajax.php') . '";</script>';
+    // Localize script with AJAX URL - Create docket_ajax object for form submission
+    echo '<script>
+        window.docket_ajax = {
+            ajax_url: "' . admin_url('admin-ajax.php') . '",
+            nonce: "' . wp_create_nonce('docket_onboarding_nonce') . '"
+        };
+    </script>';
     
     // Add script to initialize the form after loading
     echo '<script>

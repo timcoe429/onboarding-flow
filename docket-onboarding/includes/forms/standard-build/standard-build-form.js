@@ -23,12 +23,24 @@
 
     // Navigation
     $('.btn-next').on('click', function(event) {
+        console.log('=== NEXT BUTTON CLICKED ===');
+        console.log('Current step:', currentStep);
+        console.log('Event:', event);
+        
         // Always validate unless holding Shift key in dev mode
         const skipValidation = DEVELOPMENT_MODE && event.shiftKey;
         
-        if (skipValidation || validateStep(currentStep)) {
+        console.log('Skip validation?', skipValidation);
+        
+        const isValid = validateStep(currentStep);
+        console.log('Validation result:', isValid);
+        
+        if (skipValidation || isValid) {
+            console.log('Advancing to next step');
             currentStep++;
             showStep(currentStep);
+        } else {
+            console.log('Validation failed, staying on step', currentStep);
         }
     });
     
@@ -39,6 +51,9 @@
     
     // Show step
     function showStep(step) {
+        console.log('=== SHOW STEP CALLED ===');
+        console.log('Showing step:', step);
+        
         steps.removeClass('active');
         $(`.form-step[data-step="${step}"]`).addClass('active');
         
@@ -64,7 +79,10 @@
         }
         
         // Scroll to top
-        $('html, body').animate({ scrollTop: $('.docket-standard-form').offset().top - 50 }, 300);
+        console.log('About to scroll to top of form');
+        const formOffset = $('.docket-standard-form').offset();
+        console.log('Form offset:', formOffset);
+        $('html, body').animate({ scrollTop: formOffset.top - 50 }, 300);
     }
     
     // Email validation regex
@@ -84,6 +102,9 @@
     
     // Show validation error summary
     function showValidationSummary(errors) {
+        console.log('=== SHOW VALIDATION SUMMARY ===');
+        console.log('Errors to display:', errors);
+        
         // Remove any existing error summary
         $('.validation-summary').remove();
         
@@ -104,9 +125,13 @@
             const currentStepEl = $(`.form-step[data-step="${currentStep}"]`);
             currentStepEl.prepend(summaryHtml);
             
+            console.log('Validation summary inserted, about to scroll');
+            const summaryOffset = $('.validation-summary').offset();
+            console.log('Summary offset:', summaryOffset);
+            
             // Scroll to the error summary
             $('html, body').animate({ 
-                scrollTop: $('.validation-summary').offset().top - 100 
+                scrollTop: summaryOffset.top - 100 
             }, 300);
         }
     }
@@ -127,12 +152,19 @@
         currentStepEl.find('.field-error').remove();
         $('.validation-summary').remove();
         
-        required.each(function() {
+        required.each(function(index) {
             const $field = $(this);
             const fieldType = $field.attr('type');
             const fieldName = $field.attr('name');
             const val = $field.val();
             const $formField = $field.closest('.form-field');
+            
+            console.log(`Field ${index + 1}:`, {
+                name: fieldName,
+                type: fieldType,
+                value: val,
+                length: val ? val.length : 0
+            });
             
             // Skip company color validation if user chose to match logo color
             if (fieldName === 'company_colors' && $('input[name="match_logo_color"]:checked').val() === 'Yes') {

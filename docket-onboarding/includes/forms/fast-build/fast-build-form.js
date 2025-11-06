@@ -20,27 +20,40 @@
         // and ensures that buttons on all steps work correctly.
         form.on('click', '.btn-next', function(e) {
             e.preventDefault();
-            currentStep++;
-            showStep(currentStep);
+            if (currentStep < steps.length) {
+                currentStep++;
+                showStep(currentStep);
+            }
         });
 
         form.on('click', '.btn-prev', function(e) {
             e.preventDefault();
-            currentStep--;
-            showStep(currentStep);
+            if (currentStep > 1) {
+                currentStep--;
+                showStep(currentStep);
+            }
         });
 
-        form.on('submit', function(e) {
+        // Handle submit button click directly
+        form.on('click', '.btn-submit', function(e) {
             e.preventDefault();
-            console.log('--- FAST BUILD SUBMIT ---');
-            if (!validateStep(currentStep)) {
-                console.error('Validation Failed. Halting submission.');
-                return;
+            console.log('--- FAST BUILD SUBMIT BUTTON CLICKED ---');
+            
+            // Find the active step to ensure we have the right step number
+            const activeStep = form.find('.form-step.active');
+            if (activeStep.length) {
+                const stepNum = parseInt(activeStep.attr('data-step'));
+                if (stepNum) {
+                    currentStep = stepNum;
+                    console.log('Active step detected:', currentStep);
+                }
             }
+            
+            console.log('Submitting from step:', currentStep);
 
             showProcessingScreen();
             
-            const formData = new FormData(this);
+            const formData = new FormData(form[0]);
             formData.append('action', 'docket_submit_fast_build_form');
             formData.append('nonce', form.find('input[name="nonce"]').val());
 
@@ -68,20 +81,35 @@
                 }
             });
         });
+        
+        // Also handle form submit as fallback
+        form.on('submit', function(e) {
+            e.preventDefault();
+            form.find('.btn-submit').trigger('click');
+        });
 
         // --- CORE UI FUNCTIONS ---
     function showStep(step) {
+            // Ensure step is within valid range
+            if (step < 1) step = 1;
+            if (step > steps.length) step = steps.length;
+            
+            // Update currentStep to match
+            currentStep = step;
+            
             steps.removeClass('active').hide();
-            steps.filter(`[data-step="${step}"]`).addClass('active').show();
+            const targetStep = steps.filter(`[data-step="${step}"]`);
+            targetStep.addClass('active').show();
         
             const progress = (step / steps.length) * 100;
         progressFill.css('width', progress + '%');
         
         progressDots.removeClass('active completed');
         progressDots.each(function(index) {
-            if (index + 1 < step) {
+            const dotStep = index + 1;
+            if (dotStep < step) {
                 $(this).addClass('completed');
-            } else if (index + 1 === step) {
+            } else if (dotStep === step) {
                 $(this).addClass('active');
             }
         });

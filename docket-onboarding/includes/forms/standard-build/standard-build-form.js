@@ -29,17 +29,16 @@
 
         // --- NAVIGATION ---
         $(document).on('click', '#standardBuildForm .btn-next', function(event) {
-        const skipValidation = DEVELOPMENT_MODE && event.shiftKey;
-        if (skipValidation || validateStep(currentStep)) {
+            event.preventDefault();
             currentStep++;
             showStep(currentStep);
-        }
-    });
+        });
     
-        $(document).on('click', '#standardBuildForm .btn-prev', function() {
-        currentStep--;
-        showStep(currentStep);
-    });
+        $(document).on('click', '#standardBuildForm .btn-prev', function(e) {
+            e.preventDefault();
+            currentStep--;
+            showStep(currentStep);
+        });
     
         // --- FORM SUBMISSION ---
         $(document).on('click', '#standardBuildForm .btn-submit', function(e) {

@@ -13,14 +13,14 @@
     let currentStep = 1;
     
         // --- NAVIGATION & SUBMISSION ---
-        form.on('click', '.btn-next', function() {
-            if (validateStep(currentStep)) {
-                currentStep++;
-                showStep(currentStep);
-            }
+        form.on('click', '.btn-next', function(e) {
+            e.preventDefault();
+            currentStep++;
+            showStep(currentStep);
         });
 
-        form.on('click', '.btn-prev', function() {
+        form.on('click', '.btn-prev', function(e) {
+            e.preventDefault();
             currentStep--;
             showStep(currentStep);
         });

@@ -18,14 +18,14 @@
         // --- NAVIGATION & SUBMISSION ---
         // Use delegated event handlers attached to the form itself. This is robust
         // and ensures that buttons on all steps work correctly.
-        form.on('click', '.btn-next', function() {
-            if (validateStep(currentStep)) {
-                currentStep++;
-                showStep(currentStep);
-            }
+        form.on('click', '.btn-next', function(e) {
+            e.preventDefault();
+            currentStep++;
+            showStep(currentStep);
         });
 
-        form.on('click', '.btn-prev', function() {
+        form.on('click', '.btn-prev', function(e) {
+            e.preventDefault();
             currentStep--;
             showStep(currentStep);
         });

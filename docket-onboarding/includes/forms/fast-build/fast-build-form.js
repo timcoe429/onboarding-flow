@@ -13,15 +13,23 @@
             return;
         }
 
-    let currentStep = 1;
+    // Load saved step from sessionStorage or start at 1
+    let currentStep = parseInt(sessionStorage.getItem('fastBuildStep')) || 1;
     
         // --- NAVIGATION & SUBMISSION ---
         // Use delegated event handlers attached to the form itself. This is robust
         // and ensures that buttons on all steps work correctly.
         form.on('click', '.btn-next', function(e) {
             e.preventDefault();
+            
+            // Validate current step before advancing
+            if (!validateStep(currentStep)) {
+                return false;
+            }
+            
             if (currentStep < steps.length) {
                 currentStep++;
+                sessionStorage.setItem('fastBuildStep', currentStep);
                 showStep(currentStep);
             }
         });
@@ -30,6 +38,7 @@
             e.preventDefault();
             if (currentStep > 1) {
                 currentStep--;
+                sessionStorage.setItem('fastBuildStep', currentStep);
                 showStep(currentStep);
             }
         });
@@ -68,6 +77,7 @@
                     setTimeout(function() {
                         hideProcessingScreen();
                         if (response.success && response.data.redirect_url) {
+                            sessionStorage.removeItem('fastBuildStep'); // Clear saved step
                             window.location.href = response.data.redirect_url;
                         } else {
                             alert('Submission Error: ' + (response.data.message || 'An unknown error occurred.'));

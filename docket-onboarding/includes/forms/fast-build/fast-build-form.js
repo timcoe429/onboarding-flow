@@ -4,8 +4,8 @@
     function initFastBuildForm() {
     const form = $('#fastBuildForm');
         const steps = form.find('.form-step');
-        const progressFill = form.find('.docket-progress-fill');
-        const progressDots = form.find('.docket-progress-dots span');
+        const progressFill = $('.docket-progress-fill'); // Outside form, use direct selector
+        const progressDots = $('.docket-progress-dots span'); // Outside form, use direct selector
 
         // Safeguard: If form elements don't exist, wait and retry.
         if (form.length === 0 || steps.length === 0) {

@@ -6,12 +6,12 @@
     <div class="form-grid-2col">
         <div class="form-field full-width">
             <label>Contact First & Last Name *</label>
-            <input type="text" name="contact_name" autocomplete="name" required>
+            <input type="text" name="name" autocomplete="name" required>
         </div>
         
         <div class="form-field">
-            <label>Contact Email Address *</label>
-            <input type="email" name="contact_email_address" autocomplete="email" required>
+            <label>Contact Email *</label>
+            <input type="email" name="email" autocomplete="email" required>
         </div>
         
         <div class="form-field">
@@ -20,8 +20,8 @@
         </div>
         
         <div class="form-field">
-            <label>Business Phone Number *</label>
-            <input type="tel" name="business_phone_number" autocomplete="tel" required>
+            <label>Business Phone *</label>
+            <input type="tel" name="phone_number" autocomplete="tel" required>
         </div>
         
         <div class="form-field">

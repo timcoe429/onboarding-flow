@@ -97,9 +97,8 @@
             // Update currentStep to match
             currentStep = step;
             
-            steps.removeClass('active').hide();
-            const targetStep = steps.filter(`[data-step="${step}"]`);
-            targetStep.addClass('active').show();
+            steps.removeClass('active');
+            steps.filter(`[data-step="${step}"]`).addClass('active');
         
             const progress = (step / steps.length) * 100;
         progressFill.css('width', progress + '%');

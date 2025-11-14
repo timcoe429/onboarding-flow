@@ -1,0 +1,33 @@
+# Dependencies
+/vendor/
+/node_modules/
+
+# Test artifacts
+/coverage/
+/tests/_output/
+.phpunit.result.cache
+
+# WordPress (if using local install)
+/wordpress/
+/wp-content/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+docket-errors.log
+trello-debug.log
+
+# Environment
+.env
+.env.local
+

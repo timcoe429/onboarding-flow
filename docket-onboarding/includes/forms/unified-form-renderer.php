@@ -77,10 +77,26 @@ function docket_render_form($form_type, $form_data = array()) {
             <!-- Include form steps -->
             <?php 
             $steps_path = docket_get_form_steps_path($form_type);
+            $shared_steps_path = DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/shared/steps/';
+            
+            // Steps that are shared across all form types
+            $shared_steps = array('step-1-terms.php', 'step-2-contact.php', 'step-3-template-info.php', 'step-4-template-select.php', 'step-5-content.php', 'step-6-branding.php', 'step-7-rentals.php', 'step-8-marketing.php');
+            
+            // Set global form type so step files can access it
+            global $docket_current_form_type;
+            $docket_current_form_type = $form_type;
             
             foreach ($config['steps'] as $step_num) {
                 if (isset($config['step_files'][$step_num])) {
-                    $step_file = $steps_path . $config['step_files'][$step_num];
+                    $step_filename = $config['step_files'][$step_num];
+                    
+                    // Check if this step is shared, otherwise use form-specific path
+                    if (in_array($step_filename, $shared_steps)) {
+                        $step_file = $shared_steps_path . $step_filename;
+                    } else {
+                        $step_file = $steps_path . $step_filename;
+                    }
+                    
                     if (file_exists($step_file)) {
                         include $step_file;
                     } else {
@@ -88,6 +104,9 @@ function docket_render_form($form_type, $form_data = array()) {
                     }
                 }
             }
+            
+            // Clean up global
+            unset($GLOBALS['docket_current_form_type']);
             ?>
         </form>
 

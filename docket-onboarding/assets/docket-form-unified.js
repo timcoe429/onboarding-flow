@@ -220,8 +220,50 @@
 
         form.on('change', 'input[name="logo_question"]', function() {
             const showUpload = $(this).val() === 'Yes';
-            $('#logoUpload').slideToggle(showUpload);
-            $('#logoUpload input').prop('required', showUpload);
+            if (showUpload) {
+                $('#logoUpload').slideDown();
+                $('#logoUpload input').prop('required', true);
+            } else {
+                $('#logoUpload').slideUp();
+                $('#logoUpload input').prop('required', false);
+            }
+        });
+
+        // Handle "Match Primary Logo Color" question - show/hide color picker
+        form.on('change', 'input[name="match_logo_color"]', function() {
+            const showColorField = $(this).val() === 'No';
+            if (showColorField) {
+                $('#companyColorField').slideDown();
+                $('#companyColorField input[name="company_colors"]').prop('required', true);
+            } else {
+                $('#companyColorField').slideUp();
+                $('#companyColorField input[name="company_colors"]').prop('required', false);
+            }
+        });
+
+        // Handle font selection question - show/hide font name field
+        form.on('change', 'input[name="provide_font"]', function() {
+            const showFontField = $(this).val() === 'Yes';
+            if (showFontField) {
+                $('#fontField').slideDown();
+                $('#fontField input[name="font_name"]').prop('required', true);
+            } else {
+                $('#fontField').slideUp();
+                $('#fontField input[name="font_name"]').prop('required', false);
+            }
+        });
+
+        // Sync color picker with hex input (bidirectional)
+        form.on('input change', '.hex-input', function() {
+            const hexValue = $(this).val();
+            if (hexValue.match(/^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{3})$/)) {
+                $(this).closest('.color-input-wrapper').find('.color-picker').val(hexValue);
+            }
+        });
+
+        form.on('input change', '.color-picker', function() {
+            const colorValue = $(this).val();
+            $(this).closest('.color-input-wrapper').find('.hex-input').val(colorValue);
         });
 
         // --- UI HELPERS ---

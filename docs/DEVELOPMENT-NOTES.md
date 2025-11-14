@@ -3,9 +3,12 @@
 ## Code Patterns & Conventions
 
 ### Form Field Naming
-- Use underscores for field names: `business_name`, `contact_email`
+- Use standardized field names for consistency across all forms
+- Use underscores for field names: `business_name`, `name`, `email`, `phone_number`
 - Radio buttons: `name="field_name" value="Option"`
 - File uploads: `name="field_name[]"` for multiple
+- All forms now use consistent field names across form types
+- Common standardized names: `name`, `email`, `phone_number`, `dumpster_color`, `marketing_agency`, `reviews_testimonials`
 
 ### JavaScript Patterns
 ```javascript
@@ -48,9 +51,14 @@ $field_value = sanitize_text_field($_POST['field_name'] ?? '');
 3. Look for PHP errors in debug.log
 
 ### Styles Not Loading
-- All forms now use `docket-forms-unified.css`
+- All forms use `docket-forms-unified.css` (unified stylesheet)
 - Check if shortcode is present on page
-- Verify CSS enqueue in form handler
+- Verify CSS enqueue in form handler (`docket_ajax_load_form()`)
+
+### Shared Steps Not Loading
+- Check if step file exists in `/includes/forms/shared/steps/`
+- Verify step filename is in `$shared_steps` array in `unified-form-renderer.php`
+- Check form-specific steps exist in `/includes/forms/{form-type}/steps/` if not shared
 
 ## Testing Checklist
 

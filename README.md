@@ -58,5 +58,6 @@ All documentation is in the `docs/` folder:
 - **[QUICK-REFERENCE.md](docs/QUICK-REFERENCE.md)** - Quick reference for common tasks and file locations
 - **[PROJECT-STRUCTURE.md](docs/PROJECT-STRUCTURE.md)** - Overview of project structure and key files
 - **[DEVELOPMENT-NOTES.md](docs/DEVELOPMENT-NOTES.md)** - Code patterns, conventions, and development guidelines
+- **[FORM-ARCHITECTURE.md](docs/FORM-ARCHITECTURE.md)** - Unified form architecture and how forms work
 
 ## File Structure

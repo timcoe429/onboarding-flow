@@ -125,13 +125,41 @@ window.docketFormConfig = {
 
 ## Step Files Structure
 
-Step files are located in:
-- `includes/forms/{form-type}/steps/step-{number}-{name}.php`
+### Shared Steps
+Most steps are now shared across all form types and located in:
+- `includes/forms/shared/steps/step-{number}-{name}.php`
 
+**Shared Steps:**
+- `step-1-terms.php` - Terms & Conditions (with conditional logic for form-specific content)
+- `step-2-contact.php` - Contact Information
+- `step-3-template-info.php` - Template Information (with conditional content)
+- `step-4-template-select.php` - Template Selection
+- `step-5-content.php` - Website Content (Standard Build & Website VIP only)
+- `step-6-branding.php` - Company Branding (with conditional sections)
+- `step-7-rentals.php` - Rentals Information
+- `step-8-marketing.php` - Marketing & SEO (with conditional sections)
+
+### Form-Specific Steps
+Some steps remain form-specific:
+- `fast-build/steps/step-5-service-areas.php` - Fast Build's simplified Step 5
+
+### How Shared Steps Work
+The unified form renderer checks if a step file is in the shared steps array. If it is, it loads from `shared/steps/`. Otherwise, it loads from the form-specific directory.
+
+Each shared step file can access the current form type via:
+```php
+global $docket_current_form_type;
+$form_type = isset($docket_current_form_type) ? $docket_current_form_type : 'standard-build';
+```
+
+This allows conditional logic based on form type while maintaining a single file.
+
+### Step File Contents
 Each step file contains:
 - HTML structure for that step
-- Form fields specific to that step
-- Content pulled from database via `docket_get_form_content()`
+- Form fields (with standardized field names)
+- Conditional logic for form-specific differences
+- Content pulled from database via `docket_get_form_content()` (where applicable)
 
 ## Adding a New Form Type
 
@@ -148,14 +176,13 @@ Each step file contains:
 
 3. **No changes needed** to renderer, JavaScript, or AJAX handler - they work with any form type!
 
-## Backward Compatibility
+## Field Name Standardization
 
-The old form files are still included for backward compatibility:
-- `includes/forms/fast-build/fast-build-form.php`
-- `includes/forms/standard-build/standard-build-form.php`
-- `includes/forms/website-vip/website-vip-form.php`
-
-These can be removed once the unified system is fully verified and tested.
+All forms now use standardized field names for consistency:
+- Contact: `name`, `email`, `phone_number`
+- Rentals: `dumpster_color`
+- Marketing: `marketing_agency`, `reviews_testimonials`
+- Content: `provide_content_now`, `provide_tagline`, `provide_faqs`, `provide_benefits`, `provide_footer`
 
 ## Benefits of Unified System
 
@@ -183,5 +210,6 @@ When modifying forms, verify:
 - Renderer: `includes/forms/unified-form-renderer.php`
 - JavaScript: `assets/docket-form-unified.js`
 - AJAX Handler: `includes/form-handler.php` (function `docket_ajax_load_form()`)
-- Step Files: `includes/forms/{form-type}/steps/step-{number}-{name}.php`
+- Shared Step Files: `includes/forms/shared/steps/step-{number}-{name}.php`
+- Form-Specific Step Files: `includes/forms/{form-type}/steps/step-{number}-{name}.php` (only for unique steps like Fast Build Step 5)
 

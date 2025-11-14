@@ -3,10 +3,12 @@
 ## 🎯 Most Common Tasks & Where to Go
 
 ### "I need to add a new form field"
-1. **HTML**: `/includes/forms/{form-type}/steps/step-X-{name}.php`
-2. **Add to field list**: `/includes/form-handler.php` (search for `$fields = array`)
+1. **HTML**: 
+   - If shared across all forms: `/includes/forms/shared/steps/step-X-{name}.php`
+   - If form-specific: `/includes/forms/{form-type}/steps/step-X-{name}.php`
+2. **No field list needed**: Form handler automatically processes all POST fields
 3. **Style it**: `/assets/docket-forms-unified.css`
-4. **JS validation**: `/assets/onboarding.js` or form-specific JS
+4. **JS validation**: `/assets/docket-form-unified.js` (unified JavaScript handles all forms)
 
 ### "I need to debug a form submission"
 ```sql
@@ -25,14 +27,15 @@ SELECT * FROM wp_docket_form_submissions ORDER BY id DESC LIMIT 5;
 
 | What I'm Looking For | Go To |
 |---------------------|--------|
-| Form steps HTML | `/includes/forms/{type}/steps/` |
+| Shared form steps HTML | `/includes/forms/shared/steps/` |
+| Form-specific steps HTML | `/includes/forms/{type}/steps/` |
 | Form processing | `/includes/form-handler.php` |
 | API endpoints | `/docket-automated-site-creator/` → search `register_rest_route` |
 | Site cloning logic | `/elementor-site-cloner/includes/class-clone-manager.php` |
 | Trello integration | `/includes/trello-sync.php` |
 | Client portal | `/includes/client-portal/` |
 | Form styles | `/assets/docket-forms-unified.css` |
-| Form JavaScript | `/assets/docket-form-unified.js` (unified) |
+| Form JavaScript | `/assets/docket-form-unified.js` (unified for all forms) |
 | Form configuration | `/includes/forms/form-config.php` |
 | Form renderer | `/includes/forms/unified-form-renderer.php` |
 
@@ -63,29 +66,33 @@ All forms now use a unified system. See `docs/FORM-ARCHITECTURE.md` for full det
 1. Edit `/includes/forms/form-config.php` for form-specific settings
 2. Edit `/includes/forms/unified-form-renderer.php` for rendering logic
 3. Edit `/assets/docket-form-unified.js` for JavaScript behavior
-4. Edit step files in `/includes/forms/{form-type}/steps/` for step content
+4. Edit shared step files in `/includes/forms/shared/steps/` for common step content
+5. Edit form-specific step files in `/includes/forms/{form-type}/steps/` for unique steps
 
 **To add a new form type**:
 1. Add configuration to `form-config.php`
-2. Create step files in `includes/forms/{new-type}/steps/`
-3. No changes needed to renderer or JavaScript!
+2. Create form-specific step files in `includes/forms/{new-type}/steps/` (only if needed)
+3. Most steps will automatically use shared steps from `includes/forms/shared/steps/`
+4. No changes needed to renderer or JavaScript!
 
 ## 📝 Form Types & Their Files
 
 ### Fast Build
-- Handler: `docket_handle_fast_build()`
-- Steps: 8 files in `/includes/forms/fast-build/steps/`
-- JS: `fast-build-form.js`
+- Handler: `docket_handle_fast_build_submission()` → `docket_handle_any_form_submission()`
+- Steps: Mostly shared steps, plus `step-5-service-areas.php` (form-specific)
+- JS: `docket-form-unified.js` (shared)
 
 ### Standard Build  
-- Handler: `docket_handle_standard_build()`
-- Steps: 8 files in `/includes/forms/standard-build/steps/`
-- JS: `standard-build-form.js`
+- Handler: `docket_handle_standard_build_submission()` → `docket_handle_any_form_submission()`
+- Steps: All shared steps from `/includes/forms/shared/steps/`
+- JS: `docket-form-unified.js` (shared)
 
 ### Website VIP
-- Handler: `docket_handle_website_vip()`
-- Steps: 8 files in `/includes/forms/website-vip/steps/`
-- JS: `website-vip-form.js`
+- Handler: `docket_handle_website_vip_submission()` → `docket_handle_any_form_submission()`
+- Steps: All shared steps from `/includes/forms/shared/steps/`
+- JS: `docket-form-unified.js` (shared)
+
+**Note:** All forms now use the unified JavaScript file. Form-specific differences are handled via configuration and conditional logic in shared step files.
 
 ## 🚀 Common Commands
 

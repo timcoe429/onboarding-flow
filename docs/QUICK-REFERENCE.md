@@ -32,7 +32,9 @@ SELECT * FROM wp_docket_form_submissions ORDER BY id DESC LIMIT 5;
 | Trello integration | `/includes/trello-sync.php` |
 | Client portal | `/includes/client-portal/` |
 | Form styles | `/assets/docket-forms-unified.css` |
-| Form JavaScript | `/assets/onboarding.js` + form-specific JS |
+| Form JavaScript | `/assets/docket-form-unified.js` (unified) |
+| Form configuration | `/includes/forms/form-config.php` |
+| Form renderer | `/includes/forms/unified-form-renderer.php` |
 
 ## 🔌 API Reference
 
@@ -45,6 +47,28 @@ Body: {
     "form_data": { ...all form fields... }
 }
 ```
+
+## 📝 Form Configuration System
+
+### Unified Form Architecture
+All forms now use a unified system. See `docs/FORM-ARCHITECTURE.md` for full details.
+
+**Key Files**:
+- **Form Config**: `/includes/forms/form-config.php` - Single source of truth for form differences
+- **Unified Renderer**: `/includes/forms/unified-form-renderer.php` - Renders any form type
+- **Unified JavaScript**: `/assets/docket-form-unified.js` - Handles all form types
+- **Unified AJAX Handler**: `/includes/form-handler.php` → `docket_ajax_load_form()`
+
+**To modify form behavior**:
+1. Edit `/includes/forms/form-config.php` for form-specific settings
+2. Edit `/includes/forms/unified-form-renderer.php` for rendering logic
+3. Edit `/assets/docket-form-unified.js` for JavaScript behavior
+4. Edit step files in `/includes/forms/{form-type}/steps/` for step content
+
+**To add a new form type**:
+1. Add configuration to `form-config.php`
+2. Create step files in `includes/forms/{new-type}/steps/`
+3. No changes needed to renderer or JavaScript!
 
 ## 📝 Form Types & Their Files
 

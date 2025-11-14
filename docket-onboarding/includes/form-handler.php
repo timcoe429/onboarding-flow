@@ -9,180 +9,173 @@ if (!defined('ABSPATH')) {
     exit;
 }
 
-// Include form rendering functions
-    require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/fast-build/fast-build-form.php';
-    require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/standard-build/standard-build-form.php';
-    require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/website-vip/website-vip-form.php';
+// Include form configuration
+require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/form-config.php';
+
+// Include unified form renderer
+require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/forms/unified-form-renderer.php';
+
+/**
+ * Unified AJAX handler to load any form type
+ * 
+ * @param string $form_type Form type (fast-build, standard-build, website-vip)
+ */
+function docket_ajax_load_form($form_type = null) {
+    // Clear any previous output to prevent headers already sent errors
+    if (ob_get_level()) {
+        ob_end_clean();
+    }
+    
+    // Verify nonce
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'docket_onboarding_nonce')) {
+        wp_send_json_error(array('message' => 'Security check failed'));
+        wp_die();
+        return; // Explicit return to prevent further execution in tests
+    }
+    
+    // Determine form type from POST or parameter
+    if (!$form_type) {
+        // Try to determine from action name
+        $action = isset($_POST['action']) ? $_POST['action'] : '';
+        if (strpos($action, 'fast_build') !== false) {
+            $form_type = 'fast-build';
+        } elseif (strpos($action, 'standard_build') !== false) {
+            $form_type = 'standard-build';
+        } elseif (strpos($action, 'website_vip') !== false || strpos($action, 'vip') !== false) {
+            $form_type = 'website-vip';
+        } else {
+            // Try to get from POST data
+            $form_type = isset($_POST['form_type']) ? sanitize_text_field($_POST['form_type']) : 'fast-build';
+        }
+    }
+    
+    // Validate form type
+    $config = docket_get_form_config_by_type($form_type);
+    if (!$config) {
+        error_log('Docket Onboarding: Form type "' . $form_type . '" not found in config. Available types: ' . implode(', ', array_keys(docket_get_form_config())));
+        wp_send_json_error(array('message' => 'Invalid form type: ' . $form_type));
+        wp_die();
+        return; // Explicit return to prevent further execution in tests
+    }
+    
+    try {
+        // Get form data
+        $form_data = array(
+            'plan' => isset($_POST['plan']) ? sanitize_text_field($_POST['plan']) : '',
+            'management' => isset($_POST['management']) ? sanitize_text_field($_POST['management']) : '',
+            'buildType' => isset($_POST['buildType']) ? sanitize_text_field($_POST['buildType']) : ''
+        );
+        
+        // Special handling for website-vip
+        if ($form_type === 'website-vip' && !isset($_POST['management'])) {
+            $form_data['management'] = 'vip';
+        }
+        
+        // Start output buffering
+        ob_start();
+        
+        // Add unified CSS link
+        $css_url = DOCKET_ONBOARDING_PLUGIN_URL . 'assets/docket-forms-unified.css?ver=' . DOCKET_ONBOARDING_VERSION;
+        echo '<link rel="stylesheet" href="' . esc_url($css_url) . '" type="text/css" media="all" />';
+        
+        // Add unified JavaScript link
+        $js_url = DOCKET_ONBOARDING_PLUGIN_URL . 'assets/docket-form-unified.js?ver=' . DOCKET_ONBOARDING_VERSION;
+        echo '<script src="' . esc_url($js_url) . '"></script>';
+        
+        // Localize script with AJAX URL - Create docket_ajax object for form submission
+        echo '<script>
+            window.docket_ajax = {
+                ajax_url: "' . admin_url('admin-ajax.php') . '",
+                nonce: "' . wp_create_nonce('docket_onboarding_nonce') . '"
+            };
+        </script>';
+        
+        // Render the form using unified renderer
+        if (function_exists('docket_render_form')) {
+            docket_render_form($form_type, $form_data);
+        } else {
+            throw new Exception('Form rendering function not found');
+        }
+        
+        // Get the output
+        $form_html = ob_get_clean();
+        
+        if (empty($form_html)) {
+            throw new Exception('Form HTML is empty');
+        }
+        
+        // Apply filter for additional modifications
+        $filter_name = 'docket_' . str_replace('-', '_', $form_type) . '_form_response';
+        $form_html = apply_filters($filter_name, $form_html);
+        
+        // For website-vip, return separate CSS/JS URLs (legacy behavior)
+        if ($form_type === 'website-vip') {
+            wp_send_json_success(array(
+                'form_html' => $form_html,
+                'css_url' => $css_url,
+                'js_url' => $js_url,
+                'ajax_url' => admin_url('admin-ajax.php'),
+                'message' => 'Form loaded successfully'
+            ));
+        } else {
+            wp_send_json_success(array(
+                'form_html' => $form_html,
+                'message' => 'Form loaded successfully'
+            ));
+        }
+        
+    } catch (Exception $e) {
+        // Clean any output
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
+        
+        // Log the error
+        error_log('Docket Onboarding: ' . ucfirst($form_type) . ' form load error - ' . $e->getMessage());
+        
+        wp_send_json_error(array(
+            'message' => 'Failed to load form: ' . $e->getMessage()
+        ));
+    }
+    
+    wp_die();
+}
 
 /**
  * Handle AJAX request to load fast build form
+ * @deprecated Use docket_ajax_load_form('fast-build') instead
  */
 add_action('wp_ajax_docket_load_fast_build_form', 'docket_ajax_load_fast_build_form');
 add_action('wp_ajax_nopriv_docket_load_fast_build_form', 'docket_ajax_load_fast_build_form');
 
 function docket_ajax_load_fast_build_form() {
-    // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'docket_onboarding_nonce')) {
-        wp_send_json_error(array('message' => 'Security check failed'));
-        wp_die();
-    }
-    
-    // Get form data
-    $form_data = array(
-        'plan' => sanitize_text_field($_POST['plan']),
-        'management' => sanitize_text_field($_POST['management']),
-        'buildType' => sanitize_text_field($_POST['buildType'])
-    );
-    
-    // Start output buffering
-    ob_start();
-    
-    // Add unified CSS link
-    $css_url = DOCKET_ONBOARDING_PLUGIN_URL . 'assets/docket-forms-unified.css?ver=' . DOCKET_ONBOARDING_VERSION;
-    echo '<link rel="stylesheet" href="' . esc_url($css_url) . '" type="text/css" media="all" />';
-    
-    // Add JavaScript link
-    $js_url = DOCKET_ONBOARDING_PLUGIN_URL . 'includes/forms/fast-build/fast-build-form.js?ver=' . DOCKET_ONBOARDING_VERSION;
-    echo '<script src="' . esc_url($js_url) . '"></script>';
-    
-    // Localize script with AJAX URL - Create docket_ajax object for form submission
-    echo '<script>
-        window.docket_ajax = {
-            ajax_url: "' . admin_url('admin-ajax.php') . '",
-            nonce: "' . wp_create_nonce('docket_onboarding_nonce') . '"
-        };
-    </script>';
-    
-    // Render the fast build form
-    if (function_exists('docket_render_fast_build_form')) {
-        docket_render_fast_build_form($form_data);
-    } else {
-        echo '<p>Error: Fast build form not found.</p>';
-    }
-    
-    // Get the output
-    $form_html = ob_get_clean();
-    
-    // Apply filter for additional modifications
-    $form_html = apply_filters('docket_fast_build_form_response', $form_html);
-    
-    wp_send_json_success(array(
-        'form_html' => $form_html,
-        'message' => 'Form loaded successfully'
-    ));
-    
-    wp_die();
+    // Wrapper for backward compatibility
+    return docket_ajax_load_form('fast-build');
 }
 
 /**
  * Handle AJAX request to load standard build form
+ * @deprecated Use docket_ajax_load_form('standard-build') instead
  */
 add_action('wp_ajax_docket_load_standard_build_form', 'docket_ajax_load_standard_build_form');
 add_action('wp_ajax_nopriv_docket_load_standard_build_form', 'docket_ajax_load_standard_build_form');
 
 function docket_ajax_load_standard_build_form() {
-    // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'docket_onboarding_nonce')) {
-        wp_send_json_error(array('message' => 'Security check failed'));
-        wp_die();
-    }
-    
-    // Get form data
-    $form_data = array(
-        'plan' => sanitize_text_field($_POST['plan']),
-        'management' => sanitize_text_field($_POST['management']),
-        'buildType' => sanitize_text_field($_POST['buildType'])
-    );
-    
-    // Start output buffering
-    ob_start();
-    
-    // Add unified CSS link
-    $css_url = DOCKET_ONBOARDING_PLUGIN_URL . 'assets/docket-forms-unified.css?ver=' . DOCKET_ONBOARDING_VERSION;
-    echo '<link rel="stylesheet" href="' . esc_url($css_url) . '" type="text/css" media="all" />';
-    
-    // Add JavaScript link
-    $js_url = DOCKET_ONBOARDING_PLUGIN_URL . 'includes/forms/standard-build/standard-build-form.js?ver=' . DOCKET_ONBOARDING_VERSION;
-    echo '<script src="' . esc_url($js_url) . '"></script>';
-    
-    // Localize script with AJAX URL - Create docket_ajax object for form submission
-    echo '<script>
-        window.docket_ajax = {
-            ajax_url: "' . admin_url('admin-ajax.php') . '",
-            nonce: "' . wp_create_nonce('docket_onboarding_nonce') . '"
-        };
-    </script>';
-    
-    // Render the standard build form
-    if (function_exists('docket_render_standard_build_form')) {
-        docket_render_standard_build_form($form_data);
-    } else {
-        echo '<p>Error: Standard build form not found.</p>';
-    }
-    
-    // Get the output
-    $form_html = ob_get_clean();
-    
-    // Apply filter for additional modifications
-    $form_html = apply_filters('docket_standard_build_form_response', $form_html);
-    
-    wp_send_json_success(array(
-        'form_html' => $form_html,
-        'message' => 'Form loaded successfully'
-    ));
-    
-    wp_die();
+    // Wrapper for backward compatibility
+    return docket_ajax_load_form('standard-build');
 }
 
 /**
  * Handle AJAX request to load Website VIP form
+ * @deprecated Use docket_ajax_load_form('website-vip') instead
  */
 add_action('wp_ajax_docket_load_website_vip_form', 'docket_ajax_load_website_vip_form');
 add_action('wp_ajax_nopriv_docket_load_website_vip_form', 'docket_ajax_load_website_vip_form');
 
 function docket_ajax_load_website_vip_form() {
-    // Verify nonce
-    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'docket_onboarding_nonce')) {
-        wp_send_json_error(array('message' => 'Security check failed'));
-        wp_die();
-    }
-    
-    // Get form data
-    $form_data = array(
-        'plan' => sanitize_text_field($_POST['plan']),
-        'management' => 'vip',
-        'buildType' => sanitize_text_field($_POST['buildType'])
-    );
-    
-    // Start output buffering
-    ob_start();
-    
-    // Render the Website VIP form (NO SCRIPTS - just HTML)
-    if (function_exists('docket_render_website_vip_form')) {
-        docket_render_website_vip_form($form_data);
-    } else {
-        echo '<p>Error: Website VIP form not found.</p>';
-    }
-    
-    // Get the output
-    $form_html = ob_get_clean();
-    
-    // Apply filter for additional modifications
-    $form_html = apply_filters('docket_website_vip_form_response', $form_html);
-    
-    // Prepare CSS and JS URLs
-    $css_url = DOCKET_ONBOARDING_PLUGIN_URL . 'assets/docket-forms-unified.css?ver=' . DOCKET_ONBOARDING_VERSION;
-    $js_url = DOCKET_ONBOARDING_PLUGIN_URL . 'includes/forms/website-vip/website-vip-form.js?ver=' . DOCKET_ONBOARDING_VERSION;
-    
-    wp_send_json_success(array(
-        'form_html' => $form_html,
-        'css_url' => $css_url,
-        'js_url' => $js_url,
-        'ajax_url' => admin_url('admin-ajax.php'),
-        'message' => 'Form loaded successfully'
-    ));
-    
-    wp_die();
+    // Wrapper for backward compatibility
+    error_log('Docket Onboarding: docket_ajax_load_website_vip_form called');
+    return docket_ajax_load_form('website-vip');
 }
 
 /**
@@ -196,6 +189,7 @@ function docket_load_avada_form() {
     if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'docket_onboarding_nonce')) {
         wp_send_json_error(array('message' => 'Security check failed'));
         wp_die();
+        return; // Explicit return to prevent further execution in tests
     }
     
     // Get form ID
@@ -274,6 +268,7 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     if (!$nonce || !wp_verify_nonce($nonce, 'docket_onboarding_nonce')) {
         wp_send_json_error(array('message' => 'Security check failed'));
         wp_die();
+        return; // Explicit return to prevent further execution in tests
     }
     
     // Process the form data
@@ -365,11 +360,18 @@ function docket_handle_any_form_submission($form_type = 'generic') {
             'debug_mode' => true
         ));
         wp_die();
+        return; // Explicit return to prevent further execution in tests
     }
     
     // Get configuration for remote API
     $api_url = get_option('docket_cloner_api_url', 'https://dockethosting5.com');
     $api_key = get_option('docket_cloner_api_key', 'esc_docket_2025_secure_key');
+    
+    // Get the template selection (default to template1 if not specified)
+    $selected_template = isset($form_data['website_template_selection']) ? $form_data['website_template_selection'] : 'template1';
+    
+    // Get the business name from the form
+    $site_name = !empty($form_data['business_name']) ? $form_data['business_name'] : 'Docket Site ' . time();
     
     // Make API call to Elementor Site Cloner on dockethosting5.com
     docket_log_info("Making API call to remote cloner", [
@@ -378,12 +380,6 @@ function docket_handle_any_form_submission($form_type = 'generic') {
         'template' => $selected_template,
         'site_name' => $site_name
     ]);
-    
-    // Get the template selection (default to template1 if not specified)
-    $selected_template = isset($form_data['website_template_selection']) ? $form_data['website_template_selection'] : 'template1';
-    
-    // Get the business name from the form
-    $site_name = !empty($form_data['business_name']) ? $form_data['business_name'] : 'Docket Site ' . time();
     
     // Prepare API request data
     $api_data = array(
@@ -426,6 +422,7 @@ function docket_handle_any_form_submission($form_type = 'generic') {
             'message' => 'Failed to connect to site creation service: ' . $response->get_error_message()
         ));
         wp_die();
+        return; // Explicit return to prevent further execution in tests
     }
     
     // Parse the response
@@ -468,14 +465,14 @@ function docket_handle_any_form_submission($form_type = 'generic') {
         wp_die();
     }
     
-    if (!$data['success']) {
+    if (!$data || !isset($data['success']) || !$data['success']) {
         docket_log_error("Site creation failed", [
-            'error' => $data['data']['message'] ?? 'Unknown error',
+            'error' => isset($data['data']['message']) ? $data['data']['message'] : 'Unknown error',
             'template' => $selected_template,
             'api_response' => $data
         ]);
         wp_send_json_error(array(
-            'message' => 'Site creation failed: ' . ($data['data']['message'] ?? 'Unknown error')
+            'message' => 'Site creation failed: ' . (isset($data['data']['message']) ? $data['data']['message'] : 'Unknown error')
         ));
         wp_die();
     }

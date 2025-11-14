@@ -168,9 +168,12 @@
                 url: docket_ajax.ajax_url,
                 type: 'POST',
                 data: formData,
+                dataType: 'json',
                 success: function(response) {
                     hideLoading();
-                    if (response.success) {
+                    console.log('Fast Build Form Response:', response);
+                    
+                    if (response && response.success) {
                         // Add white background overlay
                         $('<div class="docket-white-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999;"></div>').appendTo('body');
                         
@@ -184,12 +187,35 @@
                             });
                         });
                     } else {
-                        showErrorMessage('Unable to load form. Please try again.');
+                        const errorMsg = (response && response.data && response.data.message) 
+                            ? response.data.message 
+                            : 'Unable to load form. Please try again.';
+                        console.error('Fast Build Form Error:', response);
+                        showErrorMessage(errorMsg);
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
                     hideLoading();
-                    showErrorMessage('Connection error. Please try again.');
+                    console.error('Fast Build Form AJAX Error:', {
+                        status: status,
+                        error: error,
+                        responseText: xhr.responseText,
+                        statusCode: xhr.status
+                    });
+                    
+                    let errorMsg = 'Connection error. Please try again.';
+                    if (xhr.responseText) {
+                        try {
+                            const errorResponse = JSON.parse(xhr.responseText);
+                            if (errorResponse.data && errorResponse.data.message) {
+                                errorMsg = errorResponse.data.message;
+                            }
+                        } catch (e) {
+                            // Not JSON, might be HTML error page
+                            errorMsg = 'Server error occurred. Check console for details.';
+                        }
+                    }
+                    showErrorMessage(errorMsg);
                 }
             });
         }
@@ -210,10 +236,12 @@
                 url: docket_ajax.ajax_url,
                 type: 'POST',
                 data: formData,
+                dataType: 'json',
                 success: function(response) {
                     hideLoading();
+                    console.log('Standard Build Form Response:', response);
                     
-                    if (response.success) {
+                    if (response && response.success) {
                         // Add white background overlay
                         $('<div class="docket-white-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999;"></div>').appendTo('body');
                         
@@ -227,12 +255,35 @@
                             });
                         });
                     } else {
-                        showErrorMessage('Unable to load form. Please try again.');
+                        const errorMsg = (response && response.data && response.data.message) 
+                            ? response.data.message 
+                            : 'Unable to load form. Please try again.';
+                        console.error('Standard Build Form Error:', response);
+                        showErrorMessage(errorMsg);
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
                     hideLoading();
-                    showErrorMessage('Connection error. Please try again.');
+                    console.error('Standard Build Form AJAX Error:', {
+                        status: status,
+                        error: error,
+                        responseText: xhr.responseText,
+                        statusCode: xhr.status
+                    });
+                    
+                    let errorMsg = 'Connection error. Please try again.';
+                    if (xhr.responseText) {
+                        try {
+                            const errorResponse = JSON.parse(xhr.responseText);
+                            if (errorResponse.data && errorResponse.data.message) {
+                                errorMsg = errorResponse.data.message;
+                            }
+                        } catch (e) {
+                            // Not JSON, might be HTML error page
+                            errorMsg = 'Server error occurred. Check console for details.';
+                        }
+                    }
+                    showErrorMessage(errorMsg);
                 }
             });
         }
@@ -249,14 +300,18 @@
                 buildType: state.selectedBuildType || 'standard'
             };
             
+            console.log('Loading WebsiteVIP form with data:', formData);
+            
             $.ajax({
                 url: docket_ajax.ajax_url,
                 type: 'POST',
                 data: formData,
+                dataType: 'json',
                 success: function(response) {
                     hideLoading();
+                    console.log('WebsiteVIP Form Response:', response);
                     
-                    if (response.success) {
+                    if (response && response.success) {
                         // Add white background overlay
                         $('<div class="docket-white-overlay" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; z-index: 9999;"></div>').appendTo('body');
                         
@@ -302,12 +357,35 @@
                             });
                         });
                     } else {
-                        showErrorMessage('Unable to load form. Please try again.');
+                        const errorMsg = (response && response.data && response.data.message) 
+                            ? response.data.message 
+                            : 'Unable to load form. Please try again.';
+                        console.error('WebsiteVIP Form Error:', response);
+                        showErrorMessage(errorMsg);
                     }
                 },
-                error: function() {
+                error: function(xhr, status, error) {
                     hideLoading();
-                    showErrorMessage('Connection error. Please try again.');
+                    console.error('WebsiteVIP Form AJAX Error:', {
+                        status: status,
+                        error: error,
+                        responseText: xhr.responseText,
+                        statusCode: xhr.status
+                    });
+                    
+                    let errorMsg = 'Connection error. Please try again.';
+                    if (xhr.responseText) {
+                        try {
+                            const errorResponse = JSON.parse(xhr.responseText);
+                            if (errorResponse.data && errorResponse.data.message) {
+                                errorMsg = errorResponse.data.message;
+                            }
+                        } catch (e) {
+                            // Not JSON, might be HTML error page
+                            errorMsg = 'Server error occurred. Check console for details.';
+                        }
+                    }
+                    showErrorMessage(errorMsg);
                 }
             });
         }

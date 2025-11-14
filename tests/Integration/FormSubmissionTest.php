@@ -30,7 +30,9 @@ class FormSubmissionTest extends TestCase
         $wp_test_json_response = null;
         
         // Mock WordPress functions
-        Functions\when('wp_verify_nonce')->return(true);
+        Functions\when('wp_verify_nonce')->alias(function() {
+            return true;
+        });
         Functions\when('wp_send_json_success')->alias(function($data) {
             global $wp_test_json_response;
             $wp_test_json_response = ['success' => true, 'data' => $data];
@@ -42,6 +44,72 @@ class FormSubmissionTest extends TestCase
             return $wp_test_json_response;
         });
         Functions\when('wp_die')->justReturn();
+        
+        // Sanitization functions
+        Functions\when('sanitize_text_field')->alias(function($str) {
+            return is_string($str) ? strip_tags($str) : $str;
+        });
+        Functions\when('wp_unslash')->alias(function($value) {
+            return is_string($value) ? stripslashes($value) : $value;
+        });
+        
+        // Options API
+        Functions\when('get_option')->alias(function($option, $default = false) {
+            global $wp_test_options;
+            if (!isset($wp_test_options)) {
+                $wp_test_options = [];
+            }
+            return isset($wp_test_options[$option]) ? $wp_test_options[$option] : $default;
+        });
+        Functions\when('update_option')->alias(function($option, $value) {
+            global $wp_test_options;
+            if (!isset($wp_test_options)) {
+                $wp_test_options = [];
+            }
+            $wp_test_options[$option] = $value;
+            return true;
+        });
+        
+        // Mock API calls
+        Functions\when('wp_remote_get')->alias(function($url, $args = []) {
+            // Mock Trello API calls - return array of lists for board lists endpoint
+            if (strpos($url, '/lists') !== false) {
+                return [
+                    'body' => json_encode([
+                        ['id' => 'list1', 'name' => '1. Docket Team'],
+                        ['id' => 'list2', 'name' => '2. In Progress']
+                    ]),
+                    'response' => ['code' => 200]
+                ];
+            }
+            // Default response for other Trello endpoints
+            return [
+                'body' => json_encode(['id' => 'test_card_id', 'name' => 'Test Card']),
+                'response' => ['code' => 200]
+            ];
+        });
+        Functions\when('wp_remote_post')->alias(function($url, $args) {
+            return [
+                'body' => json_encode([
+                    'success' => true,
+                    'data' => [
+                        'site_id' => 123,
+                        'site_url' => 'http://test-site.local',
+                        'admin_url' => 'http://test-site.local/wp-admin'
+                    ]
+                ]),
+                'response' => ['code' => 200]
+            ];
+        });
+        Functions\when('wp_remote_retrieve_body')->alias(function($response) {
+            return is_array($response) && isset($response['body']) ? $response['body'] : '';
+        });
+        Functions\when('wp_remote_retrieve_response_code')->alias(function($response) {
+            return is_array($response) && isset($response['response']['code']) ? $response['response']['code'] : 200;
+        });
+        Functions\when('is_wp_error')->alias(function($thing) {
+            return $thing instanceof \WP_Error;
+        });
     }
     
     protected function tearDown(): void
@@ -94,7 +162,9 @@ class FormSubmissionTest extends TestCase
         Functions\when('wp_remote_retrieve_body')->alias(function($response) {
             return is_array($response) && isset($response['body']) ? $response['body'] : '';
         });
-        Functions\when('is_wp_error')->return(false);
+        Functions\when('is_wp_error')->alias(function() {
+            return false;
+        });
         
         // Execute submission
         ob_start();

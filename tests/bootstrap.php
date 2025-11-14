@@ -21,7 +21,12 @@ if (!defined('ABSPATH')) {
 }
 
 if (!defined('WP_CONTENT_DIR')) {
-    define('WP_CONTENT_DIR', __DIR__ . '/../wordpress/wp-content/');
+    $wp_content_dir = __DIR__ . '/../wordpress/wp-content/';
+    define('WP_CONTENT_DIR', $wp_content_dir);
+    // Ensure directory exists for error logging
+    if (!is_dir($wp_content_dir)) {
+        @mkdir($wp_content_dir, 0755, true);
+    }
 }
 
 if (!defined('WP_PLUGIN_DIR')) {
@@ -61,6 +66,9 @@ require_once __DIR__ . '/mocks/wordpress-functions.php';
 // Suppress output during plugin loading (plugins may echo/print)
 ob_start();
 
+// Suppress constant redefinition warnings (harmless in tests)
+$old_error_reporting = error_reporting(E_ALL & ~E_WARNING);
+
 // Load the plugin files
 // We load files individually to have better control
 $plugin_dir = DOCKET_ONBOARDING_PLUGIN_DIR;
@@ -68,10 +76,16 @@ $plugin_dir = DOCKET_ONBOARDING_PLUGIN_DIR;
 // Load core plugin file
 require_once $plugin_dir . 'docket-onboarding.php';
 
+// Restore error reporting
+error_reporting($old_error_reporting);
+
 // Load includes that are required for testing
 require_once $plugin_dir . 'includes/error-logger.php';
 require_once $plugin_dir . 'includes/form-content-helpers.php';
 require_once $plugin_dir . 'includes/class-form-content-manager.php';
+// Load form configuration and unified renderer (needed for form loading tests)
+require_once $plugin_dir . 'includes/forms/form-config.php';
+require_once $plugin_dir . 'includes/forms/unified-form-renderer.php';
 require_once $plugin_dir . 'includes/form-handler.php';
 require_once $plugin_dir . 'includes/shortcode.php';
 require_once $plugin_dir . 'includes/cloner-settings.php';

@@ -9,72 +9,113 @@
 
 use Brain\Monkey\Functions;
 
+// Mock WP_Error class for testing
+if (!class_exists('WP_Error')) {
+    class WP_Error {
+        public $errors = [];
+        public $error_data = [];
+        
+        public function __construct($code = '', $message = '', $data = '') {
+            if (empty($code)) {
+                return;
+            }
+            $this->errors[$code][] = $message;
+            if (!empty($data)) {
+                $this->error_data[$code] = $data;
+            }
+        }
+        
+        public function get_error_code() {
+            $codes = array_keys($this->errors);
+            return !empty($codes) ? $codes[0] : '';
+        }
+        
+        public function get_error_message($code = '') {
+            if (empty($code)) {
+                $code = $this->get_error_code();
+            }
+            if (isset($this->errors[$code])) {
+                return $this->errors[$code][0];
+            }
+            return '';
+        }
+    }
+}
+
 // Global variables that WordPress uses
 global $wpdb;
 
+// Create a proper mock wpdb class that supports method calls
+if (!class_exists('MockWPDB')) {
+    class MockWPDB {
+        public $prefix = 'wp_';
+        public $last_error = '';
+        public $last_query = '';
+        public $insert_id = 0;
+        
+        public function get_charset_collate() {
+            return 'DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci';
+        }
+        
+        public function get_var($query) {
+            global $wp_test_db;
+            if (!isset($wp_test_db)) {
+                $wp_test_db = [];
+            }
+            // Simple mock - return 0 for table checks, or stored value
+            if (strpos($query, 'SHOW TABLES') !== false) {
+                return null; // Table doesn't exist by default
+            }
+            if (strpos($query, 'SELECT COUNT') !== false) {
+                return 0; // No rows by default
+            }
+            // For form content queries, return default content
+            if (strpos($query, 'docket_form_content') !== false && strpos($query, 'content_value') !== false) {
+                return null; // Will use default from docket_get_form_content
+            }
+            return isset($wp_test_db[$query]) ? $wp_test_db[$query] : null;
+        }
+        
+        public function get_row($query) {
+            global $wp_test_db;
+            if (!isset($wp_test_db)) {
+                $wp_test_db = [];
+            }
+            return isset($wp_test_db[$query]) ? $wp_test_db[$query] : null;
+        }
+        
+        public function get_results($query) {
+            global $wp_test_db;
+            if (!isset($wp_test_db)) {
+                $wp_test_db = [];
+            }
+            return isset($wp_test_db[$query]) ? $wp_test_db[$query] : [];
+        }
+        
+        public function insert($table, $data) {
+            $this->insert_id = rand(1, 1000);
+            return true;
+        }
+        
+        public function update($table, $data, $where) {
+            return true;
+        }
+        
+        public function replace($table, $data) {
+            $this->insert_id = rand(1, 1000);
+            return true;
+        }
+        
+        public function prepare($query, ...$args) {
+            // Simple mock - just return the query
+            return $query;
+        }
+    }
+}
+
 // Mock wpdb with more complete functionality
 if (!isset($wpdb)) {
-    $wpdb = new stdClass();
-    $wpdb->prefix = 'wp_';
-    $wpdb->last_error = '';
-    $wpdb->last_query = '';
-    $wpdb->insert_id = 0;
-    $wpdb->get_charset_collate = function() {
-        return 'DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci';
-    };
-    
-    // Mock database methods
-    $wpdb->get_var = function($query) {
-        global $wp_test_db;
-        if (!isset($wp_test_db)) {
-            $wp_test_db = [];
-        }
-        // Simple mock - return 0 for table checks, or stored value
-        if (strpos($query, 'SHOW TABLES') !== false) {
-            return null; // Table doesn't exist by default
-        }
-        if (strpos($query, 'SELECT COUNT') !== false) {
-            return 0; // No rows by default
-        }
-        return isset($wp_test_db[$query]) ? $wp_test_db[$query] : null;
-    };
-    
-    $wpdb->get_row = function($query) {
-        global $wp_test_db;
-        if (!isset($wp_test_db)) {
-            $wp_test_db = [];
-        }
-        return isset($wp_test_db[$query]) ? $wp_test_db[$query] : null;
-    };
-    
-    $wpdb->get_results = function($query) {
-        global $wp_test_db;
-        if (!isset($wp_test_db)) {
-            $wp_test_db = [];
-        }
-        return isset($wp_test_db[$query]) ? $wp_test_db[$query] : [];
-    };
-    
-    $wpdb->insert = function($table, $data) {
-        global $wpdb;
-        $wpdb->insert_id = rand(1, 1000);
-        return true;
-    };
-    
-    $wpdb->update = function($table, $data, $where) {
-        return true;
-    };
-    
-    $wpdb->replace = function($table, $data) {
-        global $wpdb;
-        $wpdb->insert_id = rand(1, 1000);
-        return true;
-    };
-    
-    $wpdb->prepare = function($query, ...$args) {
-        // Simple mock - just return the query
-        return $query;
-    };
+    $wpdb = new MockWPDB();
 }
 
 // Security & Nonce Functions
@@ -82,7 +123,9 @@ Functions\when('wp_verify_nonce')->alias(function($nonce, $action) {
     // In tests, accept 'test_nonce' or any nonce that matches the action
     return ($nonce === 'test_nonce' || !empty($nonce));
 });
-Functions\when('wp_create_nonce')->return('test_nonce');
+Functions\when('wp_create_nonce')->alias(function() {
+    return 'test_nonce';
+});
 
 // AJAX Response Functions
 Functions\when('wp_send_json_success')->alias(function($data = null) {
@@ -178,7 +221,9 @@ Functions\when('do_shortcode')->alias(function($content) {
 });
 
 // User & Capabilities
-Functions\when('is_admin')->return(false);
+Functions\when('is_admin')->alias(function() {
+    return false;
+});
 Functions\when('current_user_can')->alias(function($capability) {
     // In tests, allow all capabilities by default
     return true;
@@ -244,17 +289,34 @@ Functions\when('is_wp_error')->alias(function($thing) {
 
 // File Functions
 Functions\when('file_put_contents')->alias(function($file, $data, $flags = 0) {
-    // In tests, just track what would be written
+    // Ensure directory exists before writing
+    $dir = dirname($file);
+    if (!is_dir($dir)) {
+        @mkdir($dir, 0755, true);
+    }
+    // In tests, track what would be written AND actually write it (for error logging)
     global $wp_test_file_writes;
     if (!isset($wp_test_file_writes)) {
         $wp_test_file_writes = [];
     }
     $wp_test_file_writes[$file] = $data;
-    return strlen($data);
+    // Actually write the file (needed for error logger)
+    return \file_put_contents($file, $data, $flags);
 });
 Functions\when('file_exists')->alias(function($file) {
-    // Mock - return true for common WordPress files
-    return strpos($file, 'wp-admin') !== false || strpos($file, 'wp-content') !== false;
+    // Mock - return true for common WordPress files and step files
+    if (strpos($file, 'wp-admin') !== false || strpos($file, 'wp-content') !== false) {
+        return true;
+    }
+    // Return true for step files (they're included in the form renderer)
+    if (strpos($file, 'step-') !== false && strpos($file, '.php') !== false) {
+        return true;
+    }
+    // Return true for plugin files
+    if (strpos($file, DOCKET_ONBOARDING_PLUGIN_DIR) === 0) {
+        return true;
+    }
+    return false;
 });
 
 // Upload Functions
@@ -289,11 +351,22 @@ Functions\when('current_time')->alias(function($type = 'mysql') {
 });
 
 // Class & Function Checks
+// Note: These return defaults without calling themselves to avoid infinite recursion
 Functions\when('class_exists')->alias(function($class) {
-    return class_exists($class);
+    // Return false by default - classes don't exist unless explicitly needed in tests
+    return false;
 });
 Functions\when('function_exists')->alias(function($function) {
-    return function_exists($function);
+    // Return true for WordPress functions we've mocked, false for others
+    // This prevents infinite recursion while still allowing function checks
+    $mocked_functions = [
+        'wp_create_nonce', 'wp_verify_nonce', 'wp_nonce_field',
+        'wp_kses_post', 'apply_filters', 'do_action',
+        'wp_send_json', 'wp_send_json_error', 'wp_send_json_success',
+        'admin_url', 'wp_upload_bits', 'wp_handle_upload', 'is_wp_error',
+        'current_time', 'file_exists', 'file_put_contents'
+    ];
+    return in_array($function, $mocked_functions, true);
 });
 
 // Database Functions

@@ -1,0 +1,10 @@
+{
+    "redefinable-internals": [
+        "file_put_contents",
+        "file_exists",
+        "class_exists",
+        "function_exists",
+        "error_log"
+    ]
+}
+

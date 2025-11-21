@@ -1,0 +1,35 @@
+{
+    "name": "docket/onboarding-flow",
+    "description": "Docket Onboarding Flow WordPress Plugin",
+    "type": "wordpress-plugin",
+    "require": {
+        "php": ">=7.4"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "brain/monkey": "^2.6",
+        "yoast/phpunit-polyfills": "^1.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "DocketOnboarding\\": "docket-onboarding/includes/",
+            "DocketOnboarding\\Tests\\": "tests/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "DocketOnboarding\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test:watch": "phpunit --testdox",
+        "test:coverage": "phpunit --coverage-html coverage"
+    },
+    "config": {
+        "allow-plugins": {
+            "composer/installers": true
+        }
+    }
+}
+

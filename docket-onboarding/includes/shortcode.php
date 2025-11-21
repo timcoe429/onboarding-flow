@@ -14,6 +14,17 @@ if (!defined('ABSPATH')) {
  * Render the onboarding form
  */
 function docket_onboarding_render_shortcode($atts) {
+    // Check if this is a success page
+    if (isset($_GET['success']) && $_GET['success'] == '1') {
+        // Load success page template
+        require_once DOCKET_ONBOARDING_PLUGIN_DIR . 'includes/success-page.php';
+        
+        // Start output buffering
+        ob_start();
+        docket_render_success_page();
+        return ob_get_clean();
+    }
+    
     // Parse shortcode attributes
     $atts = shortcode_atts(array(
         'style' => 'default',

@@ -94,6 +94,7 @@
             const formData = new FormData(form[0]);
             formData.append('action', formConfig.actionName);
             formData.append('nonce', form.find('input[name="nonce"]').val());
+            formData.append('current_page_url', window.location.href);
 
             $.ajax({
                 url: docket_ajax.ajax_url,
@@ -101,6 +102,7 @@
                 data: formData,
                 processData: false,
                 contentType: false,
+                dataType: 'json',
                 success: function(response) {
                     console.log('AJAX Success:', response);
                     setTimeout(function() {
@@ -264,6 +266,110 @@
         form.on('input change', '.color-picker', function() {
             const colorValue = $(this).val();
             $(this).closest('.color-input-wrapper').find('.hex-input').val(colorValue);
+        });
+
+        // --- STEP 7: RENTALS DYNAMIC FIELD LOGIC ---
+        // Use document-level delegation scoped to this form to ensure handlers work
+
+        // Handle dumpster color selection - show/hide custom images upload
+        $(document).on('change', formConfig.formId + ' input[name="dumpster_color"]', function() {
+            const isCustom = $(this).val() === 'Custom';
+            const $customImages = $(formConfig.formId).find('#customDumpsterImages');
+            if (isCustom) {
+                $customImages.css('display', '').slideDown();
+                $customImages.find('input').prop('required', true);
+            } else {
+                $customImages.slideUp(function() {
+                    $(this).css('display', 'none');
+                });
+                $customImages.find('input').prop('required', false);
+            }
+        });
+
+        // Handle dumpster types checkboxes - show/hide corresponding sections
+        $(document).on('change', formConfig.formId + ' input[name="dumpster_types[]"]', function() {
+            const dumpsterType = $(this).val();
+            const isChecked = $(this).is(':checked');
+            
+            let sectionId = '';
+            if (dumpsterType === 'Roll-Off') {
+                sectionId = '#rollOffSection';
+            } else if (dumpsterType === 'Hook-Lift') {
+                sectionId = '#hookLiftSection';
+            } else if (dumpsterType === 'Dump Trailers') {
+                sectionId = '#dumpTrailerSection';
+            }
+            
+            if (sectionId) {
+                const $section = $(formConfig.formId).find(sectionId);
+                if (isChecked) {
+                    $section.css('display', '').slideDown();
+                } else {
+                    $section.slideUp(function() {
+                        $(this).css('display', 'none');
+                    });
+                }
+            }
+        });
+
+        // Handle services offered - show/hide junk removal section
+        $(document).on('change', formConfig.formId + ' input[name="services_offered[]"]', function() {
+            const $form = $(formConfig.formId);
+            const hasJunkRemoval = $form.find('input[name="services_offered[]"][value="Dumpster Rentals & Junk Removal"]').is(':checked');
+            
+            const $junkSection = $form.find('#junkRemovalSection');
+            if (hasJunkRemoval) {
+                $junkSection.css('display', '').slideDown();
+                $junkSection.find('input[type="checkbox"]').prop('required', true);
+            } else {
+                $junkSection.slideUp(function() {
+                    $(this).css('display', 'none');
+                });
+                $junkSection.find('input[type="checkbox"]').prop('required', false);
+            }
+        });
+
+        // Handle "Add Dumpster" buttons for dynamic entries
+        $(document).on('click', formConfig.formId + ' .add-dumpster-btn', function(e) {
+            e.preventDefault();
+            const dumpsterType = $(this).data('type');
+            const containerId = dumpsterType === 'roll-off' ? '#rollOffEntries' :
+                               dumpsterType === 'hook-lift' ? '#hookLiftEntries' :
+                               '#dumpTrailerEntries';
+            
+            const entryHtml = `
+                <div class="dumpster-entry">
+                    <div class="dumpster-entry-grid">
+                        <div class="dumpster-field">
+                            <label>Size *</label>
+                            <input type="text" name="dumpster_${dumpsterType}_size[]" placeholder="e.g., 10 yd" required>
+                        </div>
+                        <div class="dumpster-field">
+                            <label>Rental Period *</label>
+                            <input type="text" name="dumpster_${dumpsterType}_period[]" placeholder="e.g., 1, 3, 7 days" required>
+                        </div>
+                        <div class="dumpster-field">
+                            <label>Tons Allowed *</label>
+                            <input type="text" name="dumpster_${dumpsterType}_tons[]" placeholder="e.g., 1 ton" required>
+                        </div>
+                        <div class="dumpster-field">
+                            <label>Starting Price *</label>
+                            <input type="text" name="dumpster_${dumpsterType}_price[]" placeholder="e.g., 399" required>
+                        </div>
+                    </div>
+                    <button type="button" class="delete-dumpster-btn">Delete</button>
+                </div>
+            `;
+            
+            $(formConfig.formId).find(containerId).append(entryHtml);
+        });
+
+        // Handle delete dumpster entry
+        $(document).on('click', formConfig.formId + ' .delete-dumpster-btn', function(e) {
+            e.preventDefault();
+            $(this).closest('.dumpster-entry').slideUp(300, function() {
+                $(this).remove();
+            });
         });
 
         // --- UI HELPERS ---

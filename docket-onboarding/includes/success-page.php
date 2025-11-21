@@ -24,7 +24,7 @@ function docket_render_success_page() {
         <div class="form-success-page">
             <div class="success-icon">✓</div>
             <h2>Thank You!</h2>
-            <p class="success-message">Thank you for your submission. We will reach out to you in 24 to 48 hours for next steps.</p>
+            <p class="success-message">Thank you for your submission. We will reach out to you when we feel like it to 48 hours for next steps.</p>
         </div>
     </div>
     <?php

@@ -835,8 +835,10 @@ p {
 }
 
 .template-card-label input[type="radio"]:checked ~ .template-card-content {
-    border-color: #185fb0;
-    box-shadow: 0 4px 16px rgba(24, 95, 176, 0.15);
+    border-color: #d35600;
+    background: #fff4ed !important;
+    box-shadow: 0 4px 16px rgba(211, 86, 0, 0.2);
+    position: relative;
 }
 
 .template-card-content h3 {
@@ -844,6 +846,11 @@ p {
     font-weight: 600;
     color: #111827;
     margin: 0 0 16px 0;
+}
+
+.template-card-label input[type="radio"]:checked ~ .template-card-content h3 {
+    color: #d35600;
+    font-weight: 700;
 }
 
 .template-preview {
@@ -933,13 +940,28 @@ p {
     box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
 }
 
+/* Fade unselected cards when one is selected */
+.template-cards-grid:has(input[type="radio"]:checked) .template-card-label:not(:has(input[type="radio"]:checked)) .template-card-content {
+    opacity: 0.4;
+    filter: grayscale(0.3);
+    transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+/* Hover state for unselected cards (still interactive even when faded) */
+.template-cards-grid:has(input[type="radio"]:checked) .template-card-label:not(:has(input[type="radio"]:checked)):hover .template-card-content {
+    opacity: 0.6;
+    filter: grayscale(0.2);
+}
+
 /* Popular template highlight */
 .template-card.popular .template-card-content {
     border-color: #b20211;
 }
 
 .template-card.popular .template-card-label input[type="radio"]:checked ~ .template-card-content {
-    border-color: #185fb0;
+    border-color: #d35600;
+    background: #fff4ed !important;
+    position: relative;
 }
 
 /* Most Popular template highlight */
@@ -948,7 +970,9 @@ p {
 }
 
 .template-card.most-popular .template-card-label input[type="radio"]:checked ~ .template-card-content {
-    border-color: #185fb0;
+    border-color: #d35600;
+    background: #fff4ed !important;
+    position: relative;
 }
 
 @media (max-width: 768px) {

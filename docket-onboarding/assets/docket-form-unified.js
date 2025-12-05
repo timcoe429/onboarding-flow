@@ -374,7 +374,73 @@
 
         // --- UI HELPERS ---
         function showProcessingScreen() {
-            $('body').append('<div class="processing-overlay"><div class="processing-content"><h2>Processing...</h2></div></div>');
+            const processingHTML = `
+                <div class="processing-overlay">
+                    <div class="processing-content">
+                        <div class="processing-spinner"></div>
+                        <h2 class="processing-title">Processing Your Order</h2>
+                        <p class="processing-message">Please wait while we create your website...</p>
+                        
+                        <div class="processing-progress">
+                            <div class="processing-progress-bar" style="width: 0%;"></div>
+                        </div>
+                        
+                        <div class="processing-steps">
+                            <div class="processing-step" data-step="1">
+                                <div class="processing-step-icon"></div>
+                                <span>Validating your information</span>
+                            </div>
+                            <div class="processing-step" data-step="2">
+                                <div class="processing-step-icon"></div>
+                                <span>Creating your website</span>
+                            </div>
+                            <div class="processing-step" data-step="3">
+                                <div class="processing-step-icon"></div>
+                                <span>Setting up templates</span>
+                            </div>
+                            <div class="processing-step" data-step="4">
+                                <div class="processing-step-icon"></div>
+                                <span>Finalizing details</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            
+            $('body').append(processingHTML);
+            
+            // Animate through the steps
+            let currentProcessingStep = 0;
+            const totalSteps = 4;
+            
+            function updateProcessingStep() {
+                // Mark previous steps as completed
+                $('.processing-step').each(function(index) {
+                    if (index < currentProcessingStep) {
+                        $(this).removeClass('active').addClass('completed');
+                        $(this).find('.processing-step-icon').html('✓');
+                    } else if (index === currentProcessingStep) {
+                        $(this).addClass('active').removeClass('completed');
+                        $(this).find('.processing-step-icon').html('');
+                    } else {
+                        $(this).removeClass('active completed');
+                        $(this).find('.processing-step-icon').html('');
+                    }
+                });
+                
+                // Update progress bar
+                const progress = (currentProcessingStep / totalSteps) * 100;
+                $('.processing-progress-bar').css('width', progress + '%');
+                
+                // Move to next step
+                if (currentProcessingStep < totalSteps) {
+                    currentProcessingStep++;
+                    setTimeout(updateProcessingStep, 800);
+                }
+            }
+            
+            // Start the animation
+            setTimeout(updateProcessingStep, 500);
         }
 
         function hideProcessingScreen() {

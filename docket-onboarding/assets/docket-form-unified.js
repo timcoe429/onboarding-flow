@@ -268,6 +268,93 @@
             $(this).closest('.color-input-wrapper').find('.hex-input').val(colorValue);
         });
 
+        // --- STEP 5: CONTENT FIELDS DYNAMIC LOGIC ---
+        // Handle "Do you want to provide website content at this time?"
+        form.on('change', 'input[name="provide_content_now"]', function() {
+            const showContentFields = $(this).val() === 'Yes';
+            const $contentFields = $('#contentFields');
+            const $template4Only = $contentFields.find('.template4-only');
+            
+            if (showContentFields) {
+                $contentFields.slideDown();
+                
+                // Check which template is selected
+                const selectedTemplate = form.find('input[name="website_template_selection"]:checked').val();
+                
+                // Show template4-only section only if Template 4 is selected
+                if (selectedTemplate === 'template4') {
+                    $template4Only.slideDown();
+                } else {
+                    $template4Only.slideUp();
+                }
+            } else {
+                $contentFields.slideUp();
+            }
+        });
+
+        // Handle template selection change (if user goes back to Step 4 and changes template)
+        form.on('change', 'input[name="website_template_selection"]', function() {
+            // Only update if contentFields is visible
+            if ($('#contentFields').is(':visible')) {
+                const selectedTemplate = $(this).val();
+                const $template4Only = $('#contentFields .template4-only');
+                
+                if (selectedTemplate === 'template4') {
+                    $template4Only.slideDown();
+                } else {
+                    $template4Only.slideUp();
+                }
+            }
+        });
+
+        // Handle tagline question - show/hide tagline input field
+        form.on('change', 'input[name="provide_tagline"]', function() {
+            const showTaglineField = $(this).val() === 'Yes';
+            if (showTaglineField) {
+                $('#taglineField').slideDown();
+                $('#taglineField input[name="company_tagline"]').prop('required', true);
+            } else {
+                $('#taglineField').slideUp();
+                $('#taglineField input[name="company_tagline"]').prop('required', false);
+            }
+        });
+
+        // Handle FAQs question - show/hide FAQ input field (Template 4 only)
+        form.on('change', 'input[name="provide_faqs"]', function() {
+            const showFaqField = $(this).val() === 'Yes';
+            if (showFaqField) {
+                $('#faqField').slideDown();
+                $('#faqField textarea[name="company_faqs"]').prop('required', true);
+            } else {
+                $('#faqField').slideUp();
+                $('#faqField textarea[name="company_faqs"]').prop('required', false);
+            }
+        });
+
+        // Handle Benefits question - show/hide benefits input field (Template 4 only)
+        form.on('change', 'input[name="provide_benefits"]', function() {
+            const showBenefitsField = $(this).val() === 'Yes';
+            if (showBenefitsField) {
+                $('#benefitsField').slideDown();
+                $('#benefitsField textarea[name="benefits_what_we_do"]').prop('required', true);
+            } else {
+                $('#benefitsField').slideUp();
+                $('#benefitsField textarea[name="benefits_what_we_do"]').prop('required', false);
+            }
+        });
+
+        // Handle footer question - show/hide footer input field
+        form.on('change', 'input[name="provide_footer"]', function() {
+            const showFooterField = $(this).val() === 'Yes';
+            if (showFooterField) {
+                $('#footerField').slideDown();
+                $('#footerField input[name="website_footer"]').prop('required', true);
+            } else {
+                $('#footerField').slideUp();
+                $('#footerField input[name="website_footer"]').prop('required', false);
+            }
+        });
+
         // --- STEP 7: RENTALS DYNAMIC FIELD LOGIC ---
         // Use document-level delegation scoped to this form to ensure handlers work
 

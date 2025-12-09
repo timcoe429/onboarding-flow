@@ -40,9 +40,10 @@
                 </label>
                 <label>
                     <input type="radio" name="provide_tagline" value="No">
-                    <span>No - I'm okay with blank or stock content</span>
+                    <span>Please use stock text for this area</span>
                 </label>
             </div>
+            <p class="field-note">This is usually 4-8 words and will be displayed on your website homepage.</p>
         </div>
         
         <div class="form-field" id="taglineField" style="display: none;">
@@ -91,26 +92,27 @@
                 <label>Benefits/What We Do (5) *</label>
                 <textarea name="benefits_what_we_do" rows="6" placeholder="Please provide 5 Benefits/What We Do's. Include both the question AND the answer."></textarea>
             </div>
+        </div>
 
-            <!-- Footer -->
-            <div class="form-field">
-                <label>Do you want to provide a company summary for website footer? *</label>
-                <div class="radio-inline">
-                    <label>
-                        <input type="radio" name="provide_footer" value="Yes">
-                        <span>Yes</span>
-                    </label>
-                    <label>
-                        <input type="radio" name="provide_footer" value="No">
-                        <span>No - use stock content</span>
-                    </label>
-                </div>
+        <!-- Footer (available for all templates) -->
+        <div class="form-field">
+            <label>Do you want to give a company summary for your website footer? *</label>
+            <div class="radio-inline">
+                <label>
+                    <input type="radio" name="provide_footer" value="Yes">
+                    <span>I'll provide an answer</span>
+                </label>
+                <label>
+                    <input type="radio" name="provide_footer" value="No">
+                    <span>Please use stock text for this area</span>
+                </label>
             </div>
-            
-            <div class="form-field" id="footerField" style="display: none;">
-                <label>Company Summary - Website Footer</label>
-                <input type="text" name="website_footer" maxlength="65">
-            </div>
+            <p class="field-note">This is usually 1 sentence and will be displayed in the footer of your website below your logo.</p>
+        </div>
+        
+        <div class="form-field" id="footerField" style="display: none;">
+            <label>Company Summary - Website Footer</label>
+            <input type="text" name="website_footer" maxlength="65">
         </div>
     </div>
 

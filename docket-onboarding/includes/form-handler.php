@@ -584,47 +584,19 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     }
     
     // Create Trello card for the project
-    $trello_debug_log = WP_CONTENT_DIR . '/trello-debug.log';
-    $timestamp = date('Y-m-d H:i:s');
-    
-    file_put_contents($trello_debug_log, "[$timestamp] Trello Debug: DocketTrelloSync class exists: " . (class_exists('DocketTrelloSync') ? 'YES' : 'NO') . "\n", FILE_APPEND);
-    file_put_contents($trello_debug_log, "[$timestamp] Trello Debug: About to attempt Trello card creation for: " . $form_data['business_name'] . "\n", FILE_APPEND);
-    
     if (class_exists('DocketTrelloSync')) {
         // Add important URLs to form data for Trello card
         $form_data['new_site_url'] = $data['data']['site_url'];
         $form_data['portal_url'] = $portal_url;
         
-        file_put_contents($trello_debug_log, "[$timestamp] Trello Debug: Creating DocketTrelloSync instance\n", FILE_APPEND);
         $trello_sync = new DocketTrelloSync();
-        
-        // ENHANCED DEBUG: Log ALL form data fields being passed to Trello
-        file_put_contents($trello_debug_log, "[$timestamp] === ENHANCED TRELLO DEBUG START ===\n", FILE_APPEND);
-        file_put_contents($trello_debug_log, "[$timestamp] Selected Template: " . ($form_data['website_template_selection'] ?? 'NOT SET') . "\n", FILE_APPEND);
-        file_put_contents($trello_debug_log, "[$timestamp] Business Name: " . ($form_data['business_name'] ?? 'NOT SET') . "\n", FILE_APPEND);
-        file_put_contents($trello_debug_log, "[$timestamp] Form Type: " . ($form_data['form_type'] ?? 'NOT SET') . "\n", FILE_APPEND);
-        file_put_contents($trello_debug_log, "[$timestamp] Contact Name: " . ($form_data['name'] ?? 'NOT SET') . "\n", FILE_APPEND);
-        file_put_contents($trello_debug_log, "[$timestamp] Contact Email: " . ($form_data['email'] ?? 'NOT SET') . "\n", FILE_APPEND);
-        file_put_contents($trello_debug_log, "[$timestamp] Phone: " . ($form_data['phone_number'] ?? 'NOT SET') . "\n", FILE_APPEND);
-        file_put_contents($trello_debug_log, "[$timestamp] Business Email: " . ($form_data['business_email'] ?? 'NOT SET') . "\n", FILE_APPEND);
-        file_put_contents($trello_debug_log, "[$timestamp] Business Address: " . ($form_data['business_address'] ?? 'NOT SET') . "\n", FILE_APPEND);
-        file_put_contents($trello_debug_log, "[$timestamp] Plan: " . ($form_data['select_your_docket_plan'] ?? 'NOT SET') . "\n", FILE_APPEND);
-        file_put_contents($trello_debug_log, "[$timestamp] Services: " . (isset($form_data['services_offered']) ? (is_array($form_data['services_offered']) ? implode(', ', $form_data['services_offered']) : $form_data['services_offered']) : 'NOT SET') . "\n", FILE_APPEND);
-        file_put_contents($trello_debug_log, "[$timestamp] === FULL FORM DATA DUMP ===\n", FILE_APPEND);
-        file_put_contents($trello_debug_log, "[$timestamp] " . json_encode($form_data, JSON_PRETTY_PRINT) . "\n", FILE_APPEND);
-        file_put_contents($trello_debug_log, "[$timestamp] === ENHANCED TRELLO DEBUG END ===\n", FILE_APPEND);
-        
         $trello_card = $trello_sync->create_trello_card($form_data);
         
-        if ($trello_card) {
-            file_put_contents($trello_debug_log, "[$timestamp] Docket Onboarding: Trello card created for " . $form_data['business_name'] . "\n", FILE_APPEND);
-            file_put_contents($trello_debug_log, "[$timestamp] Trello Debug: Card creation returned: " . json_encode($trello_card) . "\n", FILE_APPEND);
-        } else {
-            file_put_contents($trello_debug_log, "[$timestamp] Docket Onboarding: Failed to create Trello card for " . $form_data['business_name'] . "\n", FILE_APPEND);
-            file_put_contents($trello_debug_log, "[$timestamp] Trello Debug: Card creation returned FALSE or NULL\n", FILE_APPEND);
+        if (!$trello_card) {
+            $trello_debug_log = WP_CONTENT_DIR . '/trello-debug.log';
+            $timestamp = date('Y-m-d H:i:s');
+            file_put_contents($trello_debug_log, "[$timestamp] ERROR: Failed to create Trello card for " . $form_data['business_name'] . "\n", FILE_APPEND);
         }
-    } else {
-        file_put_contents($trello_debug_log, "[$timestamp] Trello Debug: DocketTrelloSync class NOT FOUND - Trello integration not loaded\n", FILE_APPEND);
     }
     
     // Redirect to thank you page

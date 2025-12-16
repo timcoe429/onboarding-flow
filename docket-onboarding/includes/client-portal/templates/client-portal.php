@@ -26,108 +26,8 @@
         }
         
         .portal-header {
-            position: relative;
             text-align: center;
             margin-bottom: 48px;
-        }
-        
-        /* Refresh Button */
-        .refresh-btn {
-            position: absolute;
-            top: 0;
-            right: 0;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            padding: 10px 16px;
-            background: #0066cc;
-            color: white;
-            border: none;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 2px 8px rgba(0, 102, 204, 0.2);
-        }
-        
-        .refresh-btn:hover {
-            background: #0052a3;
-            transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0, 102, 204, 0.3);
-        }
-        
-        .refresh-btn:active {
-            transform: translateY(0);
-        }
-        
-        .refresh-btn:disabled {
-            background: #999;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .refresh-btn.loading {
-            background: #999;
-            cursor: wait;
-        }
-        
-        .refresh-icon {
-            font-size: 16px;
-            display: inline-block;
-            transition: transform 0.3s ease;
-        }
-        
-        .refresh-btn.loading .refresh-icon {
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        
-        .refresh-text {
-            display: inline-block;
-        }
-        
-        .refresh-btn.loading .refresh-text {
-            display: none;
-        }
-        
-        /* Status Message for Refresh Feedback */
-        .refresh-message {
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            padding: 12px 20px;
-            border-radius: 8px;
-            font-size: 14px;
-            font-weight: 600;
-            z-index: 1000;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-            animation: slideIn 0.3s ease;
-        }
-        
-        .refresh-message.success {
-            background: #00a862;
-            color: white;
-        }
-        
-        .refresh-message.error {
-            background: #dc3545;
-            color: white;
-        }
-        
-        @keyframes slideIn {
-            from {
-                transform: translateX(100%);
-                opacity: 0;
-            }
-            to {
-                transform: translateX(0);
-                opacity: 1;
-            }
         }
         
         .portal-header h1 {
@@ -336,21 +236,6 @@
         
         /* Mobile Responsive */
         @media (max-width: 768px) {
-            .portal-header {
-                padding-top: 50px;
-            }
-            
-            .refresh-btn {
-                top: -10px;
-                right: 0;
-                padding: 8px 12px;
-                font-size: 12px;
-            }
-            
-            .refresh-text {
-                display: none;
-            }
-            
             .progress-container {
                 padding: 32px 20px;
             }
@@ -382,13 +267,6 @@
             .step-subtitle {
                 font-size: 12px;
             }
-            
-            .refresh-message {
-                top: 10px;
-                right: 10px;
-                left: 10px;
-                width: auto;
-            }
         }
     </style>
 </head>
@@ -397,10 +275,6 @@
     <div class="portal-container">
         <!-- Header -->
         <div class="portal-header">
-            <button id="refresh-status-btn" class="refresh-btn" title="Refresh Project Status">
-                <span class="refresh-icon">🔄</span>
-                <span class="refresh-text">Refresh Status</span>
-            </button>
             <h1><?php echo esc_html($project->business_name); ?></h1>
             <p class="portal-subtitle">Website Development Progress</p>
         </div>
@@ -543,116 +417,6 @@
         </div>
     </div>
 
-    <script>
-    (function() {
-        const refreshBtn = document.getElementById('refresh-status-btn');
-        const clientUuid = '<?php echo esc_js($project->client_uuid); ?>';
-        
-        // #region agent log
-        fetch('http://127.0.0.1:7242/ingest/3d7ac9c6-bb48-4c08-b6b3-524266fa27eb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'client-portal.php:547',message:'JS init - refresh button found',data:{hasButton:!!refreshBtn,clientUuid:clientUuid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
-        // #endregion
-        
-        if (!refreshBtn) return;
-        
-        refreshBtn.addEventListener('click', function() {
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/3d7ac9c6-bb48-4c08-b6b3-524266fa27eb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'client-portal.php:553',message:'Refresh button clicked',data:{clientUuid:clientUuid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C'})}).catch(()=>{});
-            // #endregion
-            
-            // Disable button and show loading state
-            refreshBtn.disabled = true;
-            refreshBtn.classList.add('loading');
-            refreshBtn.querySelector('.refresh-text').textContent = 'Refreshing...';
-            
-            // Make AJAX request
-            const formData = new FormData();
-            formData.append('action', 'docket_refresh_project_status');
-            formData.append('client_uuid', clientUuid);
-            
-            const ajaxUrl = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>';
-            
-            // #region agent log
-            fetch('http://127.0.0.1:7242/ingest/3d7ac9c6-bb48-4c08-b6b3-524266fa27eb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'client-portal.php:563',message:'Before fetch - request data',data:{ajaxUrl:ajaxUrl,action:'docket_refresh_project_status',clientUuid:clientUuid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C,D'})}).catch(()=>{});
-            // #endregion
-            
-            fetch(ajaxUrl, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => {
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/3d7ac9c6-bb48-4c08-b6b3-524266fa27eb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'client-portal.php:568',message:'Response received',data:{status:response.status,statusText:response.statusText,ok:response.ok,contentType:response.headers.get('content-type')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                // #endregion
-                
-                if (!response.ok) {
-                    // #region agent log
-                    response.text().then(text => {
-                        fetch('http://127.0.0.1:7242/ingest/3d7ac9c6-bb48-4c08-b6b3-524266fa27eb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'client-portal.php:572',message:'Error response body',data:{status:response.status,body:text.substring(0,500)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                    });
-                    // #endregion
-                    throw new Error('HTTP ' + response.status + ': ' + response.statusText);
-                }
-                return response.json();
-            })
-            .then(data => {
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/3d7ac9c6-bb48-4c08-b6b3-524266fa27eb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'client-portal.php:580',message:'JSON parsed successfully',data:data,timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
-                // #endregion
-                if (data.success) {
-                    // Show success message
-                    showMessage('Status updated successfully!', 'success');
-                    
-                    // Reload page after 1 second to show updated status
-                    setTimeout(function() {
-                        window.location.reload();
-                    }, 1000);
-                } else {
-                    // Show error message
-                    showMessage(data.data?.message || 'Failed to refresh status', 'error');
-                    
-                    // Re-enable button
-                    refreshBtn.disabled = false;
-                    refreshBtn.classList.remove('loading');
-                    refreshBtn.querySelector('.refresh-text').textContent = 'Refresh Status';
-                }
-            })
-            .catch(error => {
-                // #region agent log
-                fetch('http://127.0.0.1:7242/ingest/3d7ac9c6-bb48-4c08-b6b3-524266fa27eb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'client-portal.php:590',message:'Fetch error caught',data:{error:error.toString(),message:error.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C,D'})}).catch(()=>{});
-                // #endregion
-                
-                console.error('Refresh error:', error);
-                showMessage('An error occurred. Please try again.', 'error');
-                
-                // Re-enable button
-                refreshBtn.disabled = false;
-                refreshBtn.classList.remove('loading');
-                refreshBtn.querySelector('.refresh-text').textContent = 'Refresh Status';
-            });
-        });
-        
-        function showMessage(text, type) {
-            // Remove existing message if any
-            const existing = document.querySelector('.refresh-message');
-            if (existing) {
-                existing.remove();
-            }
-            
-            // Create new message
-            const message = document.createElement('div');
-            message.className = 'refresh-message ' + type;
-            message.textContent = text;
-            document.body.appendChild(message);
-            
-            // Auto-remove after 3 seconds (unless it's a success message that will reload)
-            if (type === 'error') {
-                setTimeout(function() {
-                    message.remove();
-                }, 3000);
-            }
-        }
-    })();
-    </script>
 
     <?php wp_footer(); ?>
 </body>

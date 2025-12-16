@@ -27,46 +27,13 @@ class DocketTrelloSync {
     );
     
     public function __construct() {
-        // #region agent log
-        $log_file = WP_CONTENT_DIR . '/../.cursor/debug.log';
-        $log_entry = json_encode(array(
-            'location' => 'trello-sync.php:29',
-            'message' => 'Constructor called - registering AJAX hooks',
-            'data' => array(
-                'is_ajax' => defined('DOING_AJAX') && DOING_AJAX,
-                'ajax_action' => isset($_REQUEST['action']) ? $_REQUEST['action'] : 'none'
-            ),
-            'timestamp' => time() * 1000,
-            'sessionId' => 'debug-session',
-            'runId' => 'run1',
-            'hypothesisId' => 'C'
-        )) . "\n";
-        @file_put_contents($log_file, $log_entry, FILE_APPEND);
-        // #endregion
-        
         // Hook into WordPress admin for manual sync
         add_action('wp_ajax_sync_trello', array($this, 'manual_sync'));
-        
-        // Public AJAX endpoint for client portal refresh
-        add_action('wp_ajax_nopriv_docket_refresh_project_status', array($this, 'handle_refresh_request'));
-        
-        // #region agent log
-        $log_entry = json_encode(array(
-            'location' => 'trello-sync.php:37',
-            'message' => 'AJAX hook registered',
-            'data' => array('hook_name' => 'wp_ajax_nopriv_docket_refresh_project_status'),
-            'timestamp' => time() * 1000,
-            'sessionId' => 'debug-session',
-            'runId' => 'run1',
-            'hypothesisId' => 'C'
-        )) . "\n";
-        @file_put_contents($log_file, $log_entry, FILE_APPEND);
-        // #endregion
         
         // Add admin menu
         add_action('admin_menu', array($this, 'add_admin_menu'));
         
-        // Schedule automatic sync (once per day)
+        // Schedule automatic sync (every 30 minutes)
         add_action('wp', array($this, 'schedule_sync'));
         add_action('docket_trello_sync_hook', array($this, 'sync_all_projects'));
         
@@ -119,12 +86,23 @@ class DocketTrelloSync {
     }
     
     /**
-     * Schedule automatic sync (once per day)
+     * Schedule automatic sync
      */
     public function schedule_sync() {
         if (!wp_next_scheduled('docket_trello_sync_hook')) {
-            wp_schedule_event(time(), 'daily', 'docket_trello_sync_hook');
+            wp_schedule_event(time(), 'every_30_minutes', 'docket_trello_sync_hook');
         }
+    }
+    
+    /**
+     * Add custom cron interval
+     */
+    public function add_cron_intervals($schedules) {
+        $schedules['every_30_minutes'] = array(
+            'interval' => 1800, // 30 minutes
+            'display' => __('Every 30 Minutes')
+        );
+        return $schedules;
     }
     
     /**
@@ -465,199 +443,6 @@ class DocketTrelloSync {
         return trim($parts[0]);
     }
     
-    /**
-     * Sync a single project by client UUID
-     * Used for manual refresh from client portal
-     */
-    public function sync_single_project($client_uuid) {
-        global $wpdb;
-        
-        // Find project by UUID
-        $project = $wpdb->get_row($wpdb->prepare(
-            "SELECT * FROM {$wpdb->prefix}docket_client_projects WHERE client_uuid = %s",
-            $client_uuid
-        ));
-        
-        if (!$project) {
-            error_log("Trello Sync: Project not found for UUID: {$client_uuid}");
-            return array('success' => false, 'message' => 'Project not found');
-        }
-        
-        // Get Trello board lists
-        $lists = $this->get_board_lists();
-        if (!$lists) {
-            error_log('Trello Sync: Failed to get board lists for single project sync');
-            return array('success' => false, 'message' => 'Failed to connect to Trello');
-        }
-        
-        // Search through all lists to find the card matching this project
-        foreach ($lists as $list) {
-            $list_name = $list['name'];
-            
-            // Skip if list name doesn't match our mapping
-            if (!isset($this->status_mapping[$list_name])) {
-                continue;
-            }
-            
-            $project_status = $this->status_mapping[$list_name];
-            $cards = $this->get_list_cards($list['id']);
-            
-            if (!$cards) {
-                continue;
-            }
-            
-            // Look for card matching this project's business name
-            foreach ($cards as $card) {
-                $card_name = $card['name'];
-                $business_name = $this->extract_business_name($card_name);
-                
-                // Check if this card matches our project
-                if ($business_name === $project->business_name) {
-                    // Found matching card - update project status
-                    if ($project->current_step !== $project_status) {
-                        $success = $this->update_project_status($project->id, $project_status);
-                        
-                        if ($success) {
-                            error_log("Single project sync: Updated {$project->business_name} from {$project->current_step} to {$project_status}");
-                            return array(
-                                'success' => true,
-                                'message' => 'Status updated successfully',
-                                'old_status' => $project->current_step,
-                                'new_status' => $project_status
-                            );
-                        } else {
-                            return array('success' => false, 'message' => 'Failed to update project status');
-                        }
-                    } else {
-                        // Status already matches
-                        return array(
-                            'success' => true,
-                            'message' => 'Status is already up to date',
-                            'current_status' => $project_status
-                        );
-                    }
-                }
-            }
-        }
-        
-        // Card not found in Trello
-        return array('success' => false, 'message' => 'Project card not found in Trello');
-    }
-    
-    /**
-     * Handle AJAX request for manual project refresh
-     */
-    public function handle_refresh_request() {
-        // #region agent log
-        $log_file = WP_CONTENT_DIR . '/../.cursor/debug.log';
-        $log_entry = json_encode(array(
-            'location' => 'trello-sync.php:520',
-            'message' => 'AJAX handler called',
-            'data' => array(
-                'post_data' => $_POST,
-                'action' => isset($_POST['action']) ? $_POST['action'] : 'missing',
-                'client_uuid' => isset($_POST['client_uuid']) ? $_POST['client_uuid'] : 'missing'
-            ),
-            'timestamp' => time() * 1000,
-            'sessionId' => 'debug-session',
-            'runId' => 'run1',
-            'hypothesisId' => 'A,C,E'
-        )) . "\n";
-        @file_put_contents($log_file, $log_entry, FILE_APPEND);
-        // #endregion
-        
-        // Get client UUID from POST data
-        $client_uuid = isset($_POST['client_uuid']) ? sanitize_text_field($_POST['client_uuid']) : '';
-        
-        // #region agent log
-        $log_entry = json_encode(array(
-            'location' => 'trello-sync.php:530',
-            'message' => 'UUID extracted',
-            'data' => array('client_uuid' => $client_uuid, 'is_empty' => empty($client_uuid)),
-            'timestamp' => time() * 1000,
-            'sessionId' => 'debug-session',
-            'runId' => 'run1',
-            'hypothesisId' => 'A'
-        )) . "\n";
-        @file_put_contents($log_file, $log_entry, FILE_APPEND);
-        // #endregion
-        
-        if (empty($client_uuid)) {
-            // #region agent log
-            $log_entry = json_encode(array(
-                'location' => 'trello-sync.php:535',
-                'message' => 'UUID validation failed - sending error',
-                'data' => array(),
-                'timestamp' => time() * 1000,
-                'sessionId' => 'debug-session',
-                'runId' => 'run1',
-                'hypothesisId' => 'A'
-            )) . "\n";
-            @file_put_contents($log_file, $log_entry, FILE_APPEND);
-            // #endregion
-            wp_send_json_error(array('message' => 'Client UUID is required'));
-            return;
-        }
-        
-        // Verify UUID exists in database (security check)
-        global $wpdb;
-        $project = $wpdb->get_row($wpdb->prepare(
-            "SELECT id FROM {$wpdb->prefix}docket_client_projects WHERE client_uuid = %s",
-            $client_uuid
-        ));
-        
-        // #region agent log
-        $log_entry = json_encode(array(
-            'location' => 'trello-sync.php:545',
-            'message' => 'Database lookup result',
-            'data' => array('project_found' => !empty($project), 'project_id' => $project ? $project->id : null),
-            'timestamp' => time() * 1000,
-            'sessionId' => 'debug-session',
-            'runId' => 'run1',
-            'hypothesisId' => 'A'
-        )) . "\n";
-        @file_put_contents($log_file, $log_entry, FILE_APPEND);
-        // #endregion
-        
-        if (!$project) {
-            // #region agent log
-            $log_entry = json_encode(array(
-                'location' => 'trello-sync.php:550',
-                'message' => 'Project not found - sending error',
-                'data' => array('client_uuid' => $client_uuid),
-                'timestamp' => time() * 1000,
-                'sessionId' => 'debug-session',
-                'runId' => 'run1',
-                'hypothesisId' => 'A'
-            )) . "\n";
-            @file_put_contents($log_file, $log_entry, FILE_APPEND);
-            // #endregion
-            wp_send_json_error(array('message' => 'Invalid client UUID'));
-            return;
-        }
-        
-        // Sync the project
-        $result = $this->sync_single_project($client_uuid);
-        
-        // #region agent log
-        $log_entry = json_encode(array(
-            'location' => 'trello-sync.php:560',
-            'message' => 'Sync result',
-            'data' => $result,
-            'timestamp' => time() * 1000,
-            'sessionId' => 'debug-session',
-            'runId' => 'run1',
-            'hypothesisId' => 'E'
-        )) . "\n";
-        @file_put_contents($log_file, $log_entry, FILE_APPEND);
-        // #endregion
-        
-        if ($result['success']) {
-            wp_send_json_success($result);
-        } else {
-            wp_send_json_error($result);
-        }
-    }
     
     /**
      * Create Trello card when project is submitted
@@ -1218,44 +1003,13 @@ class DocketTrelloSync {
 }
 
 // Initialize Trello sync
-// #region agent log
-$log_file = WP_CONTENT_DIR . '/../.cursor/debug.log';
-$log_entry = json_encode(array(
-    'location' => 'trello-sync.php:1191',
-    'message' => 'Instantiating DocketTrelloSync class',
-    'data' => array(
-        'is_ajax' => defined('DOING_AJAX') && DOING_AJAX,
-        'ajax_action' => isset($_REQUEST['action']) ? $_REQUEST['action'] : 'none',
-        'file_loaded' => true
-    ),
-    'timestamp' => time() * 1000,
-    'sessionId' => 'debug-session',
-    'runId' => 'run2',
-    'hypothesisId' => 'C'
-)) . "\n";
-@file_put_contents($log_file, $log_entry, FILE_APPEND);
-// #endregion
-$docket_trello_sync_instance = new DocketTrelloSync();
+new DocketTrelloSync();
 
-// #region agent log
-// Verify hook is registered after instantiation
-if (defined('DOING_AJAX') && DOING_AJAX) {
-    global $wp_filter;
-    $hook_name = 'wp_ajax_nopriv_docket_refresh_project_status';
-    $hook_registered = isset($wp_filter[$hook_name]);
-    $log_entry = json_encode(array(
-        'location' => 'trello-sync.php:1205',
-        'message' => 'Checking if AJAX hook is registered',
-        'data' => array(
-            'hook_name' => $hook_name,
-            'hook_registered' => $hook_registered,
-            'requested_action' => isset($_REQUEST['action']) ? $_REQUEST['action'] : 'none'
-        ),
-        'timestamp' => time() * 1000,
-        'sessionId' => 'debug-session',
-        'runId' => 'run2',
-        'hypothesisId' => 'C'
-    )) . "\n";
-    @file_put_contents($log_file, $log_entry, FILE_APPEND);
-}
-// #endregion 
+// Add the cron interval filter
+add_filter('cron_schedules', function($schedules) {
+    $schedules['every_30_minutes'] = array(
+        'interval' => 1800, // 30 minutes
+        'display' => __('Every 30 Minutes')
+    );
+    return $schedules;
+}); 

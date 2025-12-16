@@ -19,7 +19,7 @@ class DocketTrelloSync {
         '4. Waiting on Review Scheduling' => 'waiting_review_scheduling',
         '5. Client Reviewing' => 'client_reviewing',
         '6. Edits to Complete' => 'edits_to_complete',
-        '7. Review Edits Completed' => 'review_edits_completed',
+        '7. Edits Completed' => 'review_edits_completed',
         '8. Pre Launch' => 'pre_launch',
         '9. Ready for Launch' => 'ready_for_launch',
         '10. Web Complete: Grow/Legacy' => 'web_complete_grow',

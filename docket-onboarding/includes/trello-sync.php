@@ -90,7 +90,7 @@ class DocketTrelloSync {
      */
     public function schedule_sync() {
         if (!wp_next_scheduled('docket_trello_sync_hook')) {
-            wp_schedule_event(time(), 'every_30_minutes', 'docket_trello_sync_hook');
+            wp_schedule_event(time(), 'every_1_minute', 'docket_trello_sync_hook');
         }
     }
     
@@ -98,9 +98,9 @@ class DocketTrelloSync {
      * Add custom cron interval
      */
     public function add_cron_intervals($schedules) {
-        $schedules['every_30_minutes'] = array(
-            'interval' => 1800, // 30 minutes
-            'display' => __('Every 30 Minutes')
+        $schedules['every_1_minute'] = array(
+            'interval' => 60, // 1 minute for testing
+            'display' => __('Every 1 Minute')
         );
         return $schedules;
     }
@@ -235,18 +235,68 @@ class DocketTrelloSync {
     
     /**
      * Find project by business name in card title
+     * Handles case-insensitive matching and whitespace variations
      */
     private function find_project_by_business_name($business_name) {
         global $wpdb;
         
         $table_name = $wpdb->prefix . 'docket_client_projects';
         
+        // Normalize the search name (trim, lowercase for comparison)
+        $normalized_search = strtolower(trim($business_name));
+        
+        error_log("[Trello Sync] Searching for business name: '$business_name' (normalized: '$normalized_search')");
+        
+        // Try exact match first
         $project = $wpdb->get_row($wpdb->prepare(
             "SELECT * FROM {$table_name} WHERE business_name = %s",
             $business_name
         ));
         
-        return $project;
+        if ($project) {
+            error_log("[Trello Sync] Found exact match: ID {$project->id}, Name: '{$project->business_name}', Current Step: '{$project->current_step}'");
+            return $project;
+        }
+        
+        // Try case-insensitive match
+        $project = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$table_name} WHERE LOWER(TRIM(business_name)) = %s",
+            $normalized_search
+        ));
+        
+        if ($project) {
+            error_log("[Trello Sync] Found case-insensitive match: ID {$project->id}, Name: '{$project->business_name}', Current Step: '{$project->current_step}'");
+            return $project;
+        }
+        
+        // Try partial match (contains) - only if exactly one match
+        $projects = $wpdb->get_results($wpdb->prepare(
+            "SELECT * FROM {$table_name} WHERE LOWER(TRIM(business_name)) LIKE %s",
+            '%' . $wpdb->esc_like($normalized_search) . '%'
+        ));
+        
+        if (count($projects) === 1) {
+            error_log("[Trello Sync] Found partial match: ID {$projects[0]->id}, Name: '{$projects[0]->business_name}', Current Step: '{$projects[0]->current_step}'");
+            return $projects[0];
+        }
+        
+        if (count($projects) > 1) {
+            error_log("[Trello Sync] Multiple partial matches found (" . count($projects) . ") for '$business_name', cannot determine correct project");
+            foreach ($projects as $p) {
+                error_log("[Trello Sync]   - ID {$p->id}: '{$p->business_name}'");
+            }
+        }
+        
+        error_log("[Trello Sync] No project found for: '$business_name'");
+        
+        // Log recent projects for debugging
+        $all_projects = $wpdb->get_results("SELECT id, business_name FROM {$table_name} ORDER BY id DESC LIMIT 10");
+        error_log("[Trello Sync] Recent projects in database:");
+        foreach ($all_projects as $p) {
+            error_log("[Trello Sync]   - ID {$p->id}: '{$p->business_name}'");
+        }
+        
+        return null;
     }
     
     /**
@@ -375,12 +425,17 @@ class DocketTrelloSync {
      * Sync all projects with Trello
      */
     public function sync_all_projects() {
+        $timestamp = date('Y-m-d H:i:s');
+        error_log("[Trello Sync] ========== SYNC STARTED at $timestamp ==========");
+        
         $lists = $this->get_board_lists();
         
         if (!$lists) {
-            error_log('Trello Sync: Failed to get board lists');
+            error_log('[Trello Sync] ERROR: Failed to get board lists');
             return array();
         }
+        
+        error_log("[Trello Sync] Found " . count($lists) . " lists on Trello board");
         
         $updated_projects = array();
         
@@ -389,27 +444,42 @@ class DocketTrelloSync {
             
             // Skip if list name doesn't match our mapping
             if (!isset($this->status_mapping[$list_name])) {
+                error_log("[Trello Sync] Skipping unmapped list: '$list_name'");
                 continue;
             }
             
             $project_status = $this->status_mapping[$list_name];
+            error_log("[Trello Sync] Processing list: '$list_name' → Status: '$project_status'");
+            
             $cards = $this->get_list_cards($list['id']);
             
-            if (!$cards) {
+            if (!$cards || count($cards) === 0) {
+                error_log("[Trello Sync]   No cards in '$list_name'");
                 continue;
             }
             
+            error_log("[Trello Sync]   Found " . count($cards) . " card(s) in '$list_name'");
+            
             foreach ($cards as $card) {
                 $card_name = $card['name'];
+                error_log("[Trello Sync]   Processing card: '$card_name'");
                 
                 // Try to find project by business name
                 // Cards might be formatted as "Business Name - Project Type" or just "Business Name"
                 $business_name = $this->extract_business_name($card_name);
+                error_log("[Trello Sync]     Extracted business name: '$business_name'");
+                
                 $project = $this->find_project_by_business_name($business_name);
                 
                 if ($project) {
+                    error_log("[Trello Sync]     Found project ID {$project->id}: '{$project->business_name}'");
+                    error_log("[Trello Sync]     Current step in DB: '{$project->current_step}'");
+                    error_log("[Trello Sync]     Trello list status: '$project_status'");
+                    
                     // Only update if status has changed
                     if ($project->current_step !== $project_status) {
+                        error_log("[Trello Sync]     ⚠ STATUS MISMATCH - Updating from '{$project->current_step}' to '$project_status'");
+                        
                         $success = $this->update_project_status($project->id, $project_status);
                         
                         if ($success) {
@@ -421,14 +491,20 @@ class DocketTrelloSync {
                                 'trello_list' => $list_name
                             );
                             
-                            error_log("Updated project {$project->business_name} from {$project->current_step} to {$project_status}");
+                            error_log("[Trello Sync]     ✓ Successfully updated project {$project->business_name}");
+                        } else {
+                            error_log("[Trello Sync]     ✗ Failed to update project status");
                         }
+                    } else {
+                        error_log("[Trello Sync]     ✓ Status already matches, no update needed");
                     }
                 } else {
-                    error_log("No project found for Trello card: {$card_name}");
+                    error_log("[Trello Sync]     ✗ No project found for card: '$card_name' (extracted: '$business_name')");
                 }
             }
         }
+        
+        error_log("[Trello Sync] ========== SYNC COMPLETE - Updated " . count($updated_projects) . " project(s) ==========");
         
         return $updated_projects;
     }
@@ -440,7 +516,11 @@ class DocketTrelloSync {
     private function extract_business_name($card_name) {
         // If there's a dash, take everything before it
         $parts = explode(' - ', $card_name);
-        return trim($parts[0]);
+        $business_name = trim($parts[0]);
+        
+        error_log("[Trello Sync] Extracting from card name: '$card_name' → '$business_name'");
+        
+        return $business_name;
     }
     
     

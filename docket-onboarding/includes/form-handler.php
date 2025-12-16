@@ -627,22 +627,8 @@ function docket_handle_any_form_submission($form_type = 'generic') {
         file_put_contents($trello_debug_log, "[$timestamp] Trello Debug: DocketTrelloSync class NOT FOUND - Trello integration not loaded\n", FILE_APPEND);
     }
     
-    // Get the current page URL from form data (passed from JavaScript)
-    $current_page_url = isset($_POST['current_page_url']) ? esc_url_raw($_POST['current_page_url']) : '';
-    
-    // If not provided, try to get from referer
-    if (empty($current_page_url)) {
-        $current_page_url = wp_get_referer();
-    }
-    
-    // Final fallback: use home URL
-    if (empty($current_page_url)) {
-        $current_page_url = home_url('/');
-    }
-    
-    // Remove any existing success parameter and add fresh one
-    $current_page_url = remove_query_arg('success', $current_page_url);
-    $success_url = add_query_arg('success', '1', $current_page_url);
+    // Redirect to thank you page
+    $success_url = 'https://yourdocketonline.com/thankyou/';
     
     // Send success response
     wp_send_json_success(array(
@@ -652,7 +638,7 @@ function docket_handle_any_form_submission($form_type = 'generic') {
         'site_url' => $data['data']['site_url'],
         'admin_url' => $data['data']['admin_url'],
         'portal_url' => $portal_url,
-        'redirect_url' => $success_url // Redirect to success page on same site
+        'redirect_url' => $success_url // Redirect to thank you page
     ));
     
     wp_die();

@@ -33,6 +33,9 @@ class DocketTrelloSync {
         // Add admin menu
         add_action('admin_menu', array($this, 'add_admin_menu'));
         
+        // Hook cron interval filter
+        add_filter('cron_schedules', array($this, 'add_cron_intervals'));
+        
         // Schedule automatic sync (every 30 minutes)
         add_action('wp', array($this, 'schedule_sync'));
         add_action('docket_trello_sync_hook', array($this, 'sync_all_projects'));
@@ -1011,13 +1014,4 @@ class DocketTrelloSync {
 }
 
 // Initialize Trello sync
-new DocketTrelloSync();
-
-// Add the cron interval filter
-add_filter('cron_schedules', function($schedules) {
-    $schedules['every_30_minutes'] = array(
-        'interval' => 1800, // 30 minutes
-        'display' => __('Every 30 Minutes')
-    );
-    return $schedules;
-}); 
+new DocketTrelloSync(); 

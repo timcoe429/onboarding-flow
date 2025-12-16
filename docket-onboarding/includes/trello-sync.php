@@ -573,25 +573,191 @@ class DocketTrelloSync {
             $desc .= "Selected Template: {$project_data['website_template_selection']}\n\n";
         }
         
-        // Services and Colors
+        // Service Areas
+        $service_areas = array();
+        for ($i = 1; $i <= 9; $i++) {
+            $field_name = 'servicearea' . $i;
+            if (!empty($project_data[$field_name])) {
+                $service_areas[] = $project_data[$field_name];
+            }
+        }
+        if (!empty($service_areas)) {
+            $desc .= "SERVICE AREAS\n";
+            $desc .= implode('; ', $service_areas) . "\n\n";
+        }
+        
+        // Content Information
+        $has_content = false;
+        $content_section = "";
+        if (!empty($project_data['blog_focus'])) {
+            $content_section .= "Blog Focus: {$project_data['blog_focus']}\n";
+            $has_content = true;
+        }
+        if (!empty($project_data['company_tagline'])) {
+            $content_section .= "Company Tagline: {$project_data['company_tagline']}\n";
+            $has_content = true;
+        }
+        if (!empty($project_data['company_faqs'])) {
+            $content_section .= "Company FAQs:\n{$project_data['company_faqs']}\n";
+            $has_content = true;
+        }
+        if (!empty($project_data['benefits_what_we_do'])) {
+            $content_section .= "Benefits/What We Do:\n{$project_data['benefits_what_we_do']}\n";
+            $has_content = true;
+        }
+        if (!empty($project_data['website_footer'])) {
+            $content_section .= "Website Footer: {$project_data['website_footer']}\n";
+            $has_content = true;
+        }
+        if ($has_content) {
+            $desc .= "CONTENT INFORMATION\n";
+            $desc .= $content_section . "\n";
+        }
+        
+        // Branding Information
+        $has_branding = false;
+        $branding_section = "";
+        if (!empty($project_data['logo_question'])) {
+            $branding_section .= "Logo Provided: {$project_data['logo_question']}\n";
+            $has_branding = true;
+        }
+        if (!empty($project_data['match_logo_color'])) {
+            $branding_section .= "Match Logo Color: {$project_data['match_logo_color']}\n";
+            $has_branding = true;
+        }
+        if (!empty($project_data['provide_font'])) {
+            $branding_section .= "Provide Font: {$project_data['provide_font']}\n";
+            $has_branding = true;
+        }
+        if (!empty($project_data['font_name'])) {
+            $branding_section .= "Font Name: {$project_data['font_name']}\n";
+            $has_branding = true;
+        }
+        if (!empty($project_data['company_colors'])) {
+            $branding_section .= "Primary Color: {$project_data['company_colors']}\n";
+            $has_branding = true;
+        }
+        if (!empty($project_data['company_colors2'])) {
+            $branding_section .= "Secondary Color: {$project_data['company_colors2']}\n";
+            $has_branding = true;
+        }
+        if ($has_branding) {
+            $desc .= "BRANDING INFORMATION\n";
+            $desc .= $branding_section . "\n";
+        }
+        
+        // Services and Dumpster Types
         if (!empty($project_data['services_offered'])) {
             $desc .= "SERVICES\n";
             if (is_array($project_data['services_offered'])) {
-                $desc .= "Services: " . implode(', ', $project_data['services_offered']) . "\n";
+                $desc .= "Services Offered: " . implode(', ', $project_data['services_offered']) . "\n";
+            } else {
+                $desc .= "Services Offered: {$project_data['services_offered']}\n";
             }
             if (!empty($project_data['dumpster_types'])) {
-                $desc .= "Dumpster Types: " . implode(', ', $project_data['dumpster_types']) . "\n";
-            }
-            if (!empty($project_data['company_colors'])) {
-                $desc .= "Primary Color: {$project_data['company_colors']}\n";
-            }
-            if (!empty($project_data['company_colors2'])) {
-                $desc .= "Secondary Color: {$project_data['company_colors2']}\n";
+                if (is_array($project_data['dumpster_types'])) {
+                    $desc .= "Dumpster Types: " . implode(', ', $project_data['dumpster_types']) . "\n";
+                } else {
+                    $desc .= "Dumpster Types: {$project_data['dumpster_types']}\n";
+                }
             }
             if (!empty($project_data['dumpster_color'])) {
                 $desc .= "Dumpster Color: {$project_data['dumpster_color']}\n";
             }
             $desc .= "\n";
+        }
+        
+        // Dumpster Rental Details
+        $has_dumpster_details = false;
+        $dumpster_details = "";
+        
+        // Roll-Off Dumpsters
+        if (!empty($project_data['dumpster_roll-off_size']) && is_array($project_data['dumpster_roll-off_size'])) {
+            $sizes = $project_data['dumpster_roll-off_size'];
+            $periods = $project_data['dumpster_roll-off_period'] ?? array();
+            $tons = $project_data['dumpster_roll-off_tons'] ?? array();
+            $prices = $project_data['dumpster_roll-off_price'] ?? array();
+            
+            if (count($sizes) > 0) {
+                $dumpster_details .= "Roll-Off Dumpsters:\n";
+                for ($i = 0; $i < count($sizes); $i++) {
+                    $dumpster_details .= "  - Size: " . ($sizes[$i] ?? 'N/A');
+                    if (!empty($periods[$i])) {
+                        $dumpster_details .= ", Period: " . $periods[$i];
+                    }
+                    if (!empty($tons[$i])) {
+                        $dumpster_details .= ", Tons: " . $tons[$i];
+                    }
+                    if (!empty($prices[$i])) {
+                        $dumpster_details .= ", Price: $" . $prices[$i];
+                    }
+                    $dumpster_details .= "\n";
+                }
+                $has_dumpster_details = true;
+            }
+        }
+        
+        // Hook-Lift Dumpsters
+        if (!empty($project_data['dumpster_hook-lift_size']) && is_array($project_data['dumpster_hook-lift_size'])) {
+            $sizes = $project_data['dumpster_hook-lift_size'];
+            $periods = $project_data['dumpster_hook-lift_period'] ?? array();
+            $tons = $project_data['dumpster_hook-lift_tons'] ?? array();
+            $prices = $project_data['dumpster_hook-lift_price'] ?? array();
+            
+            if (count($sizes) > 0) {
+                $dumpster_details .= "Hook-Lift Dumpsters:\n";
+                for ($i = 0; $i < count($sizes); $i++) {
+                    $dumpster_details .= "  - Size: " . ($sizes[$i] ?? 'N/A');
+                    if (!empty($periods[$i])) {
+                        $dumpster_details .= ", Period: " . $periods[$i];
+                    }
+                    if (!empty($tons[$i])) {
+                        $dumpster_details .= ", Tons: " . $tons[$i];
+                    }
+                    if (!empty($prices[$i])) {
+                        $dumpster_details .= ", Price: $" . $prices[$i];
+                    }
+                    $dumpster_details .= "\n";
+                }
+                $has_dumpster_details = true;
+            }
+        }
+        
+        // Dump Trailers
+        if (!empty($project_data['dumpster_dump-trailer_size']) && is_array($project_data['dumpster_dump-trailer_size'])) {
+            $sizes = $project_data['dumpster_dump-trailer_size'];
+            $periods = $project_data['dumpster_dump-trailer_period'] ?? array();
+            $tons = $project_data['dumpster_dump-trailer_tons'] ?? array();
+            $prices = $project_data['dumpster_dump-trailer_price'] ?? array();
+            
+            if (count($sizes) > 0) {
+                $dumpster_details .= "Dump Trailers:\n";
+                for ($i = 0; $i < count($sizes); $i++) {
+                    $dumpster_details .= "  - Size: " . ($sizes[$i] ?? 'N/A');
+                    if (!empty($periods[$i])) {
+                        $dumpster_details .= ", Period: " . $periods[$i];
+                    }
+                    if (!empty($tons[$i])) {
+                        $dumpster_details .= ", Tons: " . $tons[$i];
+                    }
+                    if (!empty($prices[$i])) {
+                        $dumpster_details .= ", Price: $" . $prices[$i];
+                    }
+                    $dumpster_details .= "\n";
+                }
+                $has_dumpster_details = true;
+            }
+        }
+        
+        if ($has_dumpster_details) {
+            $desc .= "DUMPSTER RENTAL DETAILS\n";
+            $desc .= $dumpster_details . "\n";
+        }
+        
+        // Junk Removal Services
+        if (!empty($project_data['junk_removal']) && is_array($project_data['junk_removal'])) {
+            $desc .= "JUNK REMOVAL SERVICES\n";
+            $desc .= implode(', ', $project_data['junk_removal']) . "\n\n";
         }
         
         // Uploaded Files
@@ -610,6 +776,38 @@ class DocketTrelloSync {
                 }
             }
             $desc .= "\n";
+        }
+        
+        // Marketing & Social Media
+        $has_marketing = false;
+        $marketing_section = "";
+        if (!empty($project_data['marketing_agency'])) {
+            $marketing_section .= "Marketing Agency: {$project_data['marketing_agency']}\n";
+            $has_marketing = true;
+        }
+        if (!empty($project_data['facebook'])) {
+            $marketing_section .= "Facebook: {$project_data['facebook']}\n";
+            $has_marketing = true;
+        }
+        if (!empty($project_data['instagram'])) {
+            $marketing_section .= "Instagram: {$project_data['instagram']}\n";
+            $has_marketing = true;
+        }
+        if (!empty($project_data['twitter'])) {
+            $marketing_section .= "Twitter/X: {$project_data['twitter']}\n";
+            $has_marketing = true;
+        }
+        if (!empty($project_data['YouTube'])) {
+            $marketing_section .= "YouTube: {$project_data['YouTube']}\n";
+            $has_marketing = true;
+        }
+        if (!empty($project_data['reviews_testimonials'])) {
+            $marketing_section .= "Reviews/Testimonials:\n{$project_data['reviews_testimonials']}\n";
+            $has_marketing = true;
+        }
+        if ($has_marketing) {
+            $desc .= "MARKETING & SOCIAL MEDIA\n";
+            $desc .= $marketing_section . "\n";
         }
         
         // Additional Notes

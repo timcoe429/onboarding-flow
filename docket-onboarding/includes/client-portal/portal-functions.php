@@ -265,7 +265,7 @@ class DocketClientPortal {
      * Send portal email to client
      */
     private function send_portal_email($email, $business_name, $portal_url, $new_site_url = null) {
-        $subject = "Track Your Website Progress - {$business_name}";
+        $subject = "Track your Docket Website Progress - {$business_name}";
         
         $message = '
         <html>
@@ -299,7 +299,9 @@ class DocketClientPortal {
                     <li>Your website goes live! 🚀</li>
                 </ol>
                 
-                <p>Questions? Just reply to this email or check your project dashboard.</p>
+                <p>Questions? Email <a href="mailto:Kayla.millie@servicecore.com">Kayla.millie@servicecore.com</a></p>
+                
+                <p>For software or Docketshop questions please reach out to your implementation manager.</p>
                 
                 <p>Thanks!<br>
                 <strong>The Docket Team</strong></p>
@@ -307,7 +309,12 @@ class DocketClientPortal {
         </body>
         </html>';
         
-        $headers = array('Content-Type: text/html; charset=UTF-8');
+        // Get site admin email for From address
+        $from_email = get_option('admin_email');
+        $headers = array(
+            'Content-Type: text/html; charset=UTF-8',
+            'From: Docket <' . $from_email . '>'
+        );
         return wp_mail($email, $subject, $message, $headers);
     }
     

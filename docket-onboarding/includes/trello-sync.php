@@ -518,10 +518,53 @@ class DocketTrelloSync {
      * Handle AJAX request for manual project refresh
      */
     public function handle_refresh_request() {
+        // #region agent log
+        $log_file = WP_CONTENT_DIR . '/../.cursor/debug.log';
+        $log_entry = json_encode(array(
+            'location' => 'trello-sync.php:520',
+            'message' => 'AJAX handler called',
+            'data' => array(
+                'post_data' => $_POST,
+                'action' => isset($_POST['action']) ? $_POST['action'] : 'missing',
+                'client_uuid' => isset($_POST['client_uuid']) ? $_POST['client_uuid'] : 'missing'
+            ),
+            'timestamp' => time() * 1000,
+            'sessionId' => 'debug-session',
+            'runId' => 'run1',
+            'hypothesisId' => 'A,C,E'
+        )) . "\n";
+        @file_put_contents($log_file, $log_entry, FILE_APPEND);
+        // #endregion
+        
         // Get client UUID from POST data
         $client_uuid = isset($_POST['client_uuid']) ? sanitize_text_field($_POST['client_uuid']) : '';
         
+        // #region agent log
+        $log_entry = json_encode(array(
+            'location' => 'trello-sync.php:530',
+            'message' => 'UUID extracted',
+            'data' => array('client_uuid' => $client_uuid, 'is_empty' => empty($client_uuid)),
+            'timestamp' => time() * 1000,
+            'sessionId' => 'debug-session',
+            'runId' => 'run1',
+            'hypothesisId' => 'A'
+        )) . "\n";
+        @file_put_contents($log_file, $log_entry, FILE_APPEND);
+        // #endregion
+        
         if (empty($client_uuid)) {
+            // #region agent log
+            $log_entry = json_encode(array(
+                'location' => 'trello-sync.php:535',
+                'message' => 'UUID validation failed - sending error',
+                'data' => array(),
+                'timestamp' => time() * 1000,
+                'sessionId' => 'debug-session',
+                'runId' => 'run1',
+                'hypothesisId' => 'A'
+            )) . "\n";
+            @file_put_contents($log_file, $log_entry, FILE_APPEND);
+            // #endregion
             wp_send_json_error(array('message' => 'Client UUID is required'));
             return;
         }
@@ -533,13 +576,51 @@ class DocketTrelloSync {
             $client_uuid
         ));
         
+        // #region agent log
+        $log_entry = json_encode(array(
+            'location' => 'trello-sync.php:545',
+            'message' => 'Database lookup result',
+            'data' => array('project_found' => !empty($project), 'project_id' => $project ? $project->id : null),
+            'timestamp' => time() * 1000,
+            'sessionId' => 'debug-session',
+            'runId' => 'run1',
+            'hypothesisId' => 'A'
+        )) . "\n";
+        @file_put_contents($log_file, $log_entry, FILE_APPEND);
+        // #endregion
+        
         if (!$project) {
+            // #region agent log
+            $log_entry = json_encode(array(
+                'location' => 'trello-sync.php:550',
+                'message' => 'Project not found - sending error',
+                'data' => array('client_uuid' => $client_uuid),
+                'timestamp' => time() * 1000,
+                'sessionId' => 'debug-session',
+                'runId' => 'run1',
+                'hypothesisId' => 'A'
+            )) . "\n";
+            @file_put_contents($log_file, $log_entry, FILE_APPEND);
+            // #endregion
             wp_send_json_error(array('message' => 'Invalid client UUID'));
             return;
         }
         
         // Sync the project
         $result = $this->sync_single_project($client_uuid);
+        
+        // #region agent log
+        $log_entry = json_encode(array(
+            'location' => 'trello-sync.php:560',
+            'message' => 'Sync result',
+            'data' => $result,
+            'timestamp' => time() * 1000,
+            'sessionId' => 'debug-session',
+            'runId' => 'run1',
+            'hypothesisId' => 'E'
+        )) . "\n";
+        @file_put_contents($log_file, $log_entry, FILE_APPEND);
+        // #endregion
         
         if ($result['success']) {
             wp_send_json_success($result);

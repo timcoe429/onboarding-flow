@@ -548,9 +548,17 @@
         const refreshBtn = document.getElementById('refresh-status-btn');
         const clientUuid = '<?php echo esc_js($project->client_uuid); ?>';
         
+        // #region agent log
+        fetch('http://127.0.0.1:7242/ingest/3d7ac9c6-bb48-4c08-b6b3-524266fa27eb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'client-portal.php:547',message:'JS init - refresh button found',data:{hasButton:!!refreshBtn,clientUuid:clientUuid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'C'})}).catch(()=>{});
+        // #endregion
+        
         if (!refreshBtn) return;
         
         refreshBtn.addEventListener('click', function() {
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3d7ac9c6-bb48-4c08-b6b3-524266fa27eb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'client-portal.php:553',message:'Refresh button clicked',data:{clientUuid:clientUuid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C'})}).catch(()=>{});
+            // #endregion
+            
             // Disable button and show loading state
             refreshBtn.disabled = true;
             refreshBtn.classList.add('loading');
@@ -561,12 +569,35 @@
             formData.append('action', 'docket_refresh_project_status');
             formData.append('client_uuid', clientUuid);
             
-            fetch('<?php echo esc_js(admin_url('admin-ajax.php')); ?>', {
+            const ajaxUrl = '<?php echo esc_js(admin_url('admin-ajax.php')); ?>';
+            
+            // #region agent log
+            fetch('http://127.0.0.1:7242/ingest/3d7ac9c6-bb48-4c08-b6b3-524266fa27eb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'client-portal.php:563',message:'Before fetch - request data',data:{ajaxUrl:ajaxUrl,action:'docket_refresh_project_status',clientUuid:clientUuid},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C,D'})}).catch(()=>{});
+            // #endregion
+            
+            fetch(ajaxUrl, {
                 method: 'POST',
                 body: formData
             })
-            .then(response => response.json())
+            .then(response => {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/3d7ac9c6-bb48-4c08-b6b3-524266fa27eb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'client-portal.php:568',message:'Response received',data:{status:response.status,statusText:response.statusText,ok:response.ok,contentType:response.headers.get('content-type')},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+                // #endregion
+                
+                if (!response.ok) {
+                    // #region agent log
+                    response.text().then(text => {
+                        fetch('http://127.0.0.1:7242/ingest/3d7ac9c6-bb48-4c08-b6b3-524266fa27eb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'client-portal.php:572',message:'Error response body',data:{status:response.status,body:text.substring(0,500)},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+                    });
+                    // #endregion
+                    throw new Error('HTTP ' + response.status + ': ' + response.statusText);
+                }
+                return response.json();
+            })
             .then(data => {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/3d7ac9c6-bb48-4c08-b6b3-524266fa27eb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'client-portal.php:580',message:'JSON parsed successfully',data:data,timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'B'})}).catch(()=>{});
+                // #endregion
                 if (data.success) {
                     // Show success message
                     showMessage('Status updated successfully!', 'success');
@@ -586,6 +617,10 @@
                 }
             })
             .catch(error => {
+                // #region agent log
+                fetch('http://127.0.0.1:7242/ingest/3d7ac9c6-bb48-4c08-b6b3-524266fa27eb',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({location:'client-portal.php:590',message:'Fetch error caught',data:{error:error.toString(),message:error.message},timestamp:Date.now(),sessionId:'debug-session',runId:'run1',hypothesisId:'A,B,C,D'})}).catch(()=>{});
+                // #endregion
+                
                 console.error('Refresh error:', error);
                 showMessage('An error occurred. Please try again.', 'error');
                 

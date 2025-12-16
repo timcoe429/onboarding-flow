@@ -259,6 +259,31 @@ class DocketTrelloSync {
         $projects_table = $wpdb->prefix . 'docket_client_projects';
         $timeline_table = $wpdb->prefix . 'docket_project_timeline';
         
+        // If project is complete (site is live), delete the client portal entry
+        // Note: Trello card stays in Trello, we're only deleting WordPress database entries
+        if ($new_status === 'web_complete_grow' || $new_status === 'web_complete_pro') {
+            // Delete project and timeline entries from WordPress database
+            $deleted_project = $wpdb->delete(
+                $projects_table,
+                array('id' => $project_id),
+                array('%d')
+            );
+            
+            $deleted_timeline = $wpdb->delete(
+                $timeline_table,
+                array('project_id' => $project_id),
+                array('%d')
+            );
+            
+            if ($deleted_project !== false) {
+                error_log("Project {$project_id} completed and deleted from client portal - site is live. Trello card remains in Trello.");
+                return true; // Return success - project deleted as site is live
+            } else {
+                error_log("Failed to delete completed project {$project_id} from client portal");
+                return false;
+            }
+        }
+        
         // Update project current step
         $updated = $wpdb->update(
             $projects_table,

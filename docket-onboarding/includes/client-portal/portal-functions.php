@@ -200,7 +200,7 @@ class DocketClientPortal {
                 'business_name' => wp_unslash(sanitize_text_field($form_data['business_name'])),
                 'business_email' => sanitize_email($form_data['business_email']),
                 'form_type' => $form_type,
-                'current_step' => 'submitted',
+                'current_step' => 'docket_team',
                 'created_at' => current_time('mysql')
             )
         );
@@ -215,7 +215,7 @@ class DocketClientPortal {
         
         // Initialize timeline steps to match Trello board
         $steps = array(
-            'docket_team' => 'completed',
+            'docket_team' => 'in_progress',
             'qa' => 'pending',
             'ready_to_send' => 'pending',
             'waiting_review_scheduling' => 'pending',

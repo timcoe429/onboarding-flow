@@ -40,6 +40,9 @@ class DocketTrelloSync {
         add_action('wp', array($this, 'schedule_sync'));
         add_action('docket_trello_sync_hook', array($this, 'sync_all_projects'));
         
+        // Fallback: Run sync on page visits if enough time has passed
+        add_action('init', array($this, 'maybe_run_sync_on_page_load'));
+        
         // Migrate old project statuses
         add_action('init', array($this, 'migrate_old_statuses'));
     }
@@ -94,6 +97,32 @@ class DocketTrelloSync {
     public function schedule_sync() {
         if (!wp_next_scheduled('docket_trello_sync_hook')) {
             wp_schedule_event(time(), 'every_1_minute', 'docket_trello_sync_hook');
+        }
+    }
+    
+    /**
+     * Fallback sync - runs on page visits if cron hasn't run recently
+     * This ensures sync works even if WordPress cron is disabled
+     */
+    public function maybe_run_sync_on_page_load() {
+        // Don't run on AJAX requests
+        if (defined('DOING_AJAX') && DOING_AJAX) {
+            return;
+        }
+        
+        // Don't run on admin pages (to avoid slowing down admin)
+        if (is_admin()) {
+            return;
+        }
+        
+        $last_sync = get_transient('docket_trello_last_sync');
+        $sync_interval = 60; // 1 minute (same as cron)
+        
+        // If no last sync time, or enough time has passed, run sync
+        if (!$last_sync || (time() - $last_sync) >= $sync_interval) {
+            // Run sync
+            $this->sync_all_projects();
+            set_transient('docket_trello_last_sync', time(), $sync_interval);
         }
     }
     
@@ -496,6 +525,9 @@ class DocketTrelloSync {
         }
         
         error_log("[Trello Sync] ========== SYNC COMPLETE - Updated " . count($updated_projects) . " project(s) ==========");
+        
+        // Update last sync time
+        set_transient('docket_trello_last_sync', time(), 60);
         
         return $updated_projects;
     }

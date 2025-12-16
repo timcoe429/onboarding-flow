@@ -27,11 +27,41 @@ class DocketTrelloSync {
     );
     
     public function __construct() {
+        // #region agent log
+        $log_file = WP_CONTENT_DIR . '/../.cursor/debug.log';
+        $log_entry = json_encode(array(
+            'location' => 'trello-sync.php:29',
+            'message' => 'Constructor called - registering AJAX hooks',
+            'data' => array(
+                'is_ajax' => defined('DOING_AJAX') && DOING_AJAX,
+                'ajax_action' => isset($_REQUEST['action']) ? $_REQUEST['action'] : 'none'
+            ),
+            'timestamp' => time() * 1000,
+            'sessionId' => 'debug-session',
+            'runId' => 'run1',
+            'hypothesisId' => 'C'
+        )) . "\n";
+        @file_put_contents($log_file, $log_entry, FILE_APPEND);
+        // #endregion
+        
         // Hook into WordPress admin for manual sync
         add_action('wp_ajax_sync_trello', array($this, 'manual_sync'));
         
         // Public AJAX endpoint for client portal refresh
         add_action('wp_ajax_nopriv_docket_refresh_project_status', array($this, 'handle_refresh_request'));
+        
+        // #region agent log
+        $log_entry = json_encode(array(
+            'location' => 'trello-sync.php:37',
+            'message' => 'AJAX hook registered',
+            'data' => array('hook_name' => 'wp_ajax_nopriv_docket_refresh_project_status'),
+            'timestamp' => time() * 1000,
+            'sessionId' => 'debug-session',
+            'runId' => 'run1',
+            'hypothesisId' => 'C'
+        )) . "\n";
+        @file_put_contents($log_file, $log_entry, FILE_APPEND);
+        // #endregion
         
         // Add admin menu
         add_action('admin_menu', array($this, 'add_admin_menu'));
@@ -1188,4 +1218,44 @@ class DocketTrelloSync {
 }
 
 // Initialize Trello sync
-new DocketTrelloSync(); 
+// #region agent log
+$log_file = WP_CONTENT_DIR . '/../.cursor/debug.log';
+$log_entry = json_encode(array(
+    'location' => 'trello-sync.php:1191',
+    'message' => 'Instantiating DocketTrelloSync class',
+    'data' => array(
+        'is_ajax' => defined('DOING_AJAX') && DOING_AJAX,
+        'ajax_action' => isset($_REQUEST['action']) ? $_REQUEST['action'] : 'none',
+        'file_loaded' => true
+    ),
+    'timestamp' => time() * 1000,
+    'sessionId' => 'debug-session',
+    'runId' => 'run2',
+    'hypothesisId' => 'C'
+)) . "\n";
+@file_put_contents($log_file, $log_entry, FILE_APPEND);
+// #endregion
+$docket_trello_sync_instance = new DocketTrelloSync();
+
+// #region agent log
+// Verify hook is registered after instantiation
+if (defined('DOING_AJAX') && DOING_AJAX) {
+    global $wp_filter;
+    $hook_name = 'wp_ajax_nopriv_docket_refresh_project_status';
+    $hook_registered = isset($wp_filter[$hook_name]);
+    $log_entry = json_encode(array(
+        'location' => 'trello-sync.php:1205',
+        'message' => 'Checking if AJAX hook is registered',
+        'data' => array(
+            'hook_name' => $hook_name,
+            'hook_registered' => $hook_registered,
+            'requested_action' => isset($_REQUEST['action']) ? $_REQUEST['action'] : 'none'
+        ),
+        'timestamp' => time() * 1000,
+        'sessionId' => 'debug-session',
+        'runId' => 'run2',
+        'hypothesisId' => 'C'
+    )) . "\n";
+    @file_put_contents($log_file, $log_entry, FILE_APPEND);
+}
+// #endregion 

@@ -231,6 +231,97 @@
             }
         });
 
+        // Handle logo file upload - show file list
+        form.on('change', '#logoFileInput', function() {
+            const files = this.files;
+            const $fileList = $('#logoFileList');
+            $fileList.empty();
+            
+            if (files.length > 0) {
+                Array.from(files).forEach(function(file) {
+                    const fileItem = $('<div class="file-item"></div>');
+                    const fileName = $('<span class="file-name"></span>').text(file.name);
+                    const fileSize = $('<span class="file-size"></span>').text(formatFileSize(file.size));
+                    const filePreview = $('<div class="file-preview"></div>');
+                    
+                    // Create preview for images
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = $('<img>').attr('src', e.target.result);
+                            filePreview.append(img);
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        filePreview.append('<span class="file-icon">📄</span>');
+                    }
+                    
+                    fileItem.append(filePreview);
+                    fileItem.append(fileName);
+                    fileItem.append(fileSize);
+                    $fileList.append(fileItem);
+                });
+                
+                // Update upload text
+                const $uploadText = $('#logoUpload .file-upload-text span');
+                $uploadText.text(files.length === 1 ? '1 file selected' : files.length + ' files selected');
+            } else {
+                // Reset upload text
+                const $uploadText = $('#logoUpload .file-upload-text span');
+                $uploadText.text('Click to upload or drag files here');
+            }
+        });
+
+        // Handle dumpster images file upload - show file list
+        $(document).on('change', formConfig.formId + ' #dumpsterFileInput', function() {
+            const files = this.files;
+            const $fileList = $(formConfig.formId).find('#dumpsterFileList');
+            $fileList.empty();
+            
+            if (files.length > 0) {
+                Array.from(files).forEach(function(file) {
+                    const fileItem = $('<div class="file-item"></div>');
+                    const fileName = $('<span class="file-name"></span>').text(file.name);
+                    const fileSize = $('<span class="file-size"></span>').text(formatFileSize(file.size));
+                    const filePreview = $('<div class="file-preview"></div>');
+                    
+                    // Create preview for images
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = $('<img>').attr('src', e.target.result);
+                            filePreview.append(img);
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        filePreview.append('<span class="file-icon">📄</span>');
+                    }
+                    
+                    fileItem.append(filePreview);
+                    fileItem.append(fileName);
+                    fileItem.append(fileSize);
+                    $fileList.append(fileItem);
+                });
+                
+                // Update upload text
+                const $uploadText = $(formConfig.formId).find('#customDumpsterImages .file-upload-text span');
+                $uploadText.text(files.length === 1 ? '1 file selected' : files.length + ' files selected');
+            } else {
+                // Reset upload text
+                const $uploadText = $(formConfig.formId).find('#customDumpsterImages .file-upload-text span');
+                $uploadText.text('Upload Images');
+            }
+        });
+
+        // Helper function to format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
         // Handle "Match Primary Logo Color" question - show/hide color picker
         form.on('change', 'input[name="match_logo_color"]', function() {
             const showColorField = $(this).val() === 'No';

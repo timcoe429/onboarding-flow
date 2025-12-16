@@ -30,10 +30,13 @@ class DocketTrelloSync {
         // Hook into WordPress admin for manual sync
         add_action('wp_ajax_sync_trello', array($this, 'manual_sync'));
         
+        // Public AJAX endpoint for client portal refresh
+        add_action('wp_ajax_nopriv_docket_refresh_project_status', array($this, 'handle_refresh_request'));
+        
         // Add admin menu
         add_action('admin_menu', array($this, 'add_admin_menu'));
         
-        // Schedule automatic sync (every 30 minutes)
+        // Schedule automatic sync (once per day)
         add_action('wp', array($this, 'schedule_sync'));
         add_action('docket_trello_sync_hook', array($this, 'sync_all_projects'));
         
@@ -86,23 +89,12 @@ class DocketTrelloSync {
     }
     
     /**
-     * Schedule automatic sync
+     * Schedule automatic sync (once per day)
      */
     public function schedule_sync() {
         if (!wp_next_scheduled('docket_trello_sync_hook')) {
-            wp_schedule_event(time(), 'every_30_minutes', 'docket_trello_sync_hook');
+            wp_schedule_event(time(), 'daily', 'docket_trello_sync_hook');
         }
-    }
-    
-    /**
-     * Add custom cron interval
-     */
-    public function add_cron_intervals($schedules) {
-        $schedules['every_30_minutes'] = array(
-            'interval' => 1800, // 30 minutes
-            'display' => __('Every 30 Minutes')
-        );
-        return $schedules;
     }
     
     /**
@@ -441,6 +433,119 @@ class DocketTrelloSync {
         // If there's a dash, take everything before it
         $parts = explode(' - ', $card_name);
         return trim($parts[0]);
+    }
+    
+    /**
+     * Sync a single project by client UUID
+     * Used for manual refresh from client portal
+     */
+    public function sync_single_project($client_uuid) {
+        global $wpdb;
+        
+        // Find project by UUID
+        $project = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$wpdb->prefix}docket_client_projects WHERE client_uuid = %s",
+            $client_uuid
+        ));
+        
+        if (!$project) {
+            error_log("Trello Sync: Project not found for UUID: {$client_uuid}");
+            return array('success' => false, 'message' => 'Project not found');
+        }
+        
+        // Get Trello board lists
+        $lists = $this->get_board_lists();
+        if (!$lists) {
+            error_log('Trello Sync: Failed to get board lists for single project sync');
+            return array('success' => false, 'message' => 'Failed to connect to Trello');
+        }
+        
+        // Search through all lists to find the card matching this project
+        foreach ($lists as $list) {
+            $list_name = $list['name'];
+            
+            // Skip if list name doesn't match our mapping
+            if (!isset($this->status_mapping[$list_name])) {
+                continue;
+            }
+            
+            $project_status = $this->status_mapping[$list_name];
+            $cards = $this->get_list_cards($list['id']);
+            
+            if (!$cards) {
+                continue;
+            }
+            
+            // Look for card matching this project's business name
+            foreach ($cards as $card) {
+                $card_name = $card['name'];
+                $business_name = $this->extract_business_name($card_name);
+                
+                // Check if this card matches our project
+                if ($business_name === $project->business_name) {
+                    // Found matching card - update project status
+                    if ($project->current_step !== $project_status) {
+                        $success = $this->update_project_status($project->id, $project_status);
+                        
+                        if ($success) {
+                            error_log("Single project sync: Updated {$project->business_name} from {$project->current_step} to {$project_status}");
+                            return array(
+                                'success' => true,
+                                'message' => 'Status updated successfully',
+                                'old_status' => $project->current_step,
+                                'new_status' => $project_status
+                            );
+                        } else {
+                            return array('success' => false, 'message' => 'Failed to update project status');
+                        }
+                    } else {
+                        // Status already matches
+                        return array(
+                            'success' => true,
+                            'message' => 'Status is already up to date',
+                            'current_status' => $project_status
+                        );
+                    }
+                }
+            }
+        }
+        
+        // Card not found in Trello
+        return array('success' => false, 'message' => 'Project card not found in Trello');
+    }
+    
+    /**
+     * Handle AJAX request for manual project refresh
+     */
+    public function handle_refresh_request() {
+        // Get client UUID from POST data
+        $client_uuid = isset($_POST['client_uuid']) ? sanitize_text_field($_POST['client_uuid']) : '';
+        
+        if (empty($client_uuid)) {
+            wp_send_json_error(array('message' => 'Client UUID is required'));
+            return;
+        }
+        
+        // Verify UUID exists in database (security check)
+        global $wpdb;
+        $project = $wpdb->get_row($wpdb->prepare(
+            "SELECT id FROM {$wpdb->prefix}docket_client_projects WHERE client_uuid = %s",
+            $client_uuid
+        ));
+        
+        if (!$project) {
+            wp_send_json_error(array('message' => 'Invalid client UUID'));
+            return;
+        }
+        
+        // Sync the project
+        $result = $this->sync_single_project($client_uuid);
+        
+        if ($result['success']) {
+            wp_send_json_success($result);
+        } else {
+            wp_send_json_error($result);
+        }
     }
     
     /**
@@ -1002,13 +1107,4 @@ class DocketTrelloSync {
 }
 
 // Initialize Trello sync
-new DocketTrelloSync();
-
-// Add the cron interval filter
-add_filter('cron_schedules', function($schedules) {
-    $schedules['every_30_minutes'] = array(
-        'interval' => 1800, // 30 minutes
-        'display' => __('Every 30 Minutes')
-    );
-    return $schedules;
-}); 
+new DocketTrelloSync(); 

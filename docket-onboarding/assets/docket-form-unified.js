@@ -44,12 +44,157 @@
 
         // Load saved step from sessionStorage or start at 1
         const storageKey = formConfig.formType + 'Step';
+        const formDataKey = formConfig.formType + 'FormData';
         let currentStep = parseInt(sessionStorage.getItem(storageKey)) || 1;
+
+        // --- FORM DATA PERSISTENCE (Phase 1: Simple Fields Only) ---
+        // Save form data to localStorage (excludes file inputs)
+        function saveFormData() {
+            try {
+                // Use serializeArray to get all form data (excludes file inputs automatically)
+                const formData = form.serializeArray();
+                const dataToSave = {};
+                
+                // Convert array to object, handling arrays (checkboxes, multi-selects)
+                formData.forEach(function(field) {
+                    if (dataToSave[field.name]) {
+                        // If field already exists, convert to array
+                        if (!Array.isArray(dataToSave[field.name])) {
+                            dataToSave[field.name] = [dataToSave[field.name]];
+                        }
+                        dataToSave[field.name].push(field.value);
+                    } else {
+                        dataToSave[field.name] = field.value;
+                    }
+                });
+                
+                // Also save textarea and select values that might not be in serializeArray
+                form.find('textarea, select').each(function() {
+                    const $field = $(this);
+                    const name = $field.attr('name');
+                    if (name && !dataToSave[name]) {
+                        if ($field.is('select[multiple]')) {
+                            const values = $field.val();
+                            if (values && values.length > 0) {
+                                dataToSave[name] = values;
+                            }
+                        } else {
+                            const value = $field.val();
+                            if (value) {
+                                dataToSave[name] = value;
+                            }
+                        }
+                    }
+                });
+                
+                localStorage.setItem(formDataKey, JSON.stringify(dataToSave));
+            } catch (e) {
+                console.error('Error saving form data:', e);
+            }
+        }
+        
+        // Restore form data from localStorage
+        function restoreFormData() {
+            try {
+                const savedData = localStorage.getItem(formDataKey);
+                if (!savedData) return;
+                
+                const formData = JSON.parse(savedData);
+                
+                // Phase 1: Restore checkboxes and radios first to trigger conditional visibility
+                Object.keys(formData).forEach(function(name) {
+                    const value = formData[name];
+                    const $fields = form.find('[name="' + name + '"]');
+                    
+                    if ($fields.length === 0) return;
+                    
+                    // Handle checkboxes and radios first
+                    if ($fields.first().is(':checkbox') || $fields.first().is(':radio')) {
+                        if (Array.isArray(value)) {
+                            // Handle checkbox groups
+                            $fields.each(function() {
+                                const $field = $(this);
+                                if (value.indexOf($field.val()) !== -1) {
+                                    $field.prop('checked', true);
+                                }
+                            });
+                        } else {
+                            // Handle single checkbox or radio
+                            $fields.each(function() {
+                                const $field = $(this);
+                                if ($field.val() === value) {
+                                    $field.prop('checked', true);
+                                }
+                            });
+                        }
+                    }
+                });
+                
+                // Trigger change events to show/hide conditional sections
+                form.find('input[type="checkbox"], input[type="radio"]').filter(':checked').trigger('change');
+                
+                // Phase 2: Restore other fields after sections are visible
+                Object.keys(formData).forEach(function(name) {
+                    const value = formData[name];
+                    const $fields = form.find('[name="' + name + '"]');
+                    
+                    if ($fields.length === 0) return;
+                    
+                    // Skip checkboxes and radios (already handled)
+                    if ($fields.first().is(':checkbox') || $fields.first().is(':radio')) {
+                        return;
+                    }
+                    
+                    // Skip file inputs (can't restore)
+                    if ($fields.first().is('input[type="file"]')) {
+                        return;
+                    }
+                    
+                    // Handle other field types
+                    const $field = $fields.first();
+                    if (Array.isArray(value)) {
+                        // Multi-select
+                        if ($field.is('select[multiple]')) {
+                            $field.val(value);
+                        }
+                    } else {
+                        // Single value fields
+                        if ($field.is('select')) {
+                            $field.val(value);
+                        } else {
+                            $field.val(value);
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error restoring form data:', e);
+            }
+        }
+        
+        // Clear saved form data
+        function clearFormData() {
+            try {
+                localStorage.removeItem(formDataKey);
+                sessionStorage.removeItem(storageKey);
+            } catch (e) {
+                console.error('Error clearing form data:', e);
+            }
+        }
+        
+        // Auto-save form data on any field change (debounced)
+        let saveTimeout;
+        form.on('input change', 'input:not([type="file"]), select, textarea', function() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveFormData, 500); // Save 500ms after user stops typing
+        });
 
         // --- NAVIGATION & SUBMISSION ---
         // Use delegated event handlers attached to the form itself
         form.on('click', '.btn-next', function(e) {
             e.preventDefault();
+            
+            // Save form data before advancing
+            saveFormData();
             
             // Validate current step before advancing
             if (!validateStep(currentStep)) {
@@ -65,6 +210,9 @@
 
         form.on('click', '.btn-prev', function(e) {
             e.preventDefault();
+            // Save form data before going back
+            saveFormData();
+            
             if (currentStep > 1) {
                 currentStep--;
                 sessionStorage.setItem(storageKey, currentStep);
@@ -89,12 +237,32 @@
             
             console.log('Submitting from step:', currentStep);
 
-            // Validate final step before submission
-            if (!validateStep(currentStep)) {
-                console.error('Validation failed. Submission halted.');
+            // Save form data before submission
+            saveFormData();
+
+            // Validate ALL steps before submission (not just current step)
+            let allStepsValid = true;
+            let firstInvalidStep = null;
+            
+            for (let step = 1; step <= formConfig.stepCount; step++) {
+                if (!validateStep(step)) {
+                    allStepsValid = false;
+                    if (!firstInvalidStep) {
+                        firstInvalidStep = step;
+                    }
+                }
+            }
+            
+            if (!allStepsValid) {
+                console.error('Validation failed on step:', firstInvalidStep);
+                // Navigate to the first invalid step
+                showStep(firstInvalidStep);
+                // Scroll to top to show validation errors
+                $('html, body').animate({ scrollTop: 0 }, 300);
                 return false;
             }
-            console.log('Validation passed. Proceeding with submission.');
+            
+            console.log('All steps validated. Proceeding with submission.');
 
             showProcessingScreen();
             
@@ -113,17 +281,21 @@
                 success: function(response) {
                     console.log('AJAX Success:', response);
                     setTimeout(function() {
-                        hideProcessingScreen();
                         if (response && response.success) {
+                            // Clear saved form data on successful submission
+                            clearFormData();
+                            
                             if (response.data && response.data.redirect_url) {
-                                sessionStorage.removeItem(storageKey); // Clear saved step
+                                // Keep processing screen visible and redirect directly
                                 window.location.href = response.data.redirect_url;
                             } else {
                                 // Show success message if no redirect
+                                hideProcessingScreen();
                                 form.closest('.docket-fast-form, .docket-standard-form, .docket-vip-form').find('form, .docket-form-progress').hide();
                                 form.closest('.docket-fast-form, .docket-standard-form, .docket-vip-form').find('.form-success').show();
                             }
                         } else {
+                            hideProcessingScreen();
                             alert('Submission Error: ' + (response && response.data && response.data.message ? response.data.message : 'An unknown error occurred.'));
                         }
                     }, 1500);
@@ -670,6 +842,9 @@
         function hideProcessingScreen() {
             $('.processing-overlay').fadeOut(300, function() { $(this).remove(); });
         }
+        
+        // Restore form data on load (after all handlers are registered)
+        restoreFormData();
         
         // Initial setup
         showStep(currentStep);

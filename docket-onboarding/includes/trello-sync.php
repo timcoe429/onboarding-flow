@@ -575,7 +575,8 @@ class DocketTrelloSync {
         }
         
         // Build comprehensive card description
-        $card_name = $project_data['business_name'] . ' - ' . ucwords(str_replace('_', ' ', $project_data['form_type']));
+        // Card title should ONLY be business name - no form type or other text
+        $card_name = $project_data['business_name'];
         $card_desc = $this->build_card_description($project_data);
         
         // Create the card

@@ -30,7 +30,37 @@ function docket_portal_admin_menu() {
 function docket_portal_admin_page() {
     global $wpdb;
     
-    // Handle project deletion
+    // Handle bulk deletion
+    if (isset($_POST['bulk_delete']) && wp_verify_nonce($_POST['_wpnonce'], 'bulk_delete')) {
+        $project_ids = isset($_POST['project_ids']) ? array_map('intval', $_POST['project_ids']) : array();
+        
+        if (!empty($project_ids)) {
+            // Sanitize IDs - only keep positive integers
+            $project_ids = array_filter($project_ids, function($id) { return $id > 0; });
+            
+            if (!empty($project_ids)) {
+                $ids_string = implode(',', $project_ids);
+                
+                // Delete timeline entries
+                $wpdb->query(
+                    "DELETE FROM {$wpdb->prefix}docket_project_timeline WHERE project_id IN ($ids_string)"
+                );
+                
+                // Delete projects
+                $deleted = $wpdb->query(
+                    "DELETE FROM {$wpdb->prefix}docket_client_projects WHERE id IN ($ids_string)"
+                );
+                
+                if ($deleted !== false) {
+                    echo '<div class="notice notice-success"><p>' . count($project_ids) . ' project(s) deleted successfully!</p></div>';
+                } else {
+                    echo '<div class="notice notice-error"><p>Failed to delete projects.</p></div>';
+                }
+            }
+        }
+    }
+    
+    // Handle single project deletion
     if (isset($_POST['delete_project']) && wp_verify_nonce($_POST['_wpnonce'], 'delete_project')) {
         $project_id = intval($_POST['project_id']);
         
@@ -116,135 +146,93 @@ function docket_portal_admin_page() {
     <div class="wrap">
         <h1>Client Projects</h1>
         
-        <div class="docket-admin-stats" style="display: flex; gap: 20px; margin: 20px 0;">
+        <div class="docket-admin-stats" style="display: flex; gap: 24px; margin: 24px 0;">
             <?php
             $total = count($projects);
-            // Count projects in development (docket_team, qa, ready_to_send, waiting_review_scheduling)
-            $in_development = count(array_filter($projects, function($p) { 
-                return in_array($p->current_step, array('docket_team', 'qa', 'ready_to_send', 'waiting_review_scheduling')); 
-            }));
-            // Count projects in review (client_reviewing, edits_to_complete, review_edits_completed)
-            $in_review = count(array_filter($projects, function($p) { 
-                return in_array($p->current_step, array('client_reviewing', 'edits_to_complete', 'review_edits_completed')); 
-            }));
-            // Count launched projects (web_complete_grow, web_complete_pro, ready_for_launch, pre_launch)
-            $launched = count(array_filter($projects, function($p) { 
-                return in_array($p->current_step, array('web_complete_grow', 'web_complete_pro', 'ready_for_launch', 'pre_launch')); 
-            }));
             ?>
             
-            <div class="docket-stat-card" style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #185fb0; min-width: 150px;">
-                <div style="font-size: 24px; font-weight: bold; color: #185fb0;"><?php echo $total; ?></div>
-                <div style="color: #666; font-size: 14px;">Total Projects</div>
-            </div>
-            
-            <div class="docket-stat-card" style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b; min-width: 150px;">
-                <div style="font-size: 24px; font-weight: bold; color: #f59e0b;"><?php echo $in_development; ?></div>
-                <div style="color: #666; font-size: 14px;">In Development</div>
-            </div>
-            
-            <div class="docket-stat-card" style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #a855f7; min-width: 150px;">
-                <div style="font-size: 24px; font-weight: bold; color: #a855f7;"><?php echo $in_review; ?></div>
-                <div style="color: #666; font-size: 14px;">In Review</div>
-            </div>
-            
-            <div class="docket-stat-card" style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #7eb10f; min-width: 150px;">
-                <div style="font-size: 24px; font-weight: bold; color: #7eb10f;"><?php echo $launched; ?></div>
-                <div style="color: #666; font-size: 14px;">Launched</div>
+            <div class="docket-stat-card" style="background: white; padding: 24px; border-radius: 8px; border-left: 4px solid #185fb0; min-width: 160px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+                <div style="font-size: 28px; font-weight: bold; color: #185fb0; margin-bottom: 4px;"><?php echo $total; ?></div>
+                <div style="color: #666; font-size: 14px; font-weight: 500;">Total Projects</div>
             </div>
         </div>
         
-        <table class="wp-list-table widefat fixed striped">
+        <!-- Bulk Actions Bar -->
+        <div class="docket-bulk-actions" style="margin: 20px 0; padding: 12px 16px; background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 8px; display: none; align-items: center; gap: 12px;">
+            <form method="post" id="bulk-delete-form" style="display: flex; align-items: center; gap: 12px; margin: 0;">
+                <?php wp_nonce_field('bulk_delete'); ?>
+                <button type="submit" name="bulk_delete" class="button" style="background: #dc2626; color: white; border-color: #dc2626;" onclick="return docketBulkDeleteConfirm();">
+                    Delete Selected
+                </button>
+                <span id="selected-count" style="color: #666; font-size: 14px;">
+                    <strong id="count-number">0</strong> project(s) selected
+                </span>
+            </form>
+        </div>
+        
+        <table class="wp-list-table widefat fixed striped docket-projects-table">
             <thead>
                 <tr>
-                    <th style="width: 200px;">Business Name</th>
-                    <th style="width: 100px;">Form Type</th>
-                    <th style="width: 120px;">Current Status</th>
-                    <th style="width: 100px;">Started</th>
-                    <th style="width: 100px;">Portal Link</th>
-                    <th>Actions</th>
+                    <th style="width: 40px; padding: 12px 8px;">
+                        <input type="checkbox" id="select-all-projects" style="margin: 0;">
+                    </th>
+                    <th style="width: 220px; padding: 12px 16px;">Business Name</th>
+                    <th style="width: 140px; padding: 12px 16px;">Form Type</th>
+                    <th style="width: 140px; padding: 12px 16px;">Started</th>
+                    <th style="width: 140px; padding: 12px 16px;">Portal Link</th>
+                    <th style="padding: 12px 16px;">Actions</th>
                 </tr>
             </thead>
             <tbody>
                 <?php foreach ($projects as $project): ?>
                 <tr>
-                    <td>
+                    <td style="padding: 16px 8px; text-align: center;">
+                        <input type="checkbox" name="project_ids[]" value="<?php echo $project->id; ?>" class="project-checkbox" style="margin: 0;">
+                    </td>
+                    <td style="padding: 16px;">
                         <strong><?php echo esc_html($project->business_name); ?></strong><br>
                         <small style="color: #666;"><?php echo esc_html($project->business_email); ?></small>
                     </td>
-                    <td>
+                    <td style="padding: 16px;">
                         <span class="form-type-badge" style="background: #e5e7eb; padding: 4px 8px; border-radius: 4px; font-size: 11px; text-transform: uppercase; font-weight: bold;">
                             <?php echo esc_html(str_replace('-', ' ', $project->form_type)); ?>
                         </span>
                     </td>
-                    <td>
-                        <?php
-                        $status_colors = array(
-                            'docket_team' => '#185fb0',
-                            'qa' => '#3b82f6',
-                            'ready_to_send' => '#60a5fa',
-                            'waiting_review_scheduling' => '#93c5fd',
-                            'client_reviewing' => '#f59e0b',
-                            'edits_to_complete' => '#f97316',
-                            'review_edits_completed' => '#fb923c',
-                            'pre_launch' => '#a855f7',
-                            'ready_for_launch' => '#c084fc',
-                            'web_complete_grow' => '#7eb10f',
-                            'web_complete_pro' => '#7eb10f'
-                        );
-                        $status_labels = array(
-                            'docket_team' => '🔧 Docket Team',
-                            'qa' => '🔍 QA',
-                            'ready_to_send' => '📤 Ready to Send',
-                            'waiting_review_scheduling' => '⏳ Waiting Review',
-                            'client_reviewing' => '👀 Client Reviewing',
-                            'edits_to_complete' => '✏️ Edits to Complete',
-                            'review_edits_completed' => '✅ Edits Completed',
-                            'pre_launch' => '🚀 Pre Launch',
-                            'ready_for_launch' => '🚀 Ready for Launch',
-                            'web_complete_grow' => '✅ Web Complete',
-                            'web_complete_pro' => '✅ Web Complete'
-                        );
-                        $color = $status_colors[$project->current_step] ?? '#6b7280';
-                        $label = $status_labels[$project->current_step] ?? ucwords(str_replace('_', ' ', $project->current_step));
-                        ?>
-                        <span style="color: <?php echo $color; ?>; font-weight: bold;">
-                            <?php echo $label; ?>
-                        </span>
-                    </td>
-                    <td>
+                    <td style="padding: 16px;">
                         <?php echo date('M j, Y', strtotime($project->created_at)); ?>
                     </td>
-                    <td>
+                    <td style="padding: 16px;">
                         <a href="<?php echo home_url("/project-status/{$project->client_uuid}/"); ?>" 
                            target="_blank" 
                            class="button button-small"
-                           style="font-size: 11px;">
+                           style="font-size: 12px; padding: 6px 12px;">
                             View Portal
                         </a>
                     </td>
-                    <td>
-                        <?php
-                        // Find submission data by business name/email
-                        $submission_id = docket_find_submission_id($project->business_name, $project->business_email);
-                        if ($submission_id):
-                        ?>
-                        <a href="<?php echo admin_url('admin.php?page=docket-client-projects&view_submission=' . urlencode($submission_id)); ?>" 
-                           class="button button-small" 
-                           style="font-size: 11px; margin-right: 5px;">
-                            View Submission
-                        </a>
-                        <?php else: ?>
-                        <span style="color: #999; font-size: 11px;">No submission data found</span>
-                        <?php endif; ?>
-                        
-                        <form method="post" style="display: inline-block;" onsubmit="return confirm('Are you sure you want to delete this project? This action cannot be undone.');">
-                            <?php wp_nonce_field('delete_project'); ?>
-                            <input type="hidden" name="project_id" value="<?php echo $project->id; ?>">
-                            <button type="submit" name="delete_project" class="button button-small" style="background: #dc2626; color: white; border-color: #dc2626;">
-                                Delete
-                            </button>
-                        </form>
+                    <td style="padding: 16px;">
+                        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                            <?php
+                            // Find submission data by business name/email
+                            $submission_id = docket_find_submission_id($project->business_name, $project->business_email);
+                            if ($submission_id):
+                            ?>
+                            <a href="<?php echo admin_url('admin.php?page=docket-client-projects&view_submission=' . urlencode($submission_id)); ?>" 
+                               class="button button-small" 
+                               style="font-size: 12px; padding: 6px 12px;">
+                                View Submission
+                            </a>
+                            <?php else: ?>
+                            <span style="color: #999; font-size: 12px;">No submission data</span>
+                            <?php endif; ?>
+                            
+                            <form method="post" style="display: inline-block; margin: 0;" onsubmit="return confirm('Are you sure you want to delete this project? This action cannot be undone.');">
+                                <?php wp_nonce_field('delete_project'); ?>
+                                <input type="hidden" name="project_id" value="<?php echo $project->id; ?>">
+                                <button type="submit" name="delete_project" class="button button-small" style="background: #dc2626; color: white; border-color: #dc2626; font-size: 12px; padding: 6px 12px;">
+                                    Delete
+                                </button>
+                            </form>
+                        </div>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -284,10 +272,16 @@ function docket_portal_admin_page() {
         
         .docket-stat-card {
             background: white;
-            padding: 20px;
+            padding: 24px;
             border-radius: 8px;
-            min-width: 150px;
+            min-width: 160px;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+        }
+        
+        .docket-stat-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
         
         .form-type-badge {
@@ -300,14 +294,24 @@ function docket_portal_admin_page() {
             color: #374151;
         }
         
-        .wp-list-table td {
-            vertical-align: top;
-            padding: 12px 8px;
+        .docket-projects-table td {
+            vertical-align: middle;
         }
         
-        .wp-list-table select {
-            font-size: 12px;
-            margin-right: 5px;
+        .docket-projects-table tbody tr {
+            transition: background-color 0.2s ease;
+        }
+        
+        .docket-projects-table tbody tr:hover {
+            background-color: #f9fafb;
+        }
+        
+        .docket-bulk-actions {
+            display: none;
+        }
+        
+        .docket-bulk-actions.has-selection {
+            display: flex;
         }
         
         @media (max-width: 768px) {
@@ -318,8 +322,87 @@ function docket_portal_admin_page() {
             .docket-stat-card {
                 min-width: auto;
             }
+            
+            .docket-projects-table {
+                font-size: 13px;
+            }
+            
+            .docket-projects-table th,
+            .docket-projects-table td {
+                padding: 12px 8px !important;
+            }
         }
     </style>
+    
+    <script>
+    jQuery(document).ready(function($) {
+        // Select All functionality
+        $('#select-all-projects').on('change', function() {
+            $('.project-checkbox').prop('checked', this.checked);
+            updateSelectedCount();
+        });
+        
+        // Individual checkbox change
+        $(document).on('change', '.project-checkbox', function() {
+            updateSelectedCount();
+            updateSelectAllState();
+        });
+        
+        // Update selected count
+        function updateSelectedCount() {
+            var count = $('.project-checkbox:checked').length;
+            $('#count-number').text(count);
+            if (count > 0) {
+                $('.docket-bulk-actions').show();
+            } else {
+                $('.docket-bulk-actions').hide();
+            }
+        }
+        
+        // Update select all checkbox state
+        function updateSelectAllState() {
+            var total = $('.project-checkbox').length;
+            var checked = $('.project-checkbox:checked').length;
+            $('#select-all-projects').prop('checked', total > 0 && checked === total);
+        }
+        
+        // Update form submission to include all checked boxes
+        $('#bulk-delete-form').on('submit', function(e) {
+            var checkedIds = [];
+            $('.project-checkbox:checked').each(function() {
+                checkedIds.push($(this).val());
+            });
+            
+            if (checkedIds.length === 0) {
+                e.preventDefault();
+                alert('Please select at least one project to delete.');
+                return false;
+            }
+            
+            // Clear existing hidden inputs
+            $(this).find('input[name="project_ids[]"]').remove();
+            
+            // Add checked IDs as hidden inputs
+            checkedIds.forEach(function(id) {
+                $(this).append($('<input>').attr({
+                    type: 'hidden',
+                    name: 'project_ids[]',
+                    value: id
+                }));
+            }.bind(this));
+        });
+    });
+    
+    // Bulk delete confirmation
+    function docketBulkDeleteConfirm() {
+        var count = jQuery('.project-checkbox:checked').length;
+        if (count === 0) {
+            alert('Please select at least one project to delete.');
+            return false;
+        }
+        return confirm('Are you sure you want to delete ' + count + ' selected project(s)? This action cannot be undone.');
+    }
+    </script>
     <?php
 }
 

@@ -22,6 +22,13 @@
             stepCount: config.stepCount || 8
         };
 
+        // Guard: Prevent duplicate initialization for the same form
+        const initKey = 'docketFormInit_' + formConfig.formId.replace('#', '');
+        if (window[initKey]) {
+            return; // Already initialized for this form
+        }
+        window[initKey] = true;
+
         const form = $(formConfig.formId);
         const steps = form.find('.form-step');
         const progressFill = $('.docket-progress-fill');
@@ -479,6 +486,8 @@
         // Use document-level delegation scoped to this form to ensure handlers work
 
         // Handle dumpster color selection - show/hide custom images upload
+        // Remove handler for this specific form before adding to prevent duplicates
+        $(document).off('change', formConfig.formId + ' input[name="dumpster_color"]');
         $(document).on('change', formConfig.formId + ' input[name="dumpster_color"]', function() {
             const isCustom = $(this).val() === 'Custom';
             const $customImages = $(formConfig.formId).find('#customDumpsterImages');
@@ -494,6 +503,8 @@
         });
 
         // Handle dumpster types checkboxes - show/hide corresponding sections
+        // Remove handler for this specific form before adding to prevent duplicates
+        $(document).off('change', formConfig.formId + ' input[name="dumpster_types[]"]');
         $(document).on('change', formConfig.formId + ' input[name="dumpster_types[]"]', function() {
             const dumpsterType = $(this).val();
             const isChecked = $(this).is(':checked');
@@ -520,6 +531,8 @@
         });
 
         // Handle services offered - show/hide junk removal section
+        // Remove handler for this specific form before adding to prevent duplicates
+        $(document).off('change', formConfig.formId + ' input[name="services_offered[]"]');
         $(document).on('change', formConfig.formId + ' input[name="services_offered[]"]', function() {
             const $form = $(formConfig.formId);
             const hasJunkRemoval = $form.find('input[name="services_offered[]"][value="Dumpster Rentals & Junk Removal"]').is(':checked');
@@ -537,6 +550,8 @@
         });
 
         // Handle "Add Dumpster" buttons for dynamic entries
+        // Remove handler for this specific form before adding to prevent duplicates
+        $(document).off('click', formConfig.formId + ' .add-dumpster-btn');
         $(document).on('click', formConfig.formId + ' .add-dumpster-btn', function(e) {
             e.preventDefault();
             const dumpsterType = $(this).data('type');
@@ -572,6 +587,8 @@
         });
 
         // Handle delete dumpster entry
+        // Remove handler for this specific form before adding to prevent duplicates
+        $(document).off('click', formConfig.formId + ' .delete-dumpster-btn');
         $(document).on('click', formConfig.formId + ' .delete-dumpster-btn', function(e) {
             e.preventDefault();
             $(this).closest('.dumpster-entry').slideUp(300, function() {

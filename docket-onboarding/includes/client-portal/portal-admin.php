@@ -1,7 +1,8 @@
 <?php
 /**
  * Client Portal Admin Interface
- * Manage client projects and status updates
+ * View-only interface for managing client projects
+ * Status updates are handled automatically via Trello sync
  */
 
 // Prevent direct access
@@ -29,22 +30,36 @@ function docket_portal_admin_menu() {
 function docket_portal_admin_page() {
     global $wpdb;
     
-    // Handle status updates
-    if (isset($_POST['update_project']) && wp_verify_nonce($_POST['_wpnonce'], 'update_project')) {
+    // Handle project deletion
+    if (isset($_POST['delete_project']) && wp_verify_nonce($_POST['_wpnonce'], 'delete_project')) {
         $project_id = intval($_POST['project_id']);
-        $new_step = sanitize_text_field($_POST['new_step']);
         
-        // Update project current step
-        $wpdb->update(
-            $wpdb->prefix . 'docket_client_projects',
-            array('current_step' => $new_step, 'updated_at' => current_time('mysql')),
-            array('id' => $project_id)
+        // Delete project timeline entries
+        $wpdb->delete(
+            $wpdb->prefix . 'docket_project_timeline',
+            array('project_id' => $project_id),
+            array('%d')
         );
         
-        // Update timeline
-        docket_update_project_timeline($project_id, $new_step);
+        // Delete project
+        $deleted = $wpdb->delete(
+            $wpdb->prefix . 'docket_client_projects',
+            array('id' => $project_id),
+            array('%d')
+        );
         
-        echo '<div class="notice notice-success"><p>Project updated successfully!</p></div>';
+        if ($deleted) {
+            echo '<div class="notice notice-success"><p>Project deleted successfully!</p></div>';
+        } else {
+            echo '<div class="notice notice-error"><p>Failed to delete project.</p></div>';
+        }
+    }
+    
+    // Handle viewing submission data
+    $view_submission_id = isset($_GET['view_submission']) ? sanitize_text_field($_GET['view_submission']) : null;
+    $submission_data = null;
+    if ($view_submission_id) {
+        $submission_data = get_option('docket_submission_' . $view_submission_id);
     }
     
     // Get all projects
@@ -53,6 +68,50 @@ function docket_portal_admin_page() {
         ORDER BY created_at DESC
     ");
     
+    // If viewing submission data, show modal/expanded view
+    if ($submission_data && $view_submission_id):
+        ?>
+        <div class="wrap">
+            <h1>View Submission Data</h1>
+            <p><a href="<?php echo admin_url('admin.php?page=docket-client-projects'); ?>" class="button">← Back to Projects</a></p>
+            
+            <div class="docket-submission-view" style="background: white; padding: 20px; border-radius: 8px; margin-top: 20px;">
+                <h2>Submission ID: <?php echo esc_html($view_submission_id); ?></h2>
+                
+                <table class="widefat" style="margin-top: 20px;">
+                    <thead>
+                        <tr>
+                            <th style="width: 200px;">Field</th>
+                            <th>Value</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <?php 
+                        foreach ($submission_data as $key => $value): 
+                            if (is_array($value)) {
+                                $display_value = implode(', ', array_map('esc_html', $value));
+                            } else {
+                                $display_value = esc_html($value);
+                            }
+                            
+                            // Skip very long text fields (show truncated)
+                            if (strlen($display_value) > 500) {
+                                $display_value = substr($display_value, 0, 500) . '... (truncated)';
+                            }
+                        ?>
+                        <tr>
+                            <td><strong><?php echo esc_html(ucwords(str_replace('_', ' ', $key))); ?></strong></td>
+                            <td><?php echo $display_value; ?></td>
+                        </tr>
+                        <?php endforeach; ?>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <?php
+        return;
+    endif;
+    
     ?>
     <div class="wrap">
         <h1>Client Projects</h1>
@@ -60,9 +119,18 @@ function docket_portal_admin_page() {
         <div class="docket-admin-stats" style="display: flex; gap: 20px; margin: 20px 0;">
             <?php
             $total = count($projects);
-            $building = count(array_filter($projects, function($p) { return $p->current_step === 'building'; }));
-            $review = count(array_filter($projects, function($p) { return $p->current_step === 'review'; }));
-            $launched = count(array_filter($projects, function($p) { return $p->current_step === 'launched'; }));
+            // Count projects in development (docket_team, qa, ready_to_send, waiting_review_scheduling)
+            $in_development = count(array_filter($projects, function($p) { 
+                return in_array($p->current_step, array('docket_team', 'qa', 'ready_to_send', 'waiting_review_scheduling')); 
+            }));
+            // Count projects in review (client_reviewing, edits_to_complete, review_edits_completed)
+            $in_review = count(array_filter($projects, function($p) { 
+                return in_array($p->current_step, array('client_reviewing', 'edits_to_complete', 'review_edits_completed')); 
+            }));
+            // Count launched projects (web_complete_grow, web_complete_pro, ready_for_launch, pre_launch)
+            $launched = count(array_filter($projects, function($p) { 
+                return in_array($p->current_step, array('web_complete_grow', 'web_complete_pro', 'ready_for_launch', 'pre_launch')); 
+            }));
             ?>
             
             <div class="docket-stat-card" style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #185fb0; min-width: 150px;">
@@ -71,12 +139,12 @@ function docket_portal_admin_page() {
             </div>
             
             <div class="docket-stat-card" style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #f59e0b; min-width: 150px;">
-                <div style="font-size: 24px; font-weight: bold; color: #f59e0b;"><?php echo $building; ?></div>
+                <div style="font-size: 24px; font-weight: bold; color: #f59e0b;"><?php echo $in_development; ?></div>
                 <div style="color: #666; font-size: 14px;">In Development</div>
             </div>
             
             <div class="docket-stat-card" style="background: white; padding: 20px; border-radius: 8px; border-left: 4px solid #a855f7; min-width: 150px;">
-                <div style="font-size: 24px; font-weight: bold; color: #a855f7;"><?php echo $review; ?></div>
+                <div style="font-size: 24px; font-weight: bold; color: #a855f7;"><?php echo $in_review; ?></div>
                 <div style="color: #666; font-size: 14px;">In Review</div>
             </div>
             
@@ -112,21 +180,33 @@ function docket_portal_admin_page() {
                     <td>
                         <?php
                         $status_colors = array(
-                            'submitted' => '#6b7280',
-                            'building' => '#185fb0', 
-                            'review' => '#f59e0b',
-                            'final_touches' => '#a855f7',
-                            'launched' => '#7eb10f'
+                            'docket_team' => '#185fb0',
+                            'qa' => '#3b82f6',
+                            'ready_to_send' => '#60a5fa',
+                            'waiting_review_scheduling' => '#93c5fd',
+                            'client_reviewing' => '#f59e0b',
+                            'edits_to_complete' => '#f97316',
+                            'review_edits_completed' => '#fb923c',
+                            'pre_launch' => '#a855f7',
+                            'ready_for_launch' => '#c084fc',
+                            'web_complete_grow' => '#7eb10f',
+                            'web_complete_pro' => '#7eb10f'
                         );
                         $status_labels = array(
-                            'submitted' => '✅ Submitted',
-                            'building' => '🔧 Building',
-                            'review' => '✏️ Review', 
-                            'final_touches' => '✨ Final Touches',
-                            'launched' => '🚀 Launched'
+                            'docket_team' => '🔧 Docket Team',
+                            'qa' => '🔍 QA',
+                            'ready_to_send' => '📤 Ready to Send',
+                            'waiting_review_scheduling' => '⏳ Waiting Review',
+                            'client_reviewing' => '👀 Client Reviewing',
+                            'edits_to_complete' => '✏️ Edits to Complete',
+                            'review_edits_completed' => '✅ Edits Completed',
+                            'pre_launch' => '🚀 Pre Launch',
+                            'ready_for_launch' => '🚀 Ready for Launch',
+                            'web_complete_grow' => '✅ Web Complete',
+                            'web_complete_pro' => '✅ Web Complete'
                         );
                         $color = $status_colors[$project->current_step] ?? '#6b7280';
-                        $label = $status_labels[$project->current_step] ?? ucfirst($project->current_step);
+                        $label = $status_labels[$project->current_step] ?? ucwords(str_replace('_', ' ', $project->current_step));
                         ?>
                         <span style="color: <?php echo $color; ?>; font-weight: bold;">
                             <?php echo $label; ?>
@@ -144,17 +224,26 @@ function docket_portal_admin_page() {
                         </a>
                     </td>
                     <td>
-                        <form method="post" style="display: inline-block;">
-                            <?php wp_nonce_field('update_project'); ?>
+                        <?php
+                        // Find submission data by business name/email
+                        $submission_id = docket_find_submission_id($project->business_name, $project->business_email);
+                        if ($submission_id):
+                        ?>
+                        <a href="<?php echo admin_url('admin.php?page=docket-client-projects&view_submission=' . urlencode($submission_id)); ?>" 
+                           class="button button-small" 
+                           style="font-size: 11px; margin-right: 5px;">
+                            View Submission
+                        </a>
+                        <?php else: ?>
+                        <span style="color: #999; font-size: 11px;">No submission data found</span>
+                        <?php endif; ?>
+                        
+                        <form method="post" style="display: inline-block;" onsubmit="return confirm('Are you sure you want to delete this project? This action cannot be undone.');">
+                            <?php wp_nonce_field('delete_project'); ?>
                             <input type="hidden" name="project_id" value="<?php echo $project->id; ?>">
-                            <select name="new_step" style="font-size: 12px;">
-                                <option value="submitted" <?php selected($project->current_step, 'submitted'); ?>>✅ Submitted</option>
-                                <option value="building" <?php selected($project->current_step, 'building'); ?>>🔧 Building</option>
-                                <option value="review" <?php selected($project->current_step, 'review'); ?>>✏️ Review</option>
-                                <option value="final_touches" <?php selected($project->current_step, 'final_touches'); ?>>✨ Final Touches</option>
-                                <option value="launched" <?php selected($project->current_step, 'launched'); ?>>🚀 Launched</option>
-                            </select>
-                            <button type="submit" name="update_project" class="button button-small">Update</button>
+                            <button type="submit" name="delete_project" class="button button-small" style="background: #dc2626; color: white; border-color: #dc2626;">
+                                Delete
+                            </button>
                         </form>
                     </td>
                 </tr>
@@ -175,11 +264,13 @@ function docket_portal_admin_page() {
             <ol>
                 <li><strong>Automatic Creation:</strong> Projects are created automatically when clients submit onboarding forms</li>
                 <li><strong>Email Notification:</strong> Clients get an email with their unique portal link</li>
-                <li><strong>Manual Updates:</strong> Use the dropdowns above to move projects through stages</li>
-                <li><strong>Real-time Updates:</strong> Client portals update immediately when you change the status</li>
+                <li><strong>Automatic Status Updates:</strong> Project statuses are automatically synced from Trello board positions</li>
+                <li><strong>View Submission Data:</strong> Click "View Submission" to see all form data submitted by the client</li>
+                <li><strong>Real-time Updates:</strong> Client portals update automatically when Trello cards move</li>
             </ol>
             
             <p><strong>🔗 Portal URLs:</strong> Each client gets a unique URL like <code>yoursite.com/project-status/abc123/</code></p>
+            <p><strong>📊 Status Updates:</strong> All status changes are managed automatically via Trello sync - no manual updates needed!</p>
         </div>
     </div>
     
@@ -233,42 +324,36 @@ function docket_portal_admin_page() {
 }
 
 /**
- * Update project timeline when status changes
+ * Find submission ID by business name or email
  */
-function docket_update_project_timeline($project_id, $new_step) {
+function docket_find_submission_id($business_name, $business_email) {
     global $wpdb;
     
-    $steps = array('submitted', 'building', 'review', 'final_touches', 'launched');
-    $current_step_index = array_search($new_step, $steps);
+    // Get all options that start with 'docket_submission_'
+    $options = $wpdb->get_results(
+        "SELECT option_name, option_value FROM {$wpdb->options} WHERE option_name LIKE 'docket_submission_%' ORDER BY option_id DESC LIMIT 100"
+    );
     
-    // Mark all previous steps as completed
-    for ($i = 0; $i <= $current_step_index; $i++) {
-        $wpdb->update(
-            $wpdb->prefix . 'docket_project_timeline',
-            array(
-                'status' => 'completed',
-                'completed_date' => current_time('mysql')
-            ),
-            array(
-                'project_id' => $project_id,
-                'step_name' => $steps[$i]
-            )
-        );
+    foreach ($options as $option) {
+        $submission_data = maybe_unserialize($option->option_value);
+        
+        if (is_array($submission_data)) {
+            // Check if business name or email matches
+            $submission_business_name = isset($submission_data['business_name']) ? strtolower(trim($submission_data['business_name'])) : '';
+            $submission_business_email = isset($submission_data['business_email']) ? strtolower(trim($submission_data['business_email'])) : '';
+            
+            $search_business_name = strtolower(trim($business_name));
+            $search_business_email = strtolower(trim($business_email));
+            
+            if ($submission_business_name === $search_business_name || 
+                $submission_business_email === $search_business_email) {
+                // Extract submission ID from option name
+                return str_replace('docket_submission_', '', $option->option_name);
+            }
+        }
     }
     
-    // Mark future steps as pending
-    for ($i = $current_step_index + 1; $i < count($steps); $i++) {
-        $wpdb->update(
-            $wpdb->prefix . 'docket_project_timeline',
-            array(
-                'status' => 'pending',
-                'completed_date' => null
-            ),
-            array(
-                'project_id' => $project_id,
-                'step_name' => $steps[$i]
-            )
-        );
-    }
+    return null;
 }
+
 ?>

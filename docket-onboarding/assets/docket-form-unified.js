@@ -189,16 +189,45 @@
             
             currentStepEl.find('.error, .field-error, .validation-summary').removeClass('error').remove();
         
+            // Group required checkboxes by name to handle checkbox groups correctly
+            const checkboxGroups = {};
+            const otherRequiredFields = [];
+            
             required.each(function() {
                 const $field = $(this);
+                if ($field.is(':checkbox')) {
+                    const name = $field.attr('name');
+                    if (!checkboxGroups[name]) {
+                        checkboxGroups[name] = [];
+                    }
+                    checkboxGroups[name].push($field);
+                } else {
+                    otherRequiredFields.push($field);
+                }
+            });
+            
+            // Validate checkbox groups (at least one must be checked)
+            Object.keys(checkboxGroups).forEach(function(name) {
+                const group = checkboxGroups[name];
+                const atLeastOneChecked = group.some(function($checkbox) {
+                    return $checkbox.is(':checked');
+                });
+                
+                if (!atLeastOneChecked) {
+                    valid = false;
+                    const $formField = group[0].closest('.form-field');
+                    const fieldLabel = $formField.find('label').first().text().replace('*', '').trim();
+                    if (errors.indexOf(fieldLabel) === -1) errors.push(fieldLabel);
+                    $formField.addClass('error');
+                }
+            });
+            
+            // Validate other required fields (radio, text, single checkboxes, etc.)
+            otherRequiredFields.forEach(function($field) {
                 const $formField = $field.closest('.form-field');
                 const fieldLabel = $formField.find('label').first().text().replace('*', '').trim();
 
                 if ($field.is(':radio') && !$(`input[name="${$field.attr('name')}"]:checked`).length) {
-                    valid = false;
-                    if (errors.indexOf(fieldLabel) === -1) errors.push(fieldLabel);
-                    $formField.addClass('error');
-                } else if ($field.is(':checkbox') && !$field.is(':checked')) {
                     valid = false;
                     if (errors.indexOf(fieldLabel) === -1) errors.push(fieldLabel);
                     $formField.addClass('error');

@@ -157,6 +157,9 @@ function esc_handle_ajax_clone() {
     // Build placeholder replacements from form data
     $placeholders = array();
     if (!empty($form_data)) {
+        // Store full form_data for user creation
+        $placeholders['form_data'] = $form_data;
+        
         // Map form fields to placeholders
         if (!empty($form_data['business_name'])) {
             $placeholders['{{company}}'] = $form_data['business_name'];
@@ -193,7 +196,8 @@ function esc_handle_ajax_clone() {
     wp_send_json_success([
         'site_id' => $result['site_id'],
         'site_url' => $result['site_url'],
-        'admin_url' => $result['admin_url']
+        'admin_url' => $result['admin_url'],
+        'client_credentials' => $result['client_credentials'] ?? null
     ]);
 }
 

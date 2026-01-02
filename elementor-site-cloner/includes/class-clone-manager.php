@@ -142,6 +142,26 @@ class ESC_Clone_Manager {
             }
             $this->destination_site_id = $new_site_id;
             
+            // Step 1.5: Create client admin user
+            $client_credentials = null;
+            if (!empty($placeholders) && is_array($placeholders)) {
+                // Check if form_data is nested in placeholders
+                $form_data_for_user = null;
+                if (isset($placeholders['form_data']) && is_array($placeholders['form_data'])) {
+                    $form_data_for_user = $placeholders['form_data'];
+                } elseif (isset($this->placeholders['form_data']) && is_array($this->placeholders['form_data'])) {
+                    $form_data_for_user = $this->placeholders['form_data'];
+                }
+                
+                if ($form_data_for_user) {
+                    $this->update_log_status('creating_client_user');
+                    $client_credentials = $this->create_client_admin_user($new_site_id, $form_data_for_user);
+                    if (!$client_credentials) {
+                        error_log('ESC: Client admin user creation failed, continuing with clone');
+                    }
+                }
+            }
+            
             // Step 2: Clone database
             $this->update_log_status('cloning_database');
             
@@ -178,7 +198,8 @@ class ESC_Clone_Manager {
                 'success' => true,
                 'site_id' => $new_site_id,
                 'site_url' => get_site_url($new_site_id),
-                'admin_url' => get_admin_url($new_site_id)
+                'admin_url' => get_admin_url($new_site_id),
+                'client_credentials' => $client_credentials
             );
             
         } catch (Exception $e) {
@@ -263,6 +284,119 @@ class ESC_Clone_Manager {
         restore_current_blog();
         
         return $site_id;
+    }
+    
+    /**
+     * Create client admin user from form data
+     * Username format: first initial + last name (e.g., jsmith) or email prefix if name unavailable
+     * Returns array with username, password, email, user_id, or null if creation fails
+     */
+    private function create_client_admin_user($site_id, $form_data) {
+        // Get email - prefer contact email, fallback to business email
+        $email = !empty($form_data['email']) ? sanitize_email($form_data['email']) : 
+                 (!empty($form_data['business_email']) ? sanitize_email($form_data['business_email']) : '');
+        
+        if (empty($email)) {
+            error_log('ESC: Cannot create client admin user - no email provided');
+            return null;
+        }
+        
+        // Get name - use contact name
+        $name = !empty($form_data['name']) ? trim(sanitize_text_field($form_data['name'])) : '';
+        
+        // Generate username from name or email
+        $username = '';
+        if (!empty($name)) {
+            // Parse name: "John Smith" -> "jsmith"
+            $name_parts = explode(' ', $name);
+            if (count($name_parts) >= 2) {
+                // Has first and last name
+                $first_initial = strtolower(substr($name_parts[0], 0, 1));
+                $last_name = strtolower($name_parts[count($name_parts) - 1]);
+                // Remove special characters from last name
+                $last_name = preg_replace('/[^a-z0-9]/', '', $last_name);
+                $username = $first_initial . $last_name;
+            } else {
+                // Single name - use first letter + rest of name
+                $username = strtolower(preg_replace('/[^a-z0-9]/', '', $name));
+                if (strlen($username) > 0) {
+                    $username = substr($username, 0, 1) . substr($username, 1);
+                }
+            }
+        }
+        
+        // Fallback to email prefix if name parsing didn't work
+        if (empty($username)) {
+            $email_parts = explode('@', $email);
+            $username = sanitize_user($email_parts[0]);
+        }
+        
+        // Ensure username is valid and unique
+        $username = sanitize_user($username);
+        if (empty($username)) {
+            // Last resort: generate from email
+            $email_parts = explode('@', $email);
+            $username = 'user_' . preg_replace('/[^a-z0-9]/', '', strtolower($email_parts[0]));
+        }
+        
+        // Make sure username is unique
+        $original_username = $username;
+        $counter = 1;
+        while (username_exists($username)) {
+            $username = $original_username . $counter;
+            $counter++;
+            // Safety check to prevent infinite loop
+            if ($counter > 100) {
+                $username = $original_username . '_' . time();
+                break;
+            }
+        }
+        
+        // Generate secure password (16 characters, include special chars)
+        $password = wp_generate_password(16, true, true);
+        
+        // Create the user
+        $user_id = wp_create_user($username, $password, $email);
+        
+        if (is_wp_error($user_id)) {
+            error_log('ESC: Failed to create client admin user - ' . $user_id->get_error_message());
+            return null;
+        }
+        
+        // Update user display name and first/last name
+        $update_data = array('ID' => $user_id);
+        
+        if (!empty($name)) {
+            $name_parts = explode(' ', $name);
+            $update_data['display_name'] = $name;
+            if (count($name_parts) >= 2) {
+                $update_data['first_name'] = $name_parts[0];
+                $update_data['last_name'] = implode(' ', array_slice($name_parts, 1));
+            } else {
+                $update_data['first_name'] = $name;
+            }
+        } else {
+            // Use email prefix as display name if no name provided
+            $email_parts = explode('@', $email);
+            $update_data['display_name'] = $email_parts[0];
+        }
+        
+        wp_update_user($update_data);
+        
+        // Make user administrator on the new site
+        switch_to_blog($site_id);
+        $user = new WP_User($user_id);
+        $user->set_role('administrator');
+        restore_current_blog();
+        
+        error_log("ESC: Created client admin user - Username: {$username}, Email: {$email}, Site ID: {$site_id}");
+        
+        return array(
+            'username' => $username,
+            'password' => $password,
+            'email' => $email,
+            'user_id' => $user_id
+        );
     }
     
     /**

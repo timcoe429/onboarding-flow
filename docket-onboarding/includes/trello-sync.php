@@ -636,6 +636,19 @@ class DocketTrelloSync {
         }
         $desc .= "\n";
         
+        // Client Login Credentials
+        if (!empty($project_data['client_credentials']) && is_array($project_data['client_credentials'])) {
+            $creds = $project_data['client_credentials'];
+            $desc .= "CLIENT LOGIN CREDENTIALS\n";
+            $desc .= "Username: {$creds['username']}\n";
+            $desc .= "Password: {$creds['password']}\n";
+            $desc .= "Email: {$creds['email']}\n";
+            if (!empty($project_data['new_site_url'])) {
+                $desc .= "Login URL: {$project_data['new_site_url']}wp-admin\n";
+            }
+            $desc .= "\n";
+        }
+        
         // Contact Information
         $desc .= "CONTACT INFORMATION\n";
         $desc .= "Name: " . ($project_data['name'] ?? 'Not provided') . "\n";

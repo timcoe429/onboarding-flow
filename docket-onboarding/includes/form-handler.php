@@ -564,6 +564,12 @@ function docket_handle_any_form_submission($form_type = 'generic') {
     // Success! Store the new site information with the form submission
     $form_data['new_site_id'] = $data['data']['site_id'];
     $form_data['new_site_url'] = $data['data']['site_url'];
+    
+    // Extract client credentials if available
+    if (!empty($data['data']['client_credentials'])) {
+        $form_data['client_credentials'] = $data['data']['client_credentials'];
+    }
+    
     update_option('docket_submission_' . $submission_id, $form_data);
     
     docket_log_info("Site created successfully", [
@@ -588,6 +594,11 @@ function docket_handle_any_form_submission($form_type = 'generic') {
         // Add important URLs to form data for Trello card
         $form_data['new_site_url'] = $data['data']['site_url'];
         $form_data['portal_url'] = $portal_url;
+        
+        // Ensure client credentials are included if available
+        if (!empty($data['data']['client_credentials'])) {
+            $form_data['client_credentials'] = $data['data']['client_credentials'];
+        }
         
         $trello_sync = new DocketTrelloSync();
         $trello_card = $trello_sync->create_trello_card($form_data);

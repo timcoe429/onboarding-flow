@@ -49,12 +49,13 @@
     <div class="form-field" id="customDumpsterImages" style="display: none;">
         <label>Upload Dumpster Images *</label>
         <div class="file-upload small">
-            <input type="file" name="dumpster_images[]" accept="image/*" multiple title="Please upload dumpster images">
+            <input type="file" name="dumpster_images[]" accept="image/*" multiple id="dumpsterFileInput" title="Please upload dumpster images">
             <div class="file-upload-text">
                 <span>Upload Images</span>
                 <small>600px x 400px preferred</small>
             </div>
         </div>
+        <div class="file-list" id="dumpsterFileList"></div>
     </div>
     
     <div class="form-field">

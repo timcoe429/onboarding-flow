@@ -22,6 +22,13 @@
             stepCount: config.stepCount || 8
         };
 
+        // Guard: Prevent duplicate initialization for the same form
+        const initKey = 'docketFormInit_' + formConfig.formId.replace('#', '');
+        if (window[initKey]) {
+            return; // Already initialized for this form
+        }
+        window[initKey] = true;
+
         const form = $(formConfig.formId);
         const steps = form.find('.form-step');
         const progressFill = $('.docket-progress-fill');
@@ -37,12 +44,157 @@
 
         // Load saved step from sessionStorage or start at 1
         const storageKey = formConfig.formType + 'Step';
+        const formDataKey = formConfig.formType + 'FormData';
         let currentStep = parseInt(sessionStorage.getItem(storageKey)) || 1;
+
+        // --- FORM DATA PERSISTENCE (Phase 1: Simple Fields Only) ---
+        // Save form data to localStorage (excludes file inputs)
+        function saveFormData() {
+            try {
+                // Use serializeArray to get all form data (excludes file inputs automatically)
+                const formData = form.serializeArray();
+                const dataToSave = {};
+                
+                // Convert array to object, handling arrays (checkboxes, multi-selects)
+                formData.forEach(function(field) {
+                    if (dataToSave[field.name]) {
+                        // If field already exists, convert to array
+                        if (!Array.isArray(dataToSave[field.name])) {
+                            dataToSave[field.name] = [dataToSave[field.name]];
+                        }
+                        dataToSave[field.name].push(field.value);
+                    } else {
+                        dataToSave[field.name] = field.value;
+                    }
+                });
+                
+                // Also save textarea and select values that might not be in serializeArray
+                form.find('textarea, select').each(function() {
+                    const $field = $(this);
+                    const name = $field.attr('name');
+                    if (name && !dataToSave[name]) {
+                        if ($field.is('select[multiple]')) {
+                            const values = $field.val();
+                            if (values && values.length > 0) {
+                                dataToSave[name] = values;
+                            }
+                        } else {
+                            const value = $field.val();
+                            if (value) {
+                                dataToSave[name] = value;
+                            }
+                        }
+                    }
+                });
+                
+                localStorage.setItem(formDataKey, JSON.stringify(dataToSave));
+            } catch (e) {
+                console.error('Error saving form data:', e);
+            }
+        }
+        
+        // Restore form data from localStorage
+        function restoreFormData() {
+            try {
+                const savedData = localStorage.getItem(formDataKey);
+                if (!savedData) return;
+                
+                const formData = JSON.parse(savedData);
+                
+                // Phase 1: Restore checkboxes and radios first to trigger conditional visibility
+                Object.keys(formData).forEach(function(name) {
+                    const value = formData[name];
+                    const $fields = form.find('[name="' + name + '"]');
+                    
+                    if ($fields.length === 0) return;
+                    
+                    // Handle checkboxes and radios first
+                    if ($fields.first().is(':checkbox') || $fields.first().is(':radio')) {
+                        if (Array.isArray(value)) {
+                            // Handle checkbox groups
+                            $fields.each(function() {
+                                const $field = $(this);
+                                if (value.indexOf($field.val()) !== -1) {
+                                    $field.prop('checked', true);
+                                }
+                            });
+                        } else {
+                            // Handle single checkbox or radio
+                            $fields.each(function() {
+                                const $field = $(this);
+                                if ($field.val() === value) {
+                                    $field.prop('checked', true);
+                                }
+                            });
+                        }
+                    }
+                });
+                
+                // Trigger change events to show/hide conditional sections
+                form.find('input[type="checkbox"], input[type="radio"]').filter(':checked').trigger('change');
+                
+                // Phase 2: Restore other fields after sections are visible
+                Object.keys(formData).forEach(function(name) {
+                    const value = formData[name];
+                    const $fields = form.find('[name="' + name + '"]');
+                    
+                    if ($fields.length === 0) return;
+                    
+                    // Skip checkboxes and radios (already handled)
+                    if ($fields.first().is(':checkbox') || $fields.first().is(':radio')) {
+                        return;
+                    }
+                    
+                    // Skip file inputs (can't restore)
+                    if ($fields.first().is('input[type="file"]')) {
+                        return;
+                    }
+                    
+                    // Handle other field types
+                    const $field = $fields.first();
+                    if (Array.isArray(value)) {
+                        // Multi-select
+                        if ($field.is('select[multiple]')) {
+                            $field.val(value);
+                        }
+                    } else {
+                        // Single value fields
+                        if ($field.is('select')) {
+                            $field.val(value);
+                        } else {
+                            $field.val(value);
+                        }
+                    }
+                });
+            } catch (e) {
+                console.error('Error restoring form data:', e);
+            }
+        }
+        
+        // Clear saved form data
+        function clearFormData() {
+            try {
+                localStorage.removeItem(formDataKey);
+                sessionStorage.removeItem(storageKey);
+            } catch (e) {
+                console.error('Error clearing form data:', e);
+            }
+        }
+        
+        // Auto-save form data on any field change (debounced)
+        let saveTimeout;
+        form.on('input change', 'input:not([type="file"]), select, textarea', function() {
+            clearTimeout(saveTimeout);
+            saveTimeout = setTimeout(saveFormData, 500); // Save 500ms after user stops typing
+        });
 
         // --- NAVIGATION & SUBMISSION ---
         // Use delegated event handlers attached to the form itself
         form.on('click', '.btn-next', function(e) {
             e.preventDefault();
+            
+            // Save form data before advancing
+            saveFormData();
             
             // Validate current step before advancing
             if (!validateStep(currentStep)) {
@@ -58,6 +210,9 @@
 
         form.on('click', '.btn-prev', function(e) {
             e.preventDefault();
+            // Save form data before going back
+            saveFormData();
+            
             if (currentStep > 1) {
                 currentStep--;
                 sessionStorage.setItem(storageKey, currentStep);
@@ -82,12 +237,32 @@
             
             console.log('Submitting from step:', currentStep);
 
-            // Validate final step before submission
-            if (!validateStep(currentStep)) {
-                console.error('Validation failed. Submission halted.');
+            // Save form data before submission
+            saveFormData();
+
+            // Validate ALL steps before submission (not just current step)
+            let allStepsValid = true;
+            let firstInvalidStep = null;
+            
+            for (let step = 1; step <= formConfig.stepCount; step++) {
+                if (!validateStep(step)) {
+                    allStepsValid = false;
+                    if (!firstInvalidStep) {
+                        firstInvalidStep = step;
+                    }
+                }
+            }
+            
+            if (!allStepsValid) {
+                console.error('Validation failed on step:', firstInvalidStep);
+                // Navigate to the first invalid step
+                showStep(firstInvalidStep);
+                // Scroll to top to show validation errors
+                $('html, body').animate({ scrollTop: 0 }, 300);
                 return false;
             }
-            console.log('Validation passed. Proceeding with submission.');
+            
+            console.log('All steps validated. Proceeding with submission.');
 
             showProcessingScreen();
             
@@ -106,17 +281,21 @@
                 success: function(response) {
                     console.log('AJAX Success:', response);
                     setTimeout(function() {
-                        hideProcessingScreen();
                         if (response && response.success) {
+                            // Clear saved form data on successful submission
+                            clearFormData();
+                            
                             if (response.data && response.data.redirect_url) {
-                                sessionStorage.removeItem(storageKey); // Clear saved step
+                                // Keep processing screen visible and redirect directly
                                 window.location.href = response.data.redirect_url;
                             } else {
                                 // Show success message if no redirect
+                                hideProcessingScreen();
                                 form.closest('.docket-fast-form, .docket-standard-form, .docket-vip-form').find('form, .docket-form-progress').hide();
                                 form.closest('.docket-fast-form, .docket-standard-form, .docket-vip-form').find('.form-success').show();
                             }
                         } else {
+                            hideProcessingScreen();
                             alert('Submission Error: ' + (response && response.data && response.data.message ? response.data.message : 'An unknown error occurred.'));
                         }
                     }, 1500);
@@ -189,16 +368,45 @@
             
             currentStepEl.find('.error, .field-error, .validation-summary').removeClass('error').remove();
         
+            // Group required checkboxes by name to handle checkbox groups correctly
+            const checkboxGroups = {};
+            const otherRequiredFields = [];
+            
             required.each(function() {
                 const $field = $(this);
+                if ($field.is(':checkbox')) {
+                    const name = $field.attr('name');
+                    if (!checkboxGroups[name]) {
+                        checkboxGroups[name] = [];
+                    }
+                    checkboxGroups[name].push($field);
+                } else {
+                    otherRequiredFields.push($field);
+                }
+            });
+            
+            // Validate checkbox groups (at least one must be checked)
+            Object.keys(checkboxGroups).forEach(function(name) {
+                const group = checkboxGroups[name];
+                const atLeastOneChecked = group.some(function($checkbox) {
+                    return $checkbox.is(':checked');
+                });
+                
+                if (!atLeastOneChecked) {
+                    valid = false;
+                    const $formField = group[0].closest('.form-field');
+                    const fieldLabel = $formField.find('label').first().text().replace('*', '').trim();
+                    if (errors.indexOf(fieldLabel) === -1) errors.push(fieldLabel);
+                    $formField.addClass('error');
+                }
+            });
+            
+            // Validate other required fields (radio, text, single checkboxes, etc.)
+            otherRequiredFields.forEach(function($field) {
                 const $formField = $field.closest('.form-field');
                 const fieldLabel = $formField.find('label').first().text().replace('*', '').trim();
 
                 if ($field.is(':radio') && !$(`input[name="${$field.attr('name')}"]:checked`).length) {
-                    valid = false;
-                    if (errors.indexOf(fieldLabel) === -1) errors.push(fieldLabel);
-                    $formField.addClass('error');
-                } else if ($field.is(':checkbox') && !$field.is(':checked')) {
                     valid = false;
                     if (errors.indexOf(fieldLabel) === -1) errors.push(fieldLabel);
                     $formField.addClass('error');
@@ -230,6 +438,97 @@
                 $('#logoUpload input').prop('required', false);
             }
         });
+
+        // Handle logo file upload - show file list
+        form.on('change', '#logoFileInput', function() {
+            const files = this.files;
+            const $fileList = $('#logoFileList');
+            $fileList.empty();
+            
+            if (files.length > 0) {
+                Array.from(files).forEach(function(file) {
+                    const fileItem = $('<div class="file-item"></div>');
+                    const fileName = $('<span class="file-name"></span>').text(file.name);
+                    const fileSize = $('<span class="file-size"></span>').text(formatFileSize(file.size));
+                    const filePreview = $('<div class="file-preview"></div>');
+                    
+                    // Create preview for images
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = $('<img>').attr('src', e.target.result);
+                            filePreview.append(img);
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        filePreview.append('<span class="file-icon">📄</span>');
+                    }
+                    
+                    fileItem.append(filePreview);
+                    fileItem.append(fileName);
+                    fileItem.append(fileSize);
+                    $fileList.append(fileItem);
+                });
+                
+                // Update upload text
+                const $uploadText = $('#logoUpload .file-upload-text span');
+                $uploadText.text(files.length === 1 ? '1 file selected' : files.length + ' files selected');
+            } else {
+                // Reset upload text
+                const $uploadText = $('#logoUpload .file-upload-text span');
+                $uploadText.text('Click to upload or drag files here');
+            }
+        });
+
+        // Handle dumpster images file upload - show file list
+        $(document).on('change', formConfig.formId + ' #dumpsterFileInput', function() {
+            const files = this.files;
+            const $fileList = $(formConfig.formId).find('#dumpsterFileList');
+            $fileList.empty();
+            
+            if (files.length > 0) {
+                Array.from(files).forEach(function(file) {
+                    const fileItem = $('<div class="file-item"></div>');
+                    const fileName = $('<span class="file-name"></span>').text(file.name);
+                    const fileSize = $('<span class="file-size"></span>').text(formatFileSize(file.size));
+                    const filePreview = $('<div class="file-preview"></div>');
+                    
+                    // Create preview for images
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        reader.onload = function(e) {
+                            const img = $('<img>').attr('src', e.target.result);
+                            filePreview.append(img);
+                        };
+                        reader.readAsDataURL(file);
+                    } else {
+                        filePreview.append('<span class="file-icon">📄</span>');
+                    }
+                    
+                    fileItem.append(filePreview);
+                    fileItem.append(fileName);
+                    fileItem.append(fileSize);
+                    $fileList.append(fileItem);
+                });
+                
+                // Update upload text
+                const $uploadText = $(formConfig.formId).find('#customDumpsterImages .file-upload-text span');
+                $uploadText.text(files.length === 1 ? '1 file selected' : files.length + ' files selected');
+            } else {
+                // Reset upload text
+                const $uploadText = $(formConfig.formId).find('#customDumpsterImages .file-upload-text span');
+                $uploadText.text('Upload Images');
+            }
+        });
+
+        // Helper function to format file size
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
 
         // Handle "Match Primary Logo Color" question - show/hide color picker
         form.on('change', 'input[name="match_logo_color"]', function() {
@@ -359,6 +658,8 @@
         // Use document-level delegation scoped to this form to ensure handlers work
 
         // Handle dumpster color selection - show/hide custom images upload
+        // Remove handler for this specific form before adding to prevent duplicates
+        $(document).off('change', formConfig.formId + ' input[name="dumpster_color"]');
         $(document).on('change', formConfig.formId + ' input[name="dumpster_color"]', function() {
             const isCustom = $(this).val() === 'Custom';
             const $customImages = $(formConfig.formId).find('#customDumpsterImages');
@@ -374,6 +675,8 @@
         });
 
         // Handle dumpster types checkboxes - show/hide corresponding sections
+        // Remove handler for this specific form before adding to prevent duplicates
+        $(document).off('change', formConfig.formId + ' input[name="dumpster_types[]"]');
         $(document).on('change', formConfig.formId + ' input[name="dumpster_types[]"]', function() {
             const dumpsterType = $(this).val();
             const isChecked = $(this).is(':checked');
@@ -400,6 +703,8 @@
         });
 
         // Handle services offered - show/hide junk removal section
+        // Remove handler for this specific form before adding to prevent duplicates
+        $(document).off('change', formConfig.formId + ' input[name="services_offered[]"]');
         $(document).on('change', formConfig.formId + ' input[name="services_offered[]"]', function() {
             const $form = $(formConfig.formId);
             const hasJunkRemoval = $form.find('input[name="services_offered[]"][value="Dumpster Rentals & Junk Removal"]').is(':checked');
@@ -417,6 +722,8 @@
         });
 
         // Handle "Add Dumpster" buttons for dynamic entries
+        // Remove handler for this specific form before adding to prevent duplicates
+        $(document).off('click', formConfig.formId + ' .add-dumpster-btn');
         $(document).on('click', formConfig.formId + ' .add-dumpster-btn', function(e) {
             e.preventDefault();
             const dumpsterType = $(this).data('type');
@@ -452,6 +759,8 @@
         });
 
         // Handle delete dumpster entry
+        // Remove handler for this specific form before adding to prevent duplicates
+        $(document).off('click', formConfig.formId + ' .delete-dumpster-btn');
         $(document).on('click', formConfig.formId + ' .delete-dumpster-btn', function(e) {
             e.preventDefault();
             $(this).closest('.dumpster-entry').slideUp(300, function() {
@@ -533,6 +842,9 @@
         function hideProcessingScreen() {
             $('.processing-overlay').fadeOut(300, function() { $(this).remove(); });
         }
+        
+        // Restore form data on load (after all handlers are registered)
+        restoreFormData();
         
         // Initial setup
         showStep(currentStep);

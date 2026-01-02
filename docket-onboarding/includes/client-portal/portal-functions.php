@@ -200,7 +200,7 @@ class DocketClientPortal {
                 'business_name' => wp_unslash(sanitize_text_field($form_data['business_name'])),
                 'business_email' => sanitize_email($form_data['business_email']),
                 'form_type' => $form_type,
-                'current_step' => 'submitted',
+                'current_step' => 'docket_team',
                 'created_at' => current_time('mysql')
             )
         );
@@ -215,7 +215,7 @@ class DocketClientPortal {
         
         // Initialize timeline steps to match Trello board
         $steps = array(
-            'docket_team' => 'completed',
+            'docket_team' => 'in_progress',
             'qa' => 'pending',
             'ready_to_send' => 'pending',
             'waiting_review_scheduling' => 'pending',
@@ -265,7 +265,7 @@ class DocketClientPortal {
      * Send portal email to client
      */
     private function send_portal_email($email, $business_name, $portal_url, $new_site_url = null) {
-        $subject = "Track Your Website Progress - {$business_name}";
+        $subject = "Track your Docket Website Progress - {$business_name}";
         
         $message = '
         <html>
@@ -299,7 +299,9 @@ class DocketClientPortal {
                     <li>Your website goes live! 🚀</li>
                 </ol>
                 
-                <p>Questions? Just reply to this email or check your project dashboard.</p>
+                <p>Questions? Email <a href="mailto:Kayla.millie@servicecore.com">Kayla.millie@servicecore.com</a></p>
+                
+                <p>For software or Docketshop questions please reach out to your implementation manager.</p>
                 
                 <p>Thanks!<br>
                 <strong>The Docket Team</strong></p>
@@ -307,7 +309,12 @@ class DocketClientPortal {
         </body>
         </html>';
         
-        $headers = array('Content-Type: text/html; charset=UTF-8');
+        // Get site admin email for From address
+        $from_email = get_option('admin_email');
+        $headers = array(
+            'Content-Type: text/html; charset=UTF-8',
+            'From: Docket <' . $from_email . '>'
+        );
         return wp_mail($email, $subject, $message, $headers);
     }
     

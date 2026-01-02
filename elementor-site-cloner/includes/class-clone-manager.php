@@ -142,7 +142,16 @@ class ESC_Clone_Manager {
             }
             $this->destination_site_id = $new_site_id;
             
-            // Step 1.5: Create client admin user
+            // Step 2: Clone database
+            $this->update_log_status('cloning_database');
+            
+            $db_cloner = new ESC_Database_Cloner($source_site_id, $new_site_id);
+            $result = $db_cloner->clone_database();
+            if (is_wp_error($result)) {
+                throw new Exception($result->get_error_message());
+            }
+            
+            // Step 2.5: Create client admin user (after database is cloned)
             $client_credentials = null;
             error_log('ESC: Checking for form_data in placeholders. Placeholders keys: ' . implode(', ', array_keys($placeholders ?? [])));
             if (!empty($placeholders) && is_array($placeholders)) {
@@ -172,15 +181,6 @@ class ESC_Clone_Manager {
                 }
             } else {
                 error_log('ESC: Placeholders is empty or not an array');
-            }
-            
-            // Step 2: Clone database
-            $this->update_log_status('cloning_database');
-            
-            $db_cloner = new ESC_Database_Cloner($source_site_id, $new_site_id);
-            $result = $db_cloner->clone_database();
-            if (is_wp_error($result)) {
-                throw new Exception($result->get_error_message());
             }
             
             // Step 3: Update URLs and placeholders

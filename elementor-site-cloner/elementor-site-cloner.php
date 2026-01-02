@@ -3,8 +3,8 @@
  * Plugin Name: Elementor Site Cloner
  * Plugin URI: https://github.com/yourusername/elementor-site-cloner
  * Description: A specialized WordPress multisite plugin for cloning Elementor-based template sites quickly and reliably.
- * Version: 1.0.0
- * Author: Your Name
+ * Version: 1.0.2
+ * Author: Tim Coe
  * License: GPL v2 or later
  * Network: true
  * Text Domain: elementor-site-cloner

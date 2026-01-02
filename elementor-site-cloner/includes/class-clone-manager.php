@@ -245,7 +245,12 @@ class ESC_Clone_Manager {
         // Step 3.6: Replace placeholders if provided
         if (!empty($placeholders)) {
             $this->update_log_status('replacing_placeholders');
-            $placeholder_replacer = new ESC_Placeholder_Replacer($new_site_id, $placeholders);
+            
+            // Remove form_data from placeholders - it's metadata, not a placeholder to replace
+            $placeholders_for_replacement = $placeholders;
+            unset($placeholders_for_replacement['form_data']);
+            
+            $placeholder_replacer = new ESC_Placeholder_Replacer($new_site_id, $placeholders_for_replacement);
             $result = $placeholder_replacer->replace_placeholders();
             if (is_wp_error($result)) {
                 throw new Exception($result->get_error_message());

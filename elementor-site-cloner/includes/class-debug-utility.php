@@ -12,6 +12,16 @@ class ESC_Debug_Utility {
     }
     
     /**
+     * Get debug log path
+     */
+    private static function get_log_path() {
+        if (empty(self::$debug_log)) {
+            self::$debug_log = WP_CONTENT_DIR . '/esc-template4-debug.log';
+        }
+        return self::$debug_log;
+    }
+    
+    /**
      * Log debug information with timestamp and context
      */
     public static function log($message, $context = [], $level = 'INFO') {
@@ -28,7 +38,10 @@ class ESC_Debug_Utility {
         $log_entry .= "\n";
         
         // Write to debug log
-        file_put_contents(self::$debug_log, $log_entry, FILE_APPEND | LOCK_EX);
+        $log_path = self::get_log_path();
+        if (!empty($log_path)) {
+            file_put_contents($log_path, $log_entry, FILE_APPEND | LOCK_EX);
+        }
     }
     
     /**
@@ -190,8 +203,9 @@ class ESC_Debug_Utility {
      * Clear debug log
      */
     public static function clear_log() {
-        if (file_exists(self::$debug_log)) {
-            file_put_contents(self::$debug_log, '');
+        $log_path = self::get_log_path();
+        if (!empty($log_path) && file_exists($log_path)) {
+            file_put_contents($log_path, '');
         }
     }
     
@@ -199,8 +213,9 @@ class ESC_Debug_Utility {
      * Get debug log contents
      */
     public static function get_log() {
-        if (file_exists(self::$debug_log)) {
-            return file_get_contents(self::$debug_log);
+        $log_path = self::get_log_path();
+        if (!empty($log_path) && file_exists($log_path)) {
+            return file_get_contents($log_path);
         }
         return '';
     }

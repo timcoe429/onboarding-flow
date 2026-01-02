@@ -3,8 +3,8 @@
  * Plugin Name: Elementor Site Cloner
  * Plugin URI: https://github.com/yourusername/elementor-site-cloner
  * Description: A specialized WordPress multisite plugin for cloning Elementor-based template sites quickly and reliably.
- * Version: 1.0.0
- * Author: Your Name
+ * Version: 1.0.2
+ * Author: Tim Coe
  * License: GPL v2 or later
  * Network: true
  * Text Domain: elementor-site-cloner
@@ -54,7 +54,7 @@ require_once plugin_dir_path( __FILE__ ) . 'includes/class-elementor-handler.php
 require_once plugin_dir_path( __FILE__ ) . 'admin/class-admin-interface.php';
 
 // ALWAYS load debug utility - no fancy conditions
-require_once plugin_dir_path( __FILE__ ) . 'debug-utility.php';
+require_once plugin_dir_path( __FILE__ ) . 'includes/class-debug-utility.php';
 require_once plugin_dir_path( __FILE__ ) . 'includes/class-api-endpoint.php';
 
 // Initialize the plugin
@@ -157,6 +157,9 @@ function esc_handle_ajax_clone() {
     // Build placeholder replacements from form data
     $placeholders = array();
     if (!empty($form_data)) {
+        // Store full form_data for user creation
+        $placeholders['form_data'] = $form_data;
+        
         // Map form fields to placeholders
         if (!empty($form_data['business_name'])) {
             $placeholders['{{company}}'] = $form_data['business_name'];
@@ -193,7 +196,8 @@ function esc_handle_ajax_clone() {
     wp_send_json_success([
         'site_id' => $result['site_id'],
         'site_url' => $result['site_url'],
-        'admin_url' => $result['admin_url']
+        'admin_url' => $result['admin_url'],
+        'client_credentials' => $result['client_credentials'] ?? null
     ]);
 }
 

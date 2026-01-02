@@ -144,22 +144,34 @@ class ESC_Clone_Manager {
             
             // Step 1.5: Create client admin user
             $client_credentials = null;
+            error_log('ESC: Checking for form_data in placeholders. Placeholders keys: ' . implode(', ', array_keys($placeholders ?? [])));
             if (!empty($placeholders) && is_array($placeholders)) {
                 // Check if form_data is nested in placeholders
                 $form_data_for_user = null;
                 if (isset($placeholders['form_data']) && is_array($placeholders['form_data'])) {
                     $form_data_for_user = $placeholders['form_data'];
+                    error_log('ESC: Found form_data in placeholders parameter');
                 } elseif (isset($this->placeholders['form_data']) && is_array($this->placeholders['form_data'])) {
                     $form_data_for_user = $this->placeholders['form_data'];
+                    error_log('ESC: Found form_data in $this->placeholders');
+                } else {
+                    error_log('ESC: form_data not found in placeholders. Available keys: ' . implode(', ', array_keys($placeholders)));
                 }
                 
                 if ($form_data_for_user) {
+                    error_log('ESC: Attempting to create client admin user. Email: ' . ($form_data_for_user['email'] ?? 'not set') . ', Name: ' . ($form_data_for_user['name'] ?? 'not set'));
                     $this->update_log_status('creating_client_user');
                     $client_credentials = $this->create_client_admin_user($new_site_id, $form_data_for_user);
                     if (!$client_credentials) {
                         error_log('ESC: Client admin user creation failed, continuing with clone');
+                    } else {
+                        error_log('ESC: Client admin user created successfully - Username: ' . $client_credentials['username']);
                     }
+                } else {
+                    error_log('ESC: form_data_for_user is empty, skipping user creation');
                 }
+            } else {
+                error_log('ESC: Placeholders is empty or not an array');
             }
             
             // Step 2: Clone database
@@ -292,12 +304,16 @@ class ESC_Clone_Manager {
      * Returns array with username, password, email, user_id, or null if creation fails
      */
     private function create_client_admin_user($site_id, $form_data) {
+        error_log('ESC: create_client_admin_user called. Site ID: ' . $site_id . ', Form data keys: ' . implode(', ', array_keys($form_data ?? [])));
+        
         // Get email - prefer contact email, fallback to business email
         $email = !empty($form_data['email']) ? sanitize_email($form_data['email']) : 
                  (!empty($form_data['business_email']) ? sanitize_email($form_data['business_email']) : '');
         
+        error_log('ESC: Email extracted: ' . ($email ? $email : 'EMPTY'));
+        
         if (empty($email)) {
-            error_log('ESC: Cannot create client admin user - no email provided');
+            error_log('ESC: Cannot create client admin user - no email provided. Form data: ' . print_r($form_data, true));
             return null;
         }
         

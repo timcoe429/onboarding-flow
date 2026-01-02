@@ -92,7 +92,6 @@
 
     <div class="info-section">
         <p>The amount paid is only refundable if we have not fulfilled our obligations to deliver the work required under the agreement. The total paid is not refundable if the development work has been started and you terminate the contract or work through no fault of ours, or if you accept ownership of the project transferred to you.</p>
-        <p>Once you upgrade to WebsiteVIP, our team can make edits to your website for you as included in the plan.</p>
     </div>
 </div>
 ';

@@ -368,6 +368,49 @@
             
             currentStepEl.find('.error, .field-error, .validation-summary').removeClass('error').remove();
         
+            // Helper function to get field label (handles both .form-field and .dumpster-field containers)
+            function getFieldLabel($field) {
+                // Try .dumpster-field first (for dynamic dumpster fields)
+                let $container = $field.closest('.dumpster-field');
+                if ($container.length) {
+                    const label = $container.find('label').first().text().replace('*', '').trim();
+                    if (label) return label;
+                }
+                
+                // Fall back to .form-field
+                $container = $field.closest('.form-field');
+                if ($container.length) {
+                    const label = $container.find('label').first().text().replace('*', '').trim();
+                    if (label) return label;
+                }
+                
+                // Fallback: use placeholder or name attribute
+                const placeholder = $field.attr('placeholder');
+                if (placeholder) return placeholder;
+                
+                const name = $field.attr('name');
+                if (name) {
+                    // Convert field name to readable label
+                    return name.replace(/dumpster_/g, '').replace(/_/g, ' ').replace(/\[]/g, '').replace(/\b\w/g, l => l.toUpperCase());
+                }
+                
+                return 'Required field';
+            }
+            
+            // Helper function to find error container (handles both .dumpster-field and .form-field)
+            function getErrorContainer($field) {
+                // Try .dumpster-field first
+                let $container = $field.closest('.dumpster-field');
+                if ($container.length) return $container;
+                
+                // Fall back to .form-field
+                $container = $field.closest('.form-field');
+                if ($container.length) return $container;
+                
+                // Final fallback: use field's parent
+                return $field.parent();
+            }
+            
             // Group required checkboxes by name to handle checkbox groups correctly
             const checkboxGroups = {};
             const otherRequiredFields = [];
@@ -394,26 +437,30 @@
                 
                 if (!atLeastOneChecked) {
                     valid = false;
-                    const $formField = group[0].closest('.form-field');
-                    const fieldLabel = $formField.find('label').first().text().replace('*', '').trim();
+                    const fieldLabel = getFieldLabel(group[0]);
                     if (errors.indexOf(fieldLabel) === -1) errors.push(fieldLabel);
-                    $formField.addClass('error');
+                    const $errorContainer = getErrorContainer(group[0]);
+                    $errorContainer.addClass('error');
                 }
             });
             
             // Validate other required fields (radio, text, single checkboxes, etc.)
             otherRequiredFields.forEach(function($field) {
-                const $formField = $field.closest('.form-field');
-                const fieldLabel = $formField.find('label').first().text().replace('*', '').trim();
+                const fieldLabel = getFieldLabel($field);
+                const $errorContainer = getErrorContainer($field);
 
                 if ($field.is(':radio') && !$(`input[name="${$field.attr('name')}"]:checked`).length) {
                     valid = false;
                     if (errors.indexOf(fieldLabel) === -1) errors.push(fieldLabel);
-                    $formField.addClass('error');
+                    $errorContainer.addClass('error');
                 } else if (!$field.is(':radio, :checkbox') && (!$field.val() || $field.val().trim() === '')) {
                     valid = false;
                     if (errors.indexOf(fieldLabel) === -1) errors.push(fieldLabel);
-                    $formField.addClass('error').append('<div class="field-error">This field is required</div>');
+                    $errorContainer.addClass('error');
+                    // Only add inline error if it doesn't already exist
+                    if (!$errorContainer.find('.field-error').length) {
+                        $errorContainer.append('<div class="field-error">This field is required</div>');
+                    }
                 }
             });
 
@@ -424,7 +471,7 @@
         }
 
         // --- DYNAMIC FIELD LOGIC ---
-        form.on('change input', '.form-field.error', function() {
+        form.on('change input', '.form-field.error, .dumpster-field.error', function() {
             $(this).removeClass('error').find('.field-error').remove();
         });
 

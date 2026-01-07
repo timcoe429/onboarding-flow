@@ -644,7 +644,7 @@ class DocketTrelloSync {
             $desc .= "Password: {$creds['password']}\n";
             $desc .= "Email: {$creds['email']}\n";
             if (!empty($project_data['new_site_url'])) {
-                $desc .= "Login URL: {$project_data['new_site_url']}wp-admin\n";
+                $desc .= "Login URL: {$project_data['new_site_url']}/wp-admin\n";
             }
             $desc .= "\n";
         }

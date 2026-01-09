@@ -266,6 +266,17 @@ function docket_handle_any_form_submission($form_type = 'generic') {
              (isset($_POST['docket_nonce']) ? $_POST['docket_nonce'] : ''));
     
     if (!$nonce || !wp_verify_nonce($nonce, 'docket_onboarding_nonce')) {
+        // Log the failure with diagnostic information
+        docket_log_error('Nonce verification failed', [
+            'nonce_received' => !empty($nonce) ? 'yes' : 'no',
+            'nonce_length' => !empty($nonce) ? strlen($nonce) : 0,
+            'form_type' => $form_type,
+            'post_keys' => array_keys($_POST),
+            'user_ip' => $_SERVER['REMOTE_ADDR'] ?? 'unknown',
+            'action' => $_POST['action'] ?? 'unknown',
+            'referer' => $_SERVER['HTTP_REFERER'] ?? 'unknown'
+        ]);
+        
         wp_send_json_error(array('message' => 'Security check failed'));
         wp_die();
         return; // Explicit return to prevent further execution in tests

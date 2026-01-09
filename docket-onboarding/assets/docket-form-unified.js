@@ -268,7 +268,12 @@
             
             const formData = new FormData(form[0]);
             formData.append('action', formConfig.actionName);
-            formData.append('nonce', form.find('input[name="nonce"]').val());
+            
+            // Get nonce with fallback - try form field first, then window.docket_ajax.nonce
+            const nonceValue = form.find('input[name="nonce"]').val() || 
+                               (window.docket_ajax && window.docket_ajax.nonce) || 
+                               '';
+            formData.append('nonce', nonceValue);
             formData.append('current_page_url', window.location.href);
 
             $.ajax({

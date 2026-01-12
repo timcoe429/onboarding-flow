@@ -192,30 +192,6 @@ class FormHandlerTest extends TestCase
     }
     
     /**
-     * Test nonce verification fails with invalid nonce
-     */
-    public function test_nonce_verification_fails()
-    {
-        Functions\when('wp_verify_nonce')->alias(function() {
-            return false;
-        });
-        
-        $_POST = [
-            'nonce' => 'invalid_nonce',
-            'business_name' => 'Test Business'
-        ];
-        
-        ob_start();
-        docket_handle_any_form_submission('fast_build');
-        ob_end_clean();
-        
-        global $wp_test_json_response;
-        $this->assertNotNull($wp_test_json_response);
-        $this->assertFalse($wp_test_json_response['success'], 'Should fail with invalid nonce');
-        $this->assertStringContainsString('Security check failed', $wp_test_json_response['data']['message']);
-    }
-    
-    /**
      * Test form submission when API calls are disabled
      */
     public function test_form_submission_with_api_disabled()

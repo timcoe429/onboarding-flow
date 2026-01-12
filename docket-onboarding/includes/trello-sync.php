@@ -989,6 +989,26 @@ class DocketTrelloSync {
             $labels_to_add[] = 'Fast Build';
         }
         
+        // Junk Removal label
+        $services_offered = $project_data['services_offered'] ?? array();
+        $junk_removal_services = $project_data['junk_removal'] ?? array();
+        
+        $has_junk_removal = false;
+        if (is_array($services_offered)) {
+            foreach ($services_offered as $service) {
+                if (stripos($service, 'junk removal') !== false) {
+                    $has_junk_removal = true;
+                    break;
+                }
+            }
+        }
+        if (!$has_junk_removal && !empty($junk_removal_services) && is_array($junk_removal_services)) {
+            $has_junk_removal = true;
+        }
+        if ($has_junk_removal) {
+            $labels_to_add[] = 'Junk Removal DKS';
+        }
+        
         // Add each label to the card
         foreach ($labels_to_add as $label_name) {
             $label_id = $this->find_label_id($labels, $label_name);

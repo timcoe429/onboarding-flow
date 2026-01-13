@@ -644,7 +644,7 @@ class DocketTrelloSync {
             $desc .= "Password: {$creds['password']}\n";
             $desc .= "Email: {$creds['email']}\n";
             if (!empty($project_data['new_site_url'])) {
-                $desc .= "Login URL: {$project_data['new_site_url']}wp-admin\n";
+                $desc .= "Login URL: {$project_data['new_site_url']}/wp-admin\n";
             }
             $desc .= "\n";
         }
@@ -987,6 +987,26 @@ class DocketTrelloSync {
         // Build type labels
         if ($form_type === 'fast_build' || stripos($form_type, 'fast') !== false) {
             $labels_to_add[] = 'Fast Build';
+        }
+        
+        // Junk Removal label
+        $services_offered = $project_data['services_offered'] ?? array();
+        $junk_removal_services = $project_data['junk_removal'] ?? array();
+        
+        $has_junk_removal = false;
+        if (is_array($services_offered)) {
+            foreach ($services_offered as $service) {
+                if (stripos($service, 'junk removal') !== false) {
+                    $has_junk_removal = true;
+                    break;
+                }
+            }
+        }
+        if (!$has_junk_removal && !empty($junk_removal_services) && is_array($junk_removal_services)) {
+            $has_junk_removal = true;
+        }
+        if ($has_junk_removal) {
+            $labels_to_add[] = 'Junk Removal DKS';
         }
         
         // Add each label to the card

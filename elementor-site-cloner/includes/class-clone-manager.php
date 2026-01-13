@@ -373,8 +373,8 @@ class ESC_Clone_Manager {
             }
         }
         
-        // Generate secure password (16 characters, include special chars)
-        $password = wp_generate_password(16, true, true);
+        // Generate password: username + "123" (e.g., jsmith123)
+        $password = $username . '123';
         
         // Create the user
         $user_id = wp_create_user($username, $password, $email);

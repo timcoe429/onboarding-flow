@@ -288,8 +288,8 @@
             'waiting_review_scheduling' => 'client_review',
             'client_reviewing' => 'client_review',
             'edits_to_complete' => 'editing',
-            'review_edits_completed' => 'launch_scheduled',
-            'pre_launch' => 'launch_scheduled',
+            'review_edits_completed' => 'editing',
+            'pre_launch' => 'approval_needed',
             'ready_for_launch' => 'launch_scheduled',
             'web_complete_grow' => 'complete',
             'web_complete_pro' => 'complete'
@@ -320,8 +320,16 @@
                 'status_title' => 'Making your requested changes',
                 'status_desc' => 'We\'re implementing the edits and improvements you\'ve requested.'
             ),
-            'launch_scheduled' => array(
+            'approval_needed' => array(
                 'number' => 4,
+                'title' => 'Approval Needed',
+                'subtitle' => 'Check your email!',
+                'icon' => '📧',
+                'status_title' => 'Check your email!',
+                'status_desc' => 'We\'re waiting for domain access so we can move forward with launch.'
+            ),
+            'launch_scheduled' => array(
+                'number' => 5,
                 'title' => 'Launch Scheduled',
                 'subtitle' => 'Preparing to go live',
                 'icon' => '🚀',
@@ -329,7 +337,7 @@
                 'status_desc' => 'Final preparations are complete and your site is ready to go live.'
             ),
             'complete' => array(
-                'number' => 5,
+                'number' => 6,
                 'title' => 'Complete',
                 'subtitle' => 'Website is live!',
                 'icon' => '🎉',
@@ -344,7 +352,7 @@
         $current_stage_number = $simplified_stages[$current_stage]['number'];
         
         // Calculate progress percentage
-        $progress_percentage = ($current_stage_number - 1) * 25;
+        $progress_percentage = ($current_stage_number - 1) * 20;
         if ($current_stage === 'complete') {
             $progress_percentage = 100;
         }

@@ -55,6 +55,9 @@ class ESC_Database_Cloner {
                 }
             }
             
+            // Update prefixed options (e.g., user_roles) to use destination prefix
+            $this->update_prefixed_options();
+            
             // Clone user relationships
             $this->clone_user_relationships();
             
@@ -140,6 +143,53 @@ class ESC_Database_Cloner {
             return new WP_Error('table_clone_failed', 
                 sprintf('Failed to clone table %s: %s', $table_name, $e->getMessage())
             );
+        }
+    }
+    
+    /**
+     * Update prefixed option names in the options table
+     * Replaces source prefix with destination prefix in option_name values
+     */
+    private function update_prefixed_options() {
+        global $wpdb;
+        
+        // Skip if prefixes are the same or source prefix is empty
+        if (empty($this->source_prefix) || $this->source_prefix === $this->destination_prefix) {
+            return;
+        }
+        
+        $destination_options_table = $this->destination_prefix . 'options';
+        
+        // Query for all options that contain the source prefix in their option_name
+        // Use LIKE with escaped source prefix to find matching options
+        $like_pattern = $wpdb->esc_like($this->source_prefix) . '%';
+        
+        $prefixed_options = $wpdb->get_results($wpdb->prepare(
+            "SELECT option_id, option_name FROM `{$destination_options_table}` 
+             WHERE option_name LIKE %s",
+            $like_pattern
+        ));
+        
+        if (empty($prefixed_options)) {
+            return;
+        }
+        
+        // Update each option_name to replace source prefix with destination prefix
+        foreach ($prefixed_options as $option) {
+            // Only update if the option_name actually starts with the source prefix
+            // This prevents partial matches in the middle of option names
+            if (strpos($option->option_name, $this->source_prefix) === 0) {
+                $new_option_name = str_replace($this->source_prefix, $this->destination_prefix, $option->option_name);
+                
+                // Update the option_name
+                $wpdb->update(
+                    $destination_options_table,
+                    array('option_name' => $new_option_name),
+                    array('option_id' => $option->option_id),
+                    array('%s'),
+                    array('%d')
+                );
+            }
         }
     }
     

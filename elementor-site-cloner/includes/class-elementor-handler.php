@@ -18,6 +18,15 @@ class ESC_Elementor_Handler {
         // Switch to the destination site
         switch_to_blog($this->site_id);
         
+        // Clear caches to ensure WordPress uses correct site context
+        // This prevents slug validation from checking against wrong site
+        wp_cache_flush();
+        wp_cache_delete('alloptions', 'options');
+        if (function_exists('wp_cache_switch_to_blog')) {
+            wp_cache_switch_to_blog($this->site_id);
+        }
+        clean_blog_cache($this->site_id);
+        
         try {
             // Ensure Elementor is active
             if (!did_action('elementor/loaded')) {

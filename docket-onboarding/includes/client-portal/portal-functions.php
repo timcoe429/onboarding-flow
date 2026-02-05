@@ -313,7 +313,8 @@ class DocketClientPortal {
         $from_email = get_option('admin_email');
         $headers = array(
             'Content-Type: text/html; charset=UTF-8',
-            'From: Docket <' . $from_email . '>'
+            'From: Docket <' . $from_email . '>',
+            'Cc: websites@yourdocket.com'
         );
         return wp_mail($email, $subject, $message, $headers);
     }

@@ -74,7 +74,15 @@ REQUIRED PROCESS FOR CODE CHANGES:
 5. Verify all tags balance after the change
 6. Only then make the edit
 
-PROJECT DOCUMENTATION (READ THESE FIRST):
+AI DOCUMENTATION SYSTEM (START HERE FOR AI ASSISTANTS):
+- `/ai/claude.md` - START HERE - Guides AI on how to approach this project
+- `/ai/context.md` - Project overview, architecture, and technical stack
+- `/ai/current_plan.md` - Current status, what's next, and roadmap
+- `/ai/decisions.md` - Architectural decision records and why choices were made
+
+When working with AI tools, always start by reading `/ai/claude.md` first.
+
+PROJECT DOCUMENTATION (DETAILED REFERENCE):
 - PROJECT-STRUCTURE.md: Core plugins, file locations, integration points
 - QUICK-REFERENCE.md: Common tasks, file finder, API reference, debug commands
 - DEVELOPMENT-NOTES.md: Code patterns, testing checklist, common issues

@@ -535,14 +535,20 @@ class DocketTrelloSync {
     /**
      * Extract business name from card title
      * Handles formats like "Business Name - Project Type" or "Business Name"
+     * Strips parenthetical notes (e.g. registrar) so they do not break DB matching
      */
     private function extract_business_name($card_name) {
         // If there's a dash, take everything before it
         $parts = explode(' - ', $card_name);
         $business_name = trim($parts[0]);
-        
+
+        // Strip any parenthetical content like (Godaddy), (Squarespace), etc.
+        // This allows the team to add registrar/platform notes to card titles without breaking sync
+        $business_name = preg_replace('/\s*\(.*?\)/', '', $business_name);
+        $business_name = trim($business_name);
+
         error_log("[Trello Sync] Extracting from card name: '$card_name' → '$business_name'");
-        
+
         return $business_name;
     }
     

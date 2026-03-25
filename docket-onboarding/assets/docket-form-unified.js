@@ -46,6 +46,7 @@
         const storageKey = formConfig.formType + 'Step';
         const formDataKey = formConfig.formType + 'FormData';
         let currentStep = parseInt(sessionStorage.getItem(storageKey)) || 1;
+        // Submission in-flight flag: stored on form via jQuery .data('submitting') in submit handler
 
         // --- FORM DATA PERSISTENCE (Phase 1: Simple Fields Only) ---
         // Save form data to localStorage (excludes file inputs)
@@ -224,7 +225,12 @@
         form.on('click', '.btn-submit', function(e) {
             e.preventDefault();
             console.log('--- FORM SUBMIT BUTTON CLICKED ---');
-            
+
+            if (form.data('submitting')) {
+                console.log('Already submitting, ignoring duplicate click');
+                return false;
+            }
+
             // Find the active step to ensure we have the right step number
             const activeStep = form.find('.form-step.active');
             if (activeStep.length) {
@@ -264,6 +270,9 @@
             
             console.log('All steps validated. Proceeding with submission.');
 
+            form.data('submitting', true);
+            form.find('.btn-submit').prop('disabled', true);
+
             showProcessingScreen();
             
             const formData = new FormData(form[0]);
@@ -300,6 +309,8 @@
                                 form.closest('.docket-fast-form, .docket-standard-form, .docket-vip-form').find('.form-success').show();
                             }
                         } else {
+                            form.data('submitting', false);
+                            form.find('.btn-submit').prop('disabled', false);
                             hideProcessingScreen();
                             alert('Submission Error: ' + (response && response.data && response.data.message ? response.data.message : 'An unknown error occurred.'));
                         }
@@ -307,6 +318,8 @@
                 },
                 error: function(xhr, status, error) {
                     console.error('AJAX Error:', { status: status, error: error, xhr: xhr });
+                    form.data('submitting', false);
+                    form.find('.btn-submit').prop('disabled', false);
                     hideProcessingScreen();
                     alert('Connection Error. Please check your internet and try again.');
                 }

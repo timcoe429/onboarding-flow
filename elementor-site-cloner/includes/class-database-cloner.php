@@ -93,6 +93,13 @@ class ESC_Database_Cloner {
                 continue;
             }
             
+            // Skip tables that belong to other sites (nested prefixes)
+            // e.g. if source prefix is wp_ds_2_, skip wp_ds_2_wp_ds_255_posts
+            // because the remaining table name "wp_ds_255_posts" contains another site prefix
+            if (preg_match('/^wp_ds_\d+_/', $table_name)) {
+                continue;
+            }
+            
             $tables[] = $table_name;
         }
         

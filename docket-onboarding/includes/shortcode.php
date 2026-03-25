@@ -45,7 +45,7 @@ function docket_onboarding_render_shortcode($atts) {
             
             <div class="docket-header">
                 <h1>Which Docket Plan Do You Have?</h1>
-                <p><em>Hint: You can check your billing if you are unsure. GROW plans are $200/per technician, and PRO plans are $250/per technician.</em></p>
+                <p><em>Pro Plans includes Pro and Pro Plus.</em></p>
             </div>
 
             <div class="docket-progress-container">
@@ -70,7 +70,7 @@ function docket_onboarding_render_shortcode($atts) {
                 <div class="docket-plan-card pro">
                     <div class="docket-plan-badge">+ Local SEO</div>
                     <div class="docket-plan-icon">P</div>
-                    <h2 class="docket-plan-title">Pro</h2>
+                    <h2 class="docket-plan-title">Pro Plans</h2>
                     <ul class="docket-plan-features">
                         <li>Professional Website Design</li>
                         <li>Responsive Layout</li>

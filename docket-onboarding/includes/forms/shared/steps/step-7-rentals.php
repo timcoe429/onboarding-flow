@@ -69,6 +69,10 @@
                 <input type="checkbox" name="services_offered[]" value="Dumpster Rentals & Junk Removal">
                 <span>Dumpster Rentals & Junk Removal</span>
             </label>
+            <label class="checkbox-card">
+                <input type="checkbox" name="services_offered[]" value="Commercial & Residential Waste">
+                <span>Commercial & Residential Waste</span>
+            </label>
         </div>
     </div>
     

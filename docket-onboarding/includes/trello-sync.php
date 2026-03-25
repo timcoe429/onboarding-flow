@@ -1015,6 +1015,19 @@ class DocketTrelloSync {
             $labels_to_add[] = 'Junk Removal DKS';
         }
         
+        $has_cr_waste = false;
+        if (is_array($services_offered)) {
+            foreach ($services_offered as $service) {
+                if (strcasecmp(trim((string) $service), 'Commercial & Residential Waste') === 0) {
+                    $has_cr_waste = true;
+                    break;
+                }
+            }
+        }
+        if ($has_cr_waste) {
+            $labels_to_add[] = 'C&R Waste';
+        }
+        
         // Add each label to the card
         foreach ($labels_to_add as $label_name) {
             $label_id = $this->find_label_id($labels, $label_name);

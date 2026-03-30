@@ -100,7 +100,6 @@ WordPress plugin that powers multi-step onboarding forms for Docket's website de
 
 ## Team
 - **Tim**: Project lead, handles technical implementation and testing
-- **Kayla**: Team member, collaborates on features and testing
 
 ## Current Focus Areas
 - WordPress cache issues during multisite context switching

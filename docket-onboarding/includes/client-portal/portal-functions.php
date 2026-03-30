@@ -299,7 +299,7 @@ class DocketClientPortal {
                     <li>Your website goes live! 🚀</li>
                 </ol>
                 
-                <p>Questions? Email <a href="mailto:Kayla.millie@servicecore.com">Kayla.millie@servicecore.com</a></p>
+                <p>Questions? Email <a href="mailto:websites@yourdocket.com">websites@yourdocket.com</a></p>
                 
                 <p>For software or Docketshop questions please reach out to your implementation manager.</p>
                 

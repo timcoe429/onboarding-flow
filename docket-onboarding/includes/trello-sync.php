@@ -1018,7 +1018,7 @@ class DocketTrelloSync {
         $has_cr_waste = false;
         if (is_array($services_offered)) {
             foreach ($services_offered as $service) {
-                if (strcasecmp(trim((string) $service), 'Commercial & Residential Waste') === 0) {
+                if (strcasecmp(trim((string) $service), 'Commercial & Residential Trash Collection (weekly recurring)') === 0) {
                     $has_cr_waste = true;
                     break;
                 }

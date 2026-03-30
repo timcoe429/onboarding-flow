@@ -70,8 +70,8 @@
                 <span>Dumpster Rentals & Junk Removal</span>
             </label>
             <label class="checkbox-card">
-                <input type="checkbox" name="services_offered[]" value="Commercial & Residential Waste">
-                <span>Commercial & Residential Waste</span>
+                <input type="checkbox" name="services_offered[]" value="Commercial & Residential Trash Collection (weekly recurring)">
+                <span>Commercial & Residential Trash Collection (weekly recurring)</span>
             </label>
         </div>
     </div>

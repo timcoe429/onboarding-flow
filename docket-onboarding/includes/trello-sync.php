@@ -987,7 +987,7 @@ class DocketTrelloSync {
             $labels_to_add[] = 'Pro';
         }
         if (stripos($management, 'vip') !== false || $form_type === 'website_vip') {
-            $labels_to_add[] = 'WebsiteVIP';
+            $labels_to_add[] = 'Website VIP';
         }
         
         // Build type labels

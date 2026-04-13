@@ -82,7 +82,7 @@
 
     <div class="info-section">
         <h5>Review Period</h5>
-        <p>Once your revision round is done (You have 3 full days to fully review the site and add in any changes you see within the scope and theme that you selected) we will make the changes you request that are within the scope we can provide, and then your website will be ready to be pushed live. <strong>Once your website is live, you\'ll be on our WebsiteVIP plan where our team manages edits to your website.</strong></p>
+        <p>Once your revision round is done (You have 3 full days to fully review the site and add in any changes you see within the scope and theme that you selected) we will make the changes you request that are within the scope we can provide, and then your website will be ready to be pushed live. <strong>Once your website is live, you\'ll be on our Website VIP plan where our team manages edits to your website.</strong></p>
     </div>
 
     <div class="info-section">
@@ -123,7 +123,7 @@
 
     <div class="info-section">
         <h5>Revisions to Template</h5>
-        <p>We limit revisions to 1 round. You have 3 full days to review and request changes within scope. Your website is self-managed post-launch unless you upgrade to WebsiteVIP.</p>
+        <p>We limit revisions to 1 round. You have 3 full days to review and request changes within scope. Your website is self-managed post-launch unless you upgrade to Website VIP.</p>
     </div>
 
     <div class="info-section">

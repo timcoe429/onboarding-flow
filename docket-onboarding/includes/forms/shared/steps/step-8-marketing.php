@@ -59,7 +59,7 @@
                         <?php if ($form_type === 'website-vip'): ?>
                             I would be interested in information on Docket's digital marketing services in the future
                         <?php else: ?>
-                            I'd like to learn more about your marketing services like WebsiteVIP and Advanced SEO
+                            I'd like to learn more about your marketing services like Website VIP and Advanced SEO
                         <?php endif; ?>
                     </span>
                 </div>

@@ -163,8 +163,8 @@ class FormLoadingTest extends TestCase
         $this->assertTrue($wp_test_json_response['success'], 'Response should be successful');
         $this->assertArrayHasKey('form_html', $wp_test_json_response['data'], 'Response should contain form_html');
         $this->assertNotEmpty($wp_test_json_response['data']['form_html'], 'Form HTML should not be empty');
-        $this->assertArrayHasKey('css_url', $wp_test_json_response['data'], 'WebsiteVIP should include css_url');
-        $this->assertArrayHasKey('js_url', $wp_test_json_response['data'], 'WebsiteVIP should include js_url');
+        $this->assertArrayHasKey('css_url', $wp_test_json_response['data'], 'Website VIP should include css_url');
+        $this->assertArrayHasKey('js_url', $wp_test_json_response['data'], 'Website VIP should include js_url');
     }
     
     /**
@@ -302,7 +302,7 @@ class FormLoadingTest extends TestCase
         $this->assertIsArray($vipConfig);
         $this->assertEquals('websiteVipForm', $vipConfig['form_id']);
         $this->assertEquals(8, count($vipConfig['steps']));
-        $this->assertEquals('WebsiteVIP', $vipConfig['management_type_value']);
+        $this->assertEquals('Website VIP', $vipConfig['management_type_value']);
     }
     
     /**

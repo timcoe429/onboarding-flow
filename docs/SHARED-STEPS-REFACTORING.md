@@ -36,7 +36,7 @@ The following steps are now shared across all form types:
 **Form-Specific Differences:**
 - Fast Build: Shows WordPress Experience section, different modal content
 - Standard Build: Standard terms modal
-- Website VIP: WebsiteVIP-specific modal content
+- Website VIP: Website VIP-specific modal content
 
 **Field Names:** Standardized to `accept_terms` (Fast Build uses `value="accepted"`)
 
@@ -66,7 +66,7 @@ The following steps are now shared across all form types:
 **Content Differences:**
 - Fast Build: Fast Build-specific limitations and timeline
 - Standard Build: Standard build information
-- Website VIP: WebsiteVIP-specific benefits and terms
+- Website VIP: Website VIP-specific benefits and terms
 
 ---
 
@@ -423,7 +423,7 @@ When reviewing this refactoring, please test:
 - [ ] Step 5: Content form appears (not service areas)
 - [ ] Step 6: Branding form shows/hides correctly (color always visible, with font selection)
 - [ ] Step 7: Rentals form works
-- [ ] Step 8: Marketing form (with social media/reviews sections, WebsiteVIP-specific sub-text)
+- [ ] Step 8: Marketing form (with social media/reviews sections, Website VIP-specific sub-text)
 - [ ] Form submission works end-to-end
 
 ### Cross-Cutting Tests

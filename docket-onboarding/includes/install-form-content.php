@@ -136,7 +136,7 @@ $default_content = array(
         
         <div class="terms-section">
             <h5>Post-Launch Services</h5>
-            <p>After launch, website access for editing and Rank Math SEO plugin configuration is shared. If you\'d like to have the Docket Team work on your website, you\'ll need to upgrade to the WebsiteVIP plan.</p>
+            <p>After launch, website access for editing and Rank Math SEO plugin configuration is shared. If you\'d like to have the Docket Team work on your website, you\'ll need to upgrade to the Website VIP plan.</p>
         </div>
     </div>
 </div>'),
@@ -160,7 +160,7 @@ $default_content = array(
 
     <div class="info-section">
         <h5>Revisions to Template</h5>
-        <p>We limit revisions to 1 round. You have 3 full days to review and request changes within scope. Your website is self-managed post-launch unless you upgrade to WebsiteVIP.</p>
+        <p>We limit revisions to 1 round. You have 3 full days to review and request changes within scope. Your website is self-managed post-launch unless you upgrade to Website VIP.</p>
     </div>
 
     <div class="info-section">
@@ -170,13 +170,13 @@ $default_content = array(
 </div>'),
     
     // Website VIP - Step 1
-    array('website-vip', 1, 'content', '<h2>Website with WebsiteVIP Terms & Conditions</h2>
-<p>Please review and accept our terms for your WordPress experience with WebsiteVIP.</p>
+    array('website-vip', 1, 'content', '<h2>Website with Website VIP Terms & Conditions</h2>
+<p>Please review and accept our terms for your WordPress experience with Website VIP.</p>
 
 <div class="terms-box">
     <div class="terms-content">
         <div class="terms-section">
-            <h5>What You\'re Getting with WebsiteVIP</h5>
+            <h5>What You\'re Getting with Website VIP</h5>
             <p>A professionally designed WordPress website built specifically for dumpster rental and junk removal businesses, with ongoing management by the Docket team for $299/month. You will not receive edit access to your website once it launches.</p>
         </div>
         
@@ -196,12 +196,12 @@ $default_content = array(
         </div>
         
         <div class="terms-section">
-            <h5>WebsiteVIP Benefits</h5>
+            <h5>Website VIP Benefits</h5>
             <ul>
                 <li>Completely managed by the Docket Team</li>
                 <li>Unlimited edits</li>
                 <li>AI Chat Bot, On-Page SEO, Location Pages, Analytics, and more</li>
-                <li>You\'ll be contacted to discuss the WebsiteVIP plan upgrade after you submit this form</li>
+                <li>You\'ll be contacted to discuss the Website VIP plan upgrade after you submit this form</li>
             </ul>
         </div>
     </div>
@@ -231,7 +231,7 @@ $default_content = array(
 
     <div class="info-section">
         <h5>Review Period</h5>
-        <p>Once your revision round is done (You have 3 full days to fully review the site and add in any changes you see within the scope and theme that you selected) we will make the changes you request that are within the scope we can provide, and then your website will be ready to be pushed live. <strong>Once your website is live, you\'ll be on our WebsiteVIP plan where our team manages edits to your website.</strong></p>
+        <p>Once your revision round is done (You have 3 full days to fully review the site and add in any changes you see within the scope and theme that you selected) we will make the changes you request that are within the scope we can provide, and then your website will be ready to be pushed live. <strong>Once your website is live, you\'ll be on our Website VIP plan where our team manages edits to your website.</strong></p>
     </div>
 
     <div class="info-section">
@@ -241,7 +241,7 @@ $default_content = array(
 
     <div class="info-section">
         <p>The amount paid is only refundable if we have not fulfilled our obligations to deliver the work required under the agreement. The total paid is not refundable if the development work has been started and you terminate the contract or work through no fault of ours, or if you accept ownership of the project transferred to you.</p>
-        <p>Once you upgrade to WebsiteVIP, our team can make edits to your website for you as included in the plan.</p>
+        <p>Once you upgrade to Website VIP, our team can make edits to your website for you as included in the plan.</p>
     </div>
 </div>')
 );

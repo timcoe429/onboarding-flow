@@ -10,6 +10,21 @@ if (!defined('ABSPATH')) {
 }
 
 /**
+ * Normalize legacy plan name spellings in stored HTML (VIPD typo, one-word WebsiteVIP).
+ *
+ * @param string $text Raw HTML or plain text.
+ * @return string
+ */
+function docket_normalize_website_vip_branding($text) {
+    if ($text === '' || $text === null) {
+        return $text;
+    }
+    $text = str_replace('WebsiteVIPD', 'Website VIP', $text);
+    $text = str_replace('WebsiteVIP', 'Website VIP', $text);
+    return $text;
+}
+
+/**
  * Get form content from the database
  * 
  * @param string $form_type The form type (fast-build, standard-build, website-vip)
@@ -31,10 +46,10 @@ function docket_get_form_content($form_type, $step_number, $content_key, $defaul
     
     // Remove extra slashes
     if ($result !== null) {
-        return stripslashes($result);
+        return docket_normalize_website_vip_branding(stripslashes($result));
     }
-    
-    return $default;
+
+    return docket_normalize_website_vip_branding($default);
 }
 
 /**
@@ -57,9 +72,9 @@ function docket_get_step_content($form_type, $step_number) {
     
     $content = array();
     foreach ($results as $result) {
-        $content[$result['content_key']] = $result['content_value'];
+        $content[$result['content_key']] = docket_normalize_website_vip_branding(stripslashes($result['content_value']));
     }
-    
+
     return $content;
 }
 

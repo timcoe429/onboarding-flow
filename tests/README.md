@@ -63,7 +63,7 @@ vendor/bin/phpunit --filter test_fast_build_form_loads_successfully
 ✅ All three form types load via AJAX  
 ✅ Unified handler works for all types  
 ✅ Form HTML is generated correctly  
-✅ WebsiteVIP returns CSS/JS URLs  
+✅ Website VIP returns CSS/JS URLs  
 ✅ Invalid form types are rejected  
 ✅ Nonce verification works  
 

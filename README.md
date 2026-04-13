@@ -15,7 +15,7 @@ A WordPress plugin that provides a multi-step onboarding flow for Docket website
 This plugin creates a smooth onboarding experience for customers to:
 - Select between Grow and Pro website plans
 - Complete a pre-build checklist
-- Choose management options (Self-managed or WebsiteVIP)
+- Choose management options (Self-managed or Website VIP)
 - Select build type (Fast Build 3-day or Standard Build 21-30 day)
 - Fill out comprehensive order forms
 

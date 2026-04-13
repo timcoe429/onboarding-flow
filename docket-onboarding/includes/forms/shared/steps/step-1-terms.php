@@ -57,13 +57,13 @@
             
         case 'website-vip':
             $default_content = '
-<h2>Website with WebsiteVIP Terms & Conditions</h2>
-<p>Please review and accept our terms for your WordPress experience with WebsiteVIP.</p>
+<h2>Website with Website VIP Terms & Conditions</h2>
+<p>Please review and accept our terms for your WordPress experience with Website VIP.</p>
 
 <div class="terms-box">
     <div class="terms-content">
         <div class="terms-section">
-            <h5>What You\'re Getting with WebsiteVIP</h5>
+            <h5>What You\'re Getting with Website VIP</h5>
             <p>A professionally designed WordPress website built specifically for dumpster rental and junk removal businesses, with ongoing management by the Docket team for $299/month. You will not receive edit access to your website once it launches.</p>
         </div>
         
@@ -83,12 +83,12 @@
         </div>
         
         <div class="terms-section">
-            <h5>WebsiteVIP Benefits</h5>
+            <h5>Website VIP Benefits</h5>
             <ul>
                 <li>Completely managed by the Docket Team</li>
                 <li>Unlimited edits</li>
                 <li>AI Chat Bot, On-Page SEO, Location Pages, Analytics, and more</li>
-                <li>You\'ll be contacted to discuss the WebsiteVIP plan upgrade after you submit this form</li>
+                <li>You\'ll be contacted to discuss the Website VIP plan upgrade after you submit this form</li>
             </ul>
         </div>
     </div>
@@ -133,7 +133,7 @@
         
         <div class="terms-section">
             <h5>Post-Launch Services</h5>
-            <p>After launch, website access for editing and Rank Math SEO plugin configuration is shared. If you\'d like to have the Docket Team work on your website, you\'ll need to upgrade to the WebsiteVIP plan.</p>
+            <p>After launch, website access for editing and Rank Math SEO plugin configuration is shared. If you\'d like to have the Docket Team work on your website, you\'ll need to upgrade to the Website VIP plan.</p>
         </div>
     </div>
 </div>';

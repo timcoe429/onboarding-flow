@@ -300,7 +300,7 @@
                 buildType: state.selectedBuildType || 'standard'
             };
             
-            console.log('Loading WebsiteVIP form with data:', formData);
+            console.log('Loading Website VIP form with data:', formData);
             
             $.ajax({
                 url: docket_ajax.ajax_url,
@@ -309,7 +309,7 @@
                 dataType: 'json',
                 success: function(response) {
                     hideLoading();
-                    console.log('WebsiteVIP Form Response:', response);
+                    console.log('Website VIP Form Response:', response);
                     
                     if (response && response.success) {
                         // Add white background overlay
@@ -341,10 +341,10 @@
                             if (response.data.js_url) {
                                 $.getScript(response.data.js_url)
                                     .done(function() {
-                                        console.log('WebsiteVIP form JS loaded successfully');
+                                        console.log('Website VIP form JS loaded successfully');
                                     })
                                     .fail(function() {
-                                        console.error('Failed to load WebsiteVIP form JavaScript');
+                                        console.error('Failed to load Website VIP form JavaScript');
                                     });
                             }
                             
@@ -360,13 +360,13 @@
                         const errorMsg = (response && response.data && response.data.message) 
                             ? response.data.message 
                             : 'Unable to load form. Please try again.';
-                        console.error('WebsiteVIP Form Error:', response);
+                        console.error('Website VIP Form Error:', response);
                         showErrorMessage(errorMsg);
                     }
                 },
                 error: function(xhr, status, error) {
                     hideLoading();
-                    console.error('WebsiteVIP Form AJAX Error:', {
+                    console.error('Website VIP Form AJAX Error:', {
                         status: status,
                         error: error,
                         responseText: xhr.responseText,

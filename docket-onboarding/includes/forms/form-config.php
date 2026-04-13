@@ -78,11 +78,11 @@ function docket_get_form_config() {
             ),
             'success_title' => 'Website VIP Order Submitted!',
             'success_message' => 'Thank you! Your Website VIP order has been received.',
-            'success_note' => 'Our team will contact you shortly to discuss your WebsiteVIP plan upgrade and next steps.',
+            'success_note' => 'Our team will contact you shortly to discuss your Website VIP plan upgrade and next steps.',
             'action_name' => 'docket_submit_website_vip_form',
             'plan_type_format' => 'ucfirst', // Use ucfirst($plan_type)
-            'management_type_format' => 'fixed', // Always use "WebsiteVIP"
-            'management_type_value' => 'WebsiteVIP', // Fixed value for WebsiteVIP
+            'management_type_format' => 'fixed', // Always use "Website VIP"
+            'management_type_value' => 'Website VIP', // Fixed value for Website VIP
         ),
     );
 }

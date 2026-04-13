@@ -62,7 +62,7 @@ function docket_onboarding_render_shortcode($atts) {
                         <li>Professional Website Design</li>
                         <li>Responsive Layout</li>
                         <li>Rank Math SEO Plugin</li>
-                        <li>No changes after launch unless WebsiteVIP upgrade is purchased</li>
+                        <li>No changes after launch unless a Website VIP upgrade is purchased</li>
                     </ul>
                     <button class="docket-plan-btn">Get Started</button>
                 </div>
@@ -76,7 +76,7 @@ function docket_onboarding_render_shortcode($atts) {
                         <li>Responsive Layout</li>
                         <li>Rank Math SEO Plugin</li>
                         <li>Local SEO Blogs Included</li>
-                        <li>No changes after launch unless WebsiteVIP upgraded is purchased</li>
+                        <li>No changes after launch unless a Website VIP upgrade is purchased</li>
                     </ul>
                     <button class="docket-plan-btn">Get Started</button>
                 </div>
@@ -194,15 +194,15 @@ function docket_onboarding_render_shortcode($atts) {
                     <div class="docket-plan-card website-vip">
                         <div class="docket-plan-badge">Recommended</div>
                         <div class="docket-plan-icon">⭐</div>
-                        <h2 class="docket-plan-title">WebsiteVIP</h2>
+                        <h2 class="docket-plan-title">Website VIP</h2>
                         <p class="docket-plan-subtitle"><strong>+$299/month</strong></p>
                         <ul class="docket-plan-features">
                             <li>Completely managed by the Docket Team</li>
                             <li>Unlimited edits</li>
                             <li>AI Chat Bot, On-Page SEO, Location Pages, Analytics, and more</li>
-                            <li><strong>You'll be contacted to discuss the WebsiteVIP plan upgrade after you submit the form on the next page.</strong></li>
+                            <li><strong>You'll be contacted to discuss the Website VIP plan upgrade after you submit the form on the next page.</strong></li>
                         </ul>
-                        <button class="docket-plan-btn">I WANT WEBSITEVIP</button>
+                        <button class="docket-plan-btn">I WANT WEBSITE VIP</button>
                     </div>
                 </div>
             </div>

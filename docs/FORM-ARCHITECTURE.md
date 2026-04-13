@@ -121,7 +121,7 @@ window.docketFormConfig = {
 - **Steps**: 8 steps (step 5 is content)
 - **Timeline**: 21-30 business days
 - **Plan Format**: ucfirst (capitalized)
-- **Management Format**: Fixed to "WebsiteVIP"
+- **Management Format**: Fixed to "Website VIP"
 
 ## Step Files Structure
 

@@ -286,7 +286,7 @@ class FormFlowTest extends TestCase
             'action' => 'docket_submit_website_vip_form',
             'nonce' => 'test_nonce',
             'docket_plan_type' => 'Pro',
-            'docket_management_type' => 'WebsiteVIP',
+            'docket_management_type' => 'Website VIP',
             'docket_build_type' => 'standard',
             'name' => 'Test User',
             'email' => 'test@example.com',

@@ -163,7 +163,7 @@ class Docket_Form_Content_Manager {
                 'form_type' => 'standard-build',
                 'step_number' => 1,
                 'content_key' => 'post_launch_services',
-                'content_value' => 'After launch, website access for editing and Rank Math SEO plugin configuration is shared. If you\'d like to have the Docket Team work on your website, you\'ll need to upgrade to the WebsiteVIP plan.'
+                'content_value' => 'After launch, website access for editing and Rank Math SEO plugin configuration is shared. If you\'d like to have the Docket Team work on your website, you\'ll need to upgrade to the Website VIP plan.'
             ),
             
             // Website VIP - Step 1
@@ -171,13 +171,13 @@ class Docket_Form_Content_Manager {
                 'form_type' => 'website-vip',
                 'step_number' => 1,
                 'content_key' => 'form_title',
-                'content_value' => 'Website with WebsiteVIP Terms & Conditions'
+                'content_value' => 'Website with Website VIP Terms & Conditions'
             ),
             array(
                 'form_type' => 'website-vip',
                 'step_number' => 1,
                 'content_key' => 'form_subtitle',
-                'content_value' => 'Please review and accept our terms for your WordPress experience with WebsiteVIP.'
+                'content_value' => 'Please review and accept our terms for your WordPress experience with Website VIP.'
             ),
             array(
                 'form_type' => 'website-vip',
@@ -201,7 +201,7 @@ class Docket_Form_Content_Manager {
                 'form_type' => 'website-vip',
                 'step_number' => 1,
                 'content_key' => 'vip_benefits',
-                'content_value' => '<li>Completely managed by the Docket Team</li><li>Unlimited edits</li><li>AI Chat Bot, On-Page SEO, Location Pages, Analytics, and more</li><li>You\'ll be contacted to discuss the WebsiteVIP plan upgrade after you submit this form</li>'
+                'content_value' => '<li>Completely managed by the Docket Team</li><li>Unlimited edits</li><li>AI Chat Bot, On-Page SEO, Location Pages, Analytics, and more</li><li>You\'ll be contacted to discuss the Website VIP plan upgrade after you submit this form</li>'
             ),
             
             // Step 3 content for all forms
@@ -289,7 +289,7 @@ class Docket_Form_Content_Manager {
                 'form_type' => 'standard-build',
                 'step_number' => 3,
                 'content_key' => 'revisions',
-                'content_value' => 'We limit revisions to 1 round. You have 3 full days to review and request changes within scope. Your website is self-managed post-launch unless you upgrade to WebsiteVIP.'
+                'content_value' => 'We limit revisions to 1 round. You have 3 full days to review and request changes within scope. Your website is self-managed post-launch unless you upgrade to Website VIP.'
             ),
             array(
                 'form_type' => 'standard-build',
@@ -345,7 +345,7 @@ class Docket_Form_Content_Manager {
                 'form_type' => 'website-vip',
                 'step_number' => 3,
                 'content_key' => 'review_period',
-                'content_value' => 'Once your revision round is done (You have 3 full days to fully review the site and add in any changes you see within the scope and theme that you selected) we will make the changes you request that are within the scope we can provide, and then your website will be ready to be pushed live. <strong>Once your website is live, you\'ll be on our WebsiteVIP plan where our team manages edits to your website.</strong>'
+                'content_value' => 'Once your revision round is done (You have 3 full days to fully review the site and add in any changes you see within the scope and theme that you selected) we will make the changes you request that are within the scope we can provide, and then your website will be ready to be pushed live. <strong>Once your website is live, you\'ll be on our Website VIP plan where our team manages edits to your website.</strong>'
             ),
             array(
                 'form_type' => 'website-vip',
@@ -357,7 +357,7 @@ class Docket_Form_Content_Manager {
                 'form_type' => 'website-vip',
                 'step_number' => 3,
                 'content_key' => 'refund_policy',
-                'content_value' => 'The amount paid is only refundable if we have not fulfilled our obligations to deliver the work required under the agreement. The total paid is not refundable if the development work has been started and you terminate the contract or work through no fault of ours, or if you accept ownership of the project transferred to you. Once you upgrade to WebsiteVIP, our team can make edits to your website for you as included in the plan.'
+                'content_value' => 'The amount paid is only refundable if we have not fulfilled our obligations to deliver the work required under the agreement. The total paid is not refundable if the development work has been started and you terminate the contract or work through no fault of ours, or if you accept ownership of the project transferred to you. Once you upgrade to Website VIP, our team can make edits to your website for you as included in the plan.'
             ),
             array(
                 'form_type' => 'website-vip',
